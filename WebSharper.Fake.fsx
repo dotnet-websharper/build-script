@@ -23,12 +23,8 @@ Versioning policy (as implemented in ComputeVersion):
 *)
 module WebSharper.Fake
 
-#nowarn "211" // Don't warn about nonexistent #I
 #nowarn "20"  // Ignore string result of ==>
-#I "../packages/build/FAKE/tools"
 #I "../../../../../packages/build/FAKE/tools"
-#I "../packages/build/Paket.Core/lib/net45"
-#I "../packages/build/Chessie/lib/net40"
 #I "../../../../../packages/build/Paket.Core/lib/net45"
 #I "../../../../../packages/build/Chessie/lib/net40"
 #r "Chessie"
@@ -222,9 +218,7 @@ type Args =
         BuildAction : BuildAction
         Attributes : seq<Attribute>
         StrongName : bool
-        BaseRef : string
         WorkBranch : option<string>
-        MergeMaster : bool
         PushRemote : string
     }
 
@@ -232,6 +226,7 @@ type WSTargets =
     {
         BuildDebug : string
         Publish : string
+        [<Obsolete "Use Publish">]
         CommitPublish : string
     }
 
@@ -353,22 +348,10 @@ let MakeTargets (args: Args) =
                 with e ->
                     try git "checkout -f -b %s" branch
                     with _ -> raise e
-                if args.MergeMaster then
-                    if not <| gitSilentNoFail "merge -Xtheirs --no-ff --no-commit %s" args.BaseRef then
-                        for st, f in Git.FileStatus.getAllFiles "." do
-                            match st with
-                            | Git.FileStatus.Deleted -> git "rm %s" f
-                            | Git.FileStatus.Renamed -> try git "rm %s" f with _ -> File.Delete f
-                            | Git.FileStatus.Added -> try git "checkout %s -- %s" args.BaseRef f with _ -> File.Delete f
-                            | _ -> git "checkout %s -- %s" args.BaseRef f
             else
                 if Hg.branchExists branch
                 then hg "update -C %s" branch
                 else hg "branch %s" branch
-                if args.MergeMaster && not (Hg.isAncestorOfCurrent args.BaseRef) then
-                    hg "merge --tool internal:other %s" args.BaseRef
-            Directory.CreateDirectory("build")
-            File.WriteAllText("build/buildFromRef", args.BaseRef)
 
     Target "WS-Commit" <| fun () ->
         let tag = "v" + version.AsString
@@ -396,8 +379,6 @@ let MakeTargets (args: Args) =
                 }
         | _ -> traceError "[NUGET] Not publishing: NugetPublishUrl and/or NugetApiKey are not set"
 
-    Target "WS-CommitPublish" DoNothing
-
     "WS-Clean"
         ==> "WS-ComputeVersion"
         ==> "WS-GenAssemblyInfo"
@@ -415,11 +396,10 @@ let MakeTargets (args: Args) =
         ==> "WS-BuildRelease"
         ==> "WS-Package"
         ==> "WS-Publish"
-        
+
     "WS-Package"    
         ==> "WS-Commit"
-        ?=> "WS-Publish"
-        ==> "WS-CommitPublish"
+        =?> ("WS-Publish", getEnvironmentVarAsBoolOrDefault "TagAndCommit" false)
 
     "WS-Package"
         ==> "WS-Publish"
@@ -430,25 +410,19 @@ let MakeTargets (args: Args) =
     {
         BuildDebug = "WS-BuildDebug"
         Publish = "WS-Publish"
-        CommitPublish = "WS-CommitPublish"
+        CommitPublish = "WS-Publish"
     }
 
 type WSTargets with
 
     static member Default getVersion =
         let buildBranch = environVarOrNone "BuildBranch"
-        let baseRef =
-            match environVarOrNone "BuildFromRef" with
-            | Some r -> r
-            | None -> VC.getCurrentCommitId()
         {
             GetVersion = getVersion
             BuildAction = BuildAction.Solution "*.sln"
             Attributes = Seq.empty
             StrongName = false
-            BaseRef = baseRef
             WorkBranch = buildBranch
-            MergeMaster = buildBranch = Some "staging"
             PushRemote =
                 environVarOrDefault "PushRemote"
                     (if VC.isGit then "origin" else "default")
