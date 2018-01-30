@@ -24,6 +24,8 @@ Versioning policy (as implemented in ComputeVersion):
 module WebSharper.Fake
 
 #nowarn "20"  // Ignore string result of ==>
+#nowarn "44"  // Ignore Obsolete on CommitPublish,
+              // which is stupidly triggered when creating a record value
 #I "../../../../../packages/build/FAKE/tools"
 #I "../../../../../packages/build/Paket.Core/lib/net45"
 #I "../../../../../packages/build/Chessie/lib/net40"
