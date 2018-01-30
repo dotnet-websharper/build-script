@@ -26,6 +26,11 @@ module WebSharper.Fake
 #nowarn "20"  // Ignore string result of ==>
 #nowarn "44"  // Ignore Obsolete on CommitPublish,
               // which is stupidly triggered when creating a record value
+#if INTERACTIVE
+#I "../websharper/packages/build/FAKE/tools"
+#I "../websharper/packages/build/Paket.Core/lib/net45"
+#I "../websharper/packages/build/Chessie/lib/net40"
+#endif
 #I "../../../../../packages/build/FAKE/tools"
 #I "../../../../../packages/build/Paket.Core/lib/net45"
 #I "../../../../../packages/build/Chessie/lib/net40"
@@ -219,7 +224,6 @@ type Args =
         GetVersion : unit -> Paket.SemVerInfo
         BuildAction : BuildAction
         Attributes : seq<Attribute>
-        StrongName : bool
         WorkBranch : option<string>
         PushRemote : string
     }
@@ -283,12 +287,6 @@ let MakeTargets (args: Args) =
                 yield Attribute.Version (sprintf "%i.%i.0.0" version.Major version.Minor)
                 yield Attribute.FileVersion (sprintf "%i.%i.%i.%s" version.Major version.Minor version.Patch version.Build)
                 yield! args.Attributes
-                match environVarOrNone "INTELLIFACTORY" with
-                | None -> ()
-                | Some p ->
-                    yield Attribute.Company "IntelliFactory"
-                    if args.StrongName then
-                        yield Attribute.KeyFile (p </> "keys" </> "IntelliFactory.snk")
             ]
 
     let build mode =
@@ -423,7 +421,6 @@ type WSTargets with
             GetVersion = getVersion
             BuildAction = BuildAction.Solution "*.sln"
             Attributes = Seq.empty
-            StrongName = false
             WorkBranch = buildBranch
             PushRemote =
                 environVarOrDefault "PushRemote"
