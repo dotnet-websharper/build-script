@@ -26,11 +26,10 @@ module WebSharper.Fake
 #nowarn "20"  // Ignore string result of ==>
 #nowarn "44"  // Ignore Obsolete on CommitPublish,
               // which is stupidly triggered when creating a record value
-#if INTERACTIVE
-#I "../websharper/packages/build/FAKE/tools"
-#I "../websharper/packages/build/Paket.Core/lib/net45"
-#I "../websharper/packages/build/Chessie/lib/net40"
-#endif
+// Uncomment for code service support (assumes there is a websharper repo next to build-script)
+//#I "../websharper/packages/build/FAKE/tools"
+//#I "../websharper/packages/build/Paket.Core/lib/net45"
+//#I "../websharper/packages/build/Chessie/lib/net40"
 #I "../../../../../packages/build/FAKE/tools"
 #I "../../../../../packages/build/Paket.Core/lib/net45"
 #I "../../../../../packages/build/Chessie/lib/net40"
