@@ -13,15 +13,6 @@ if not "%BuildBranch%"=="" (
   set /p BuildFromRef=<build\buildFromRef
 )
 
-if "%NOT_DOTNET%"=="" (
-  dotnet restore %DOTNETSOLUTION%
-) else (
-  .paket\paket.exe restore --touch-affected-refs
-)
-if errorlevel 1 (
-  exit /b %errorlevel%
-)
-
 if "%VisualStudioVersion%"=="" (
   set VisualStudioVersion=15.0
 )

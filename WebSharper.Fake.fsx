@@ -249,8 +249,7 @@ let MakeTargets (args: Args) =
 
     let dirtyDirs =
         !! "/**/bin"
-        ++ "/**/obj/Debug"
-        ++ "/**/obj/Release"
+        ++ "/**/obj"
         ++ "build"
 
     let mutable version = Paket.SemVer.Zero
@@ -266,6 +265,10 @@ let MakeTargets (args: Args) =
             |> Seq.exists (fun { Name = pkg } ->
                 pkg.Name.Contains "WebSharper" || pkg.Name.Contains "Zafir")
         if needsUpdate then shell ".paket/paket.exe" "update -g %s" mainGroup.Name.Name
+
+    Target "WS-Restore" <| fun () ->
+        if not (getEnvironmentVarAsBoolOrDefault "NOT_DOTNET" false) then
+            shell "dotnet" "restore %s" (environVarOrDefault "DOTNETSOLUTION" "")
 
     Target "WS-ComputeVersion" <| fun () ->
         version <- args.GetVersion()    
@@ -399,6 +402,11 @@ let MakeTargets (args: Args) =
         ==> "WS-ComputeVersion"
         ==> "WS-GenAssemblyInfo"
         ?=> "WS-BuildDebug"
+
+    "WS-Restore" ==> "WS-BuildDebug"
+    "WS-Restore" ==> "WS-BuildRelease"
+    "WS-Clean" ?=> "WS-Restore"
+    "WS-Update" ?=> "WS-Restore"
 
     "WS-Clean"
         ==> "WS-Update"
