@@ -101,6 +101,14 @@ let hg' cmd = shellOut "hg" cmd
 let private splitLines (s: string) =
     s.Split([| "\r\n"; "\n" |], StringSplitOptions.None)
 
+module Git =
+    let getCurrentBranch() =
+        match Git.Information.getBranchName "." with
+        | "NoBranch" ->
+            // Jenkins runs git in "detached head" and sets this env instead
+            environVar "GIT_BRANCH"
+        | s -> s
+
 module Hg =
     let getBookmarks() =
         hg' """bookmark -T "{bookmark} {node|short}\n" """
@@ -358,7 +366,7 @@ let MakeTargets (args: Args) =
             git "add ."
             git "commit --allow-empty -m \"[CI] %s\"" tag
             git "tag %s" tag
-            git "push %s %s" args.PushRemote (Git.Information.getBranchName ".")
+            git "push %s %s" args.PushRemote (Git.getCurrentBranch())
             git "push %s %s" args.PushRemote tag
         else
             hg "add ."
