@@ -260,8 +260,6 @@ let MakeTargets (args: Args) =
         ++ "/**/obj"
         ++ "build"
 
-    let mutable version = Paket.SemVer.Zero
-
     Target "WS-Clean" <| fun () ->
         DeleteDirs dirtyDirs
 
@@ -278,21 +276,25 @@ let MakeTargets (args: Args) =
         if not (getEnvironmentVarAsBoolOrDefault "NOT_DOTNET" false) then
             shell "dotnet" "restore %s" (environVarOrDefault "DOTNETSOLUTION" "")
 
-    Target "WS-ComputeVersion" <| fun () ->
-        version <- args.GetVersion()    
+    /// DO NOT force this lazy value in or before WS-Update.
+    let version =
+        lazy
+        let version = args.GetVersion()    
         let addVersionSuffix = getEnvironmentVarAsBoolOrDefault "AddVersionSuffix" false
-        if addVersionSuffix then
-            version <-
+        let version =
+            if addVersionSuffix then
                 match args.WorkBranch, version.PreRelease with
                 | None, _ -> version
                 | Some b, Some p when b = p.Origin -> version
                 | Some b, _ -> Paket.SemVer.Parse (version.AsString + "-" + b)
+            else version
         printfn "Computed version: %s" version.AsString
+        version
 
     Target "WS-GenAssemblyInfo" <| fun () ->
         CreateFSharpAssemblyInfo ("build" </> "AssemblyInfo.fs") [
-                yield Attribute.Version (sprintf "%i.%i.0.0" version.Major version.Minor)
-                yield Attribute.FileVersion (sprintf "%i.%i.%i.%s" version.Major version.Minor version.Patch version.Build)
+                yield Attribute.Version (sprintf "%i.%i.0.0" version.Value.Major version.Value.Minor)
+                yield Attribute.FileVersion (sprintf "%i.%i.%i.%s" version.Value.Major version.Value.Minor version.Value.Patch version.Value.Build)
                 yield! args.Attributes
             ]
 
@@ -343,7 +345,7 @@ let MakeTargets (args: Args) =
         Paket.Pack <| fun p ->
             { p with
                 OutputPath = "build"
-                Version = version.AsString
+                Version = version.Value.AsString
             }
 
     Target "WS-Checkout" <| fun () ->
@@ -361,7 +363,7 @@ let MakeTargets (args: Args) =
                 else hg "branch %s" branch
 
     Target "WS-Commit" <| fun () ->
-        let tag = "v" + version.AsString
+        let tag = "v" + version.Value.AsString
         if VC.isGit then
             git "add ."
             git "commit --allow-empty -m \"[CI] %s\"" tag
@@ -387,7 +389,6 @@ let MakeTargets (args: Args) =
         | _ -> traceError "[NUGET] Not publishing: NugetPublishUrl and/or NugetApiKey are not set"
 
     "WS-Clean"
-        ==> "WS-ComputeVersion"
         ==> "WS-GenAssemblyInfo"
         ?=> "WS-BuildDebug"
 
@@ -398,7 +399,6 @@ let MakeTargets (args: Args) =
 
     "WS-Clean"
         ==> "WS-Update"
-        ==> "WS-ComputeVersion"
         ==> "WS-GenAssemblyInfo"
         ==> "WS-BuildRelease"
         ==> "WS-Package"
