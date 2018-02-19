@@ -389,24 +389,23 @@ let MakeTargets (args: Args) =
         | _ -> traceError "[NUGET] Not publishing: NugetPublishUrl and/or NugetApiKey are not set"
 
     "WS-Clean"
-        ==> "WS-GenAssemblyInfo"
-        ?=> "WS-BuildDebug"
-
-    "WS-Restore" ==> "WS-BuildDebug"
-    "WS-Restore" ==> "WS-BuildRelease"
-    "WS-Clean" ?=> "WS-Restore"
-    "WS-Update" ?=> "WS-Restore"
-
-    "WS-Clean"
         ==> "WS-Update"
+        ?=> "WS-Restore"
         ==> "WS-GenAssemblyInfo"
-        ==> "WS-BuildRelease"
+        
+    "WS-GenAssemblyInfo" ==> "WS-BuildDebug"
+    "WS-GenAssemblyInfo" ==> "WS-BuildRelease"
+
+    "WS-BuildRelease"
         ==> "WS-Package"
         ==> "WS-Publish"
 
     "WS-Package"    
         ==> "WS-Commit"
         =?> ("WS-Publish", getEnvironmentVarAsBoolOrDefault "TagAndCommit" false)
+
+    "WS-Update"
+        ==> "WS-Publish"
 
     "WS-Package"
         ==> "WS-Publish"
