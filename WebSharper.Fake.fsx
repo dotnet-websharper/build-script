@@ -294,7 +294,7 @@ let MakeTargets (args: Args) =
     Target "WS-GenAssemblyInfo" <| fun () ->
         CreateFSharpAssemblyInfo ("build" </> "AssemblyInfo.fs") [
                 yield Attribute.Version (sprintf "%i.%i.0.0" version.Value.Major version.Value.Minor)
-                yield Attribute.FileVersion (sprintf "%i.%i.%i.%s" version.Value.Major version.Value.Minor version.Value.Patch version.Value.Build)
+                yield Attribute.FileVersion (sprintf "%i.%i.%i.%A" version.Value.Major version.Value.Minor version.Value.Patch version.Value.Build)
                 yield! args.Attributes
             ]
 
