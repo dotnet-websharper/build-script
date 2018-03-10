@@ -283,7 +283,7 @@ let MakeTargets (args: Args) =
             |> Seq.exists (fun { Name = pkg } ->
                 pkg.Name.Contains "WebSharper" || pkg.Name.Contains "Zafir")
         if needsUpdate then 
-            attempt 3 <| shell ".paket/paket.exe" "update -g %s" mainGroup.Name.Name
+            attempt 3 <| fun () -> shell ".paket/paket.exe" "update -g %s" mainGroup.Name.Name
 
     Target "WS-Restore" <| fun () ->
         if not (getEnvironmentVarAsBoolOrDefault "NOT_DOTNET" false) then
