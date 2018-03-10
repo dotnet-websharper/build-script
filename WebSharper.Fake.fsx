@@ -98,6 +98,18 @@ let gitSilentNoFail cmd =
 let hg cmd = shell "hg" cmd
 let hg' cmd = shellOut "hg" cmd
 
+let attempt n f =
+    let rec tryRun attempt =
+        try
+            f()
+        with _ ->
+            if attempt < n then
+                printfn "attempt %i failed, retrying" attempt
+                tryRun (attempt + 1)
+            else
+                reraise()
+    tryRun 1
+
 let private splitLines (s: string) =
     s.Split([| "\r\n"; "\n" |], StringSplitOptions.None)
 
@@ -270,21 +282,13 @@ let MakeTargets (args: Args) =
             mainGroup.Packages
             |> Seq.exists (fun { Name = pkg } ->
                 pkg.Name.Contains "WebSharper" || pkg.Name.Contains "Zafir")
-        if needsUpdate then shell ".paket/paket.exe" "update -g %s" mainGroup.Name.Name
+        if needsUpdate then 
+            attempt 3 <| shell ".paket/paket.exe" "update -g %s" mainGroup.Name.Name
 
     Target "WS-Restore" <| fun () ->
         if not (getEnvironmentVarAsBoolOrDefault "NOT_DOTNET" false) then
             let sln = environVarOrDefault "DOTNETSOLUTION" ""
-            let rec tryRestore attempt =
-                try
-                    shell "dotnet" "restore %s --disable-parallel" sln
-                with _ ->
-                    if attempt < 3 then
-                        printfn "dotnet restore attempt %i failed, retrying" attempt
-                        tryRestore (attempt + 1)
-                    else
-                        reraise()
-            tryRestore 1
+            attempt 3 <| fun () -> shell "dotnet" "restore %s --disable-parallel" sln
 
     /// DO NOT force this lazy value in or before WS-Update.
     let version =
