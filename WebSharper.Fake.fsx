@@ -274,7 +274,17 @@ let MakeTargets (args: Args) =
 
     Target "WS-Restore" <| fun () ->
         if not (getEnvironmentVarAsBoolOrDefault "NOT_DOTNET" false) then
-            shell "dotnet" "restore %s --disable-parallel" (environVarOrDefault "DOTNETSOLUTION" "")
+            let sln = environVarOrDefault "DOTNETSOLUTION" ""
+            let rec tryRestore attempt =
+                try
+                    shell "dotnet" "restore %s --disable-parallel" sln
+                with _ ->
+                    if attempt < 3 then
+                        printfn "dotnet restore attempt %i failed, retrying" attempt
+                        tryRestore (attempt + 1)
+                    else
+                        reraise()
+            tryRestore 1
 
     /// DO NOT force this lazy value in or before WS-Update.
     let version =
