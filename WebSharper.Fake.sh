@@ -3,6 +3,10 @@
 set -e
 
 if [ "$OS" = "Windows_NT" ]; then
+    NO_MONO=true
+fi
+
+if [ "$NO_MONO" != "" ]; then
     fake() { packages/build/FAKE/tools/FAKE.exe "$@" --fsiargs build.fsx; }
     paket() { .paket/paket.exe "$@"; }
 else
