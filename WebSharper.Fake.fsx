@@ -234,6 +234,7 @@ type BuildMode =
 type BuildAction =
     | Projects of seq<string>
     | Custom of (BuildMode -> unit)
+    | Multiple of seq<BuildAction>
 
     static member Solution s =
         BuildAction.Projects (!!s)
@@ -312,8 +313,8 @@ let MakeTargets (args: Args) =
                 yield! args.Attributes
             ]
 
-    let build mode =
-        match args.BuildAction with
+    let rec build mode action =
+        match action with
         | BuildAction.Projects files ->
             let f =
                 match mode with
@@ -323,6 +324,10 @@ let MakeTargets (args: Args) =
             |> f "" "Build"
             |> Log "AppBuild-Output: "
         | Custom f -> f mode
+        | Multiple actions -> Seq.iter (build mode) actions
+
+    let build mode =
+        build mode args.BuildAction
 
     Target "WS-BuildDebug" <| fun () ->
         build BuildMode.Debug
