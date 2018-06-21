@@ -288,7 +288,7 @@ let MakeTargets (args: Args) =
 
     Target "WS-Restore" <| fun () ->
         if not (getEnvironmentVarAsBoolOrDefault "NOT_DOTNET" false) then
-            let slns = (environVarOrDefault "DOTNETSOLUTION" "").Split(';')
+            let slns = (environVarOrDefault "DOTNETSOLUTION" "").Trim('"').Split(';')
             for sln in slns do
                 attempt 3 <| fun () -> shell "dotnet" "restore %s --disable-parallel" sln
 
