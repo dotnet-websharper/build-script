@@ -288,8 +288,9 @@ let MakeTargets (args: Args) =
 
     Target "WS-Restore" <| fun () ->
         if not (getEnvironmentVarAsBoolOrDefault "NOT_DOTNET" false) then
-            let sln = environVarOrDefault "DOTNETSOLUTION" ""
-            attempt 3 <| fun () -> shell "dotnet" "restore %s --disable-parallel" sln
+            let slns = (environVarOrDefault "DOTNETSOLUTION" "").Split(';')
+            for sln in slns do
+                attempt 3 <| fun () -> shell "dotnet" "restore %s --disable-parallel" sln
 
     /// DO NOT force this lazy value in or before WS-Update.
     let version =
