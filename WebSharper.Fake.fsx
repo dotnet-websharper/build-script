@@ -3,14 +3,15 @@
 (**
 Uses the following environment variables (some of which are overridden by WSTargets options):
   * BUILD_NUMBER: the build number to use (last component of the version).
-    Automatically set by Jenkins.
+    Automatically set by Jenkins and used by FAKE.
   * BuildBranch: the name of the branch to switch to before building, and to push to on success.
     Default: current branch
   * PushRemote: the name of the git or hg remote to push to
     Default: origin
   * NuGetPublishUrl: the URL of the NuGet server
     Default: https://nuget.intellifactory.com/nuget
-  * NugetApiKey: the API key of the NuGet server.
+  * NUGET_KEY: the API key of the NuGet server.
+    Automatically used by Paket.
 
 Versioning policy (as implemented in ComputeVersion):
   * Major, minor and pre are taken from baseVersion.
@@ -397,16 +398,15 @@ let MakeTargets (args: Args) =
             hg "push --new-branch -b %s %s" (Hg.getCurrentBranch()) args.PushRemote
 
     Target "WS-Publish" <| fun () ->
-        match environVarOrNone "NugetPublishUrl", environVarOrNone "NugetApiKey" with
-        | Some nugetPublishUrl, Some nugetApiKey ->
+        match environVarOrNone "NugetPublishUrl" with
+        | Some nugetPublishUrl ->
             tracefn "[NUGET] Publishing to %s" nugetPublishUrl 
             Paket.Push <| fun p ->
                 { p with
                     PublishUrl = nugetPublishUrl
-                    ApiKey = nugetApiKey
                     WorkingDir = "build"
                 }
-        | _ -> traceError "[NUGET] Not publishing: NugetPublishUrl and/or NugetApiKey are not set"
+        | _ -> traceError "[NUGET] Not publishing: NugetPublishUrl not set"
 
     "WS-Clean"
         ==> "WS-Update"
