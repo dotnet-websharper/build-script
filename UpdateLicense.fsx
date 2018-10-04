@@ -89,7 +89,10 @@ let findSourceFilesWithoutCopyright () =
         findFiles "*.cs"
     |]
     |> Array.filter (fun f ->
-        not (Array.contains (Path.GetFileName f) excludedFilenames)
+        let fname = Path.GetFileName f
+        not (Array.contains fname excludedFilenames)
+        && not (fname.EndsWith ".g.cs")
+        && not (fname.EndsWith ".g.fs")
         && not (hasCopyright f))
 
 /// Update all copyright notices in all F# files in WebSharper.
