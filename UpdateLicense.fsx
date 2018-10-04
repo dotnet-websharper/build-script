@@ -18,20 +18,22 @@ let replaceCopyright file (newCopyright: string []) =
         let endsWithR (l: string) = not (l.Length = 0) && l.[l.Length-1] = '\r'
         if endsWithR lines.[lines.Length - 2] && not (endsWithR lines.[lines.Length - 1]) then
             lines.[lines.Length - 1] <- lines.[lines.Length - 1] + "\r"
+        let endsWith (s: string) (l: string) =
+            l.EndsWith(s) || l.EndsWith(s + "\r")
         let mutable hasChanges = false
         let text =
             use output = new StringWriter()
             output.NewLine <- "\n"
             let mutable skip = false
             for line in lines do
-                if line.EndsWith "$begin{copyright}" then
+                if line |> endsWith "$begin{copyright}" then
                     skip <- true
                     hasChanges <- true
                     for c in newCopyright do
                         output.WriteLine(c)
                 if not skip then
                     output.WriteLine line
-                if line.EndsWith "$end{copyright}" then
+                if line |> endsWith "$end{copyright}" then
                     skip <- false
             output.ToString()
         if hasChanges then

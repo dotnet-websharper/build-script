@@ -412,7 +412,7 @@ let MakeTargets (args: Args) =
     Target "UpdateLicense" <| fun () ->
         UpdateLicense.updateAllLicenses ()
 
-    Target "AddMissingCopyright" <| fun () ->
+    Target "AddMissingLicense" <| fun () ->
         UpdateLicense.interactiveAddMissingCopyright ()
 
     "WS-Clean"
