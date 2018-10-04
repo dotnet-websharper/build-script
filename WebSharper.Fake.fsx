@@ -37,6 +37,7 @@ module WebSharper.Fake
 #r "Chessie"
 #r "Paket.Core"
 #r "FakeLib"
+#load "UpdateLicense.fsx"
 #nowarn "49"
 
 open System
@@ -407,6 +408,12 @@ let MakeTargets (args: Args) =
                     WorkingDir = "build"
                 }
         | _ -> traceError "[NUGET] Not publishing: NugetPublishUrl not set"
+
+    Target "UpdateLicense" <| fun () ->
+        UpdateLicense.updateAllLicenses ()
+
+    Target "AddMissingCopyright" <| fun () ->
+        UpdateLicense.interactiveAddMissingCopyright ()
 
     "WS-Clean"
         ==> "WS-Update"
