@@ -15,7 +15,7 @@ let replaceCopyright file (newCopyright: string []) =
             if String.IsNullOrWhiteSpace lines.[lines.Length - 1] then
                 lines.[..lines.Length - 2]
             else lines
-        let endsWithR (l: string) = not (l.Length = 0) && l.[l.Length-1] = '\r'
+        let endsWithR (l: string) = l.Length > 0 && l.[l.Length-1] = '\r'
         if endsWithR lines.[lines.Length - 2] && not (endsWithR lines.[lines.Length - 1]) then
             lines.[lines.Length - 1] <- lines.[lines.Length - 1] + "\r"
         let endsWith (s: string) (l: string) =
@@ -57,16 +57,17 @@ let updateLicense license =
     let copyright = readLicenseFile license
     let findFiles pattern =
         Directory.GetFiles(rootDir, pattern, SearchOption.AllDirectories)
-    let files = Array.concat [|
+    Array.concat [|
         findFiles "*.fs"
         findFiles "*.fsi"
         findFiles "*.fsx"
         findFiles "*.cs"
         findFiles "*.js"
     |]
-    for f in files do
+    |> Array.iter (fun f ->
         stdout.WriteLine("Replacing: {0}", f)
         replaceCopyright f copyright
+    )
 
 let excludedFilenames = [|
     "build.fsx"
