@@ -440,10 +440,8 @@ let MakeTargets (args: Args) =
 
     "WS-Clean"
         ==> "WS-Update"
-        ?=> "WS-Restore"
-
-    "WS-Restore"
-        ==> "WS-GenAssemblyInfo"
+        ==> "WS-Restore"
+        =?> ("WS-GenAssemblyInfo", Environment.environVarAsBoolOrDefault "BuildBranch" false)
 
     "WS-GenAssemblyInfo"
         ==> "WS-BuildDebug"
