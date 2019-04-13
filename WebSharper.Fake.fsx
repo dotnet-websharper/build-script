@@ -238,7 +238,10 @@ let ComputeVersion (baseVersion: option<Paket.SemVerInfo>) =
         Paket.SemVer.Parse v
     ) "%i.%i.%i.%s%s" baseVersion.Major baseVersion.Minor patch build
         (match baseVersion.PreRelease with Some r -> "-" + r.Origin | None -> "")
- 
+
+let LazyVersionFrom packageName =
+    fun () -> GetSemVerOf packageName |> ComputeVersion
+
 type BuildMode =
     | Debug
     | Release
@@ -299,7 +302,7 @@ let MakeTargets (args: Args) =
             mainGroup.Packages
             |> Seq.exists (fun { Name = pkg } ->
                 pkg.Name.Contains "WebSharper" || pkg.Name.Contains "Zafir")
-        if needsUpdate then 
+        if needsUpdate then
             attempt 3 <| fun () ->
                 shell ".paket/paket.exe" "update -g %s %s"
                     mainGroup.Name.Name
@@ -316,7 +319,7 @@ let MakeTargets (args: Args) =
     /// DO NOT force this lazy value in or before WS-Update.
     let version =
         lazy
-        let version = args.GetVersion()    
+        let version = args.GetVersion()
         let addVersionSuffix = Environment.environVarAsBoolOrDefault "AddVersionSuffix" false
         let version =
             if addVersionSuffix then
@@ -353,6 +356,8 @@ let MakeTargets (args: Args) =
 
     Target.create "WS-BuildRelease" <| fun o ->
         build o BuildMode.Release
+
+    Target.create "Build" ignore
 
     Target.create "WS-Package" <| fun _ ->
         let re = Regex(@"^(\s*(\S+)\s*~>)\s*LOCKEDVERSION/([1-3])")
@@ -417,13 +422,15 @@ let MakeTargets (args: Args) =
     Target.create "WS-Publish" <| fun _ ->
         match Environment.environVarOrNone "NugetPublishUrl" with
         | Some nugetPublishUrl ->
-            Trace.tracefn "[NUGET] Publishing to %s" nugetPublishUrl 
+            Trace.tracefn "[NUGET] Publishing to %s" nugetPublishUrl
             Paket.push <| fun p ->
                 { p with
                     PublishUrl = nugetPublishUrl
                     WorkingDir = "build"
                 }
         | _ -> Trace.traceError "[NUGET] Not publishing: NugetPublishUrl not set"
+
+    Target.create "CI-Release" ignore
 
     Target.create "UpdateLicense" <| fun _ ->
         UpdateLicense.updateAllLicenses ()
@@ -434,34 +441,36 @@ let MakeTargets (args: Args) =
     "WS-Clean"
         ==> "WS-Update"
         ?=> "WS-Restore"
-    
+
     "WS-Restore"
         ==> "WS-GenAssemblyInfo"
-    
-    "WS-GenAssemblyInfo" ==> "WS-BuildDebug"
-    "WS-GenAssemblyInfo" ==> "WS-BuildRelease"
 
-    "WS-BuildRelease"
+    "WS-GenAssemblyInfo"
+        ==> "WS-BuildDebug"
+        ==> "Build"
+    "WS-GenAssemblyInfo"
+        ==> "WS-BuildRelease"
         ==> "WS-Package"
         ==> "WS-Publish"
+        ==> "CI-Release"
 
-    "WS-Package"    
+    "WS-Package"
         ==> "WS-Commit"
         =?> ("WS-Publish", Environment.environVarAsBoolOrDefault "TagAndCommit" false)
 
     "WS-Update"
         ==> "WS-Publish"
 
-    "WS-Package"
-        ==> "WS-Publish"
-
     "WS-Clean"
         ==> "WS-Checkout"
 
     {
-        BuildDebug = "WS-BuildDebug"
-        Publish = "WS-Publish"
+        BuildDebug = "Build"
+        Publish = "CI-Release"
     }
+
+let RunTargets (targets: WSTargets) =
+    Target.runOrDefaultWithArguments targets.BuildDebug
 
 type WSTargets with
 
