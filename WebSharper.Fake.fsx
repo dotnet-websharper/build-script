@@ -27,24 +27,45 @@ module WebSharper.Fake
 #nowarn "20"  // Ignore string result of ==>
 #nowarn "44"  // Ignore Obsolete on CommitPublish,
               // which is stupidly triggered when creating a record value
-// Uncomment for code service support (assumes there is a websharper repo next to build-script)
-//#I "../websharper/packages/build/FAKE/tools"
-//#I "../websharper/packages/build/Paket.Core/lib/net45"
-//#I "../websharper/packages/build/Chessie/lib/net40"
-#I "../../../../../packages/build/FAKE/tools"
-#I "../../../../../packages/build/Paket.Core/lib/net45"
-#I "../../../../../packages/build/Chessie/lib/net40"
-#r "Chessie"
-#r "Paket.Core"
-#r "FakeLib"
+#load "../../../../../.fake/build.fsx/intellisense.fsx"
+#if INTERACTIVE
+#r "C:/.nuget/packages/netstandard.library/2.0.3/build/netstandard2.0/ref/netstandard.dll"
+#endif
 #load "UpdateLicense.fsx"
 #nowarn "49"
 
 open System
 open System.IO
 open System.Text.RegularExpressions
-open Fake
-open Fake.AssemblyInfoFile
+open Fake.Core
+open Fake.Core.TargetOperators
+open Fake.DotNet
+open Fake.IO
+open Fake.IO.FileSystemOperators
+open Fake.IO.Globbing.Operators
+open Fake.Tools
+
+let usage = """
+usage: build [FAKE options] [--] [options]
+
+options:
+ -v, --verbose      Verbose build output
+"""
+
+let opts =
+    let parsed = ref None
+    fun (o: TargetParameter) ->
+        match !parsed with
+        | Some p -> p
+        | None ->
+            try
+                let value = Docopt(usage).Parse(Array.ofSeq o.Context.Arguments)
+                parsed := Some value
+                value
+            with DocoptException _ ->
+                Trace.traceError usage
+                reraise()
+let verbose = opts >> DocoptResult.hasFlag "-v"
 
 let private mainGroupName = Paket.Domain.GroupName "Main"
 
@@ -58,12 +79,7 @@ let GetSemVerOf pkgName =
 
 let shell program cmd =
     Printf.kprintf (fun cmd ->
-        shellExec {
-            Program = program
-            WorkingDirectory = "."
-            CommandLine = cmd
-            Args = []
-        }
+        Shell.Exec(program, cmd, ".")
         |> function
             | 0 -> ()
             | n -> failwithf "%s %s failed with code %i" program cmd n
@@ -88,7 +104,7 @@ let shellOut program cmd =
 
 let git cmd =
     Printf.kprintf (fun s ->
-        logfn "> git %s" s
+        Trace.logfn "> git %s" s
         Git.CommandHelper.directRunGitCommandAndFail "." s
     ) cmd
 
@@ -120,7 +136,7 @@ module Git =
         match Git.Information.getBranchName "." with
         | "NoBranch" ->
             // Jenkins runs git in "detached head" and sets this env instead
-            environVar "GIT_BRANCH"
+            Environment.environVar "GIT_BRANCH"
         | s -> s
 
 module Hg =
@@ -149,7 +165,6 @@ module Hg =
         |> Array.contains b
 
     let isAncestorOfCurrent (ref: string) =
-        let currentRef = getCurrentCommitId()
         let o = hg' """log --rev "ancestors(.) and %s" """ ref
         not (String.IsNullOrWhiteSpace o)
 
@@ -158,8 +173,8 @@ module VC =
 
     let getTags() =
         if isGit then
-            let ok, out, err = Git.CommandHelper.runGitCommand "." "tag --merged"
-            out.ToArray()
+            let _ok, out, _err = Git.CommandHelper.runGitCommand "." "tag --merged"
+            Array.ofList out
         else
             Hg.getBookmarks()
 
@@ -188,13 +203,13 @@ let ComputeVersion (baseVersion: option<Paket.SemVerInfo>) =
                     else None
                 with _ -> None) with
             | [||] ->
-                traceImportant "Warning: no latest tag found"
+                Trace.traceImportant "Warning: no latest tag found"
                 Paket.SemVer.Zero, None
             | a ->
                 let v, t = Array.maxBy fst a
                 v, t
         with e ->
-            traceImportant (sprintf "Warning: getting version from latest tag: %s" e.Message)
+            Trace.traceImportant (sprintf "Warning: getting version from latest tag: %s" e.Message)
             Paket.SemVer.Zero, None
     let baseVersion = defaultArg baseVersion lastVersion
     let patch =
@@ -212,14 +227,14 @@ let ComputeVersion (baseVersion: option<Paket.SemVerInfo>) =
                 else
                     lastVersion.Patch + 1u
         with e ->
-            traceImportant (sprintf "Warning: computing patch version: %s" e.Message)
+            Trace.traceImportant (sprintf "Warning: computing patch version: %s" e.Message)
             0u
     let build =
-        match jenkinsBuildNumber with
-        | null | "" -> string (int64 lastVersion.Build + 1L)
-        | b -> b
+        match Environment.environVarOrNone "BUILD_NUMBER" with
+        | None -> string (int64 lastVersion.Build + 1L)
+        | Some b -> b
     Printf.ksprintf (fun v ->
-        tracefn "==== Building project v%s ===="  v
+        Trace.tracefn "==== Building project v%s ===="  v
         Paket.SemVer.Parse v
     ) "%i.%i.%i.%s%s" baseVersion.Major baseVersion.Minor patch build
         (match baseVersion.PreRelease with Some r -> "-" + r.Origin | None -> "")
@@ -233,6 +248,7 @@ type BuildMode =
         | Debug -> "Debug"
         | Release -> "Release"
 
+[<NoComparison; NoEquality>]
 type BuildAction =
     | Projects of seq<string>
     | Custom of (BuildMode -> unit)
@@ -241,11 +257,12 @@ type BuildAction =
     static member Solution s =
         BuildAction.Projects (!!s)
 
+[<NoComparison; NoEquality>]
 type Args =
     {
         GetVersion : unit -> Paket.SemVerInfo
         BuildAction : BuildAction
-        Attributes : seq<Attribute>
+        Attributes : seq<AssemblyInfo.Attribute>
         WorkBranch : option<string>
         PushRemote : string
     }
@@ -254,8 +271,6 @@ type WSTargets =
     {
         BuildDebug : string
         Publish : string
-        [<Obsolete "Use Publish">]
-        CommitPublish : string
     }
 
     member this.AddPrebuild s =
@@ -263,13 +278,9 @@ type WSTargets =
         "WS-GenAssemblyInfo" ?=> s ==> "WS-BuildRelease"
         ()
 
-let verbose = getEnvironmentVarAsBoolOrDefault "verbose" false
-let msbuildVerbosity = if verbose then MSBuildVerbosity.Normal else MSBuildVerbosity.Minimal
-let dotnetArgs = if verbose then [ "-v"; "n" ] else []
-MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some msbuildVerbosity }
-environVarOrNone "MSBUILD_EXE_PATH" |> Option.iter (fun p ->
-    MSBuildDefaults <- { MSBuildDefaults with ToolPath = p }
-)
+let msbuildVerbosity = verbose >> function
+    | true -> MSBuildVerbosity.Normal
+    | false -> MSBuildVerbosity.Minimal
 
 let MakeTargets (args: Args) =
 
@@ -278,10 +289,10 @@ let MakeTargets (args: Args) =
         ++ "/**/obj"
         ++ "build"
 
-    Target "WS-Clean" <| fun () ->
-        DeleteDirs dirtyDirs
+    Target.create "WS-Clean" <| fun _ ->
+        Seq.iter Directory.delete dirtyDirs
 
-    Target "WS-Update" <| fun () ->
+    Target.create "WS-Update" <| fun _ ->
         let depsFile = Paket.DependenciesFile.ReadFromFile "./paket.dependencies"
         let mainGroup = depsFile.GetGroup mainGroupName
         let needsUpdate =
@@ -292,13 +303,13 @@ let MakeTargets (args: Args) =
             attempt 3 <| fun () ->
                 shell ".paket/paket.exe" "update -g %s %s"
                     mainGroup.Name.Name
-                    (if getEnvironmentVarAsBoolOrDefault "PAKET_REDIRECTS" false
+                    (if Environment.environVarAsBoolOrDefault "PAKET_REDIRECTS" false
                      then "--redirects"
                      else "")
 
-    Target "WS-Restore" <| fun () ->
-        if not (getEnvironmentVarAsBoolOrDefault "NOT_DOTNET" false) then
-            let slns = (environVarOrDefault "DOTNETSOLUTION" "").Trim('"').Split(';')
+    Target.create "WS-Restore" <| fun _ ->
+        if not (Environment.environVarAsBoolOrDefault "NOT_DOTNET" false) then
+            let slns = (Environment.environVarOrDefault "DOTNETSOLUTION" "").Trim('"').Split(';')
             for sln in slns do
                 attempt 3 <| fun () -> shell "dotnet" "restore %s --disable-parallel" sln
 
@@ -306,7 +317,7 @@ let MakeTargets (args: Args) =
     let version =
         lazy
         let version = args.GetVersion()    
-        let addVersionSuffix = getEnvironmentVarAsBoolOrDefault "AddVersionSuffix" false
+        let addVersionSuffix = Environment.environVarAsBoolOrDefault "AddVersionSuffix" false
         let version =
             if addVersionSuffix then
                 match args.WorkBranch, version.PreRelease with
@@ -317,36 +328,33 @@ let MakeTargets (args: Args) =
         printfn "Computed version: %s" version.AsString
         version
 
-    Target "WS-GenAssemblyInfo" <| fun () ->
-        CreateFSharpAssemblyInfo ("build" </> "AssemblyInfo.fs") [
-                yield Attribute.Version (sprintf "%i.%i.0.0" version.Value.Major version.Value.Minor)
-                yield Attribute.FileVersion (sprintf "%i.%i.%i.%A" version.Value.Major version.Value.Minor version.Value.Patch version.Value.Build)
+    Target.create "WS-GenAssemblyInfo" <| fun _ ->
+        AssemblyInfoFile.createFSharp ("build" </> "AssemblyInfo.fs") [
+                yield AssemblyInfo.Version (sprintf "%i.%i.0.0" version.Value.Major version.Value.Minor)
+                yield AssemblyInfo.FileVersion (sprintf "%i.%i.%i.%A" version.Value.Major version.Value.Minor version.Value.Patch version.Value.Build)
                 yield! args.Attributes
             ]
 
-    let rec build mode action =
+    let rec build o mode action =
         match action with
         | BuildAction.Projects files ->
-            let f =
-                match mode with
-                | BuildMode.Debug -> MSBuildDebug
-                | BuildMode.Release -> MSBuildRelease
-            files
-            |> f "" "Build"
-            |> Log "AppBuild-Output: "
+            let build = DotNet.msbuild <| fun p ->
+                p.WithMSBuildParams <| fun p ->
+                    { p with Verbosity = Some (msbuildVerbosity o) }
+            Seq.iter build files
         | Custom f -> f mode
-        | Multiple actions -> Seq.iter (build mode) actions
+        | Multiple actions -> Seq.iter (build o mode) actions
 
-    let build mode =
-        build mode args.BuildAction
+    let build o mode =
+        build o mode args.BuildAction
 
-    Target "WS-BuildDebug" <| fun () ->
-        build BuildMode.Debug
+    Target.create "WS-BuildDebug" <| fun o ->
+        build o BuildMode.Debug
 
-    Target "WS-BuildRelease" <| fun () ->
-        build BuildMode.Release
+    Target.create "WS-BuildRelease" <| fun o ->
+        build o BuildMode.Release
 
-    Target "WS-Package" <| fun () ->
+    Target.create "WS-Package" <| fun _ ->
         let re = Regex(@"^(\s*(\S+)\s*~>)\s*LOCKEDVERSION/([1-3])")
         let lock = Paket.LockFile.LoadFrom "paket.lock"
         let g = lock.Groups.[Paket.Domain.GroupName "main"]
@@ -372,13 +380,13 @@ let MakeTargets (args: Args) =
                 let outName = f.[..f.Length-4]
                 printfn "Writing %s" outName
                 File.WriteAllLines(outName, s)
-        Paket.Pack <| fun p ->
+        Paket.pack <| fun p ->
             { p with
                 OutputPath = "build"
                 Version = version.Value.AsString
             }
 
-    Target "WS-Checkout" <| fun () ->
+    Target.create "WS-Checkout" <| fun _ ->
         match args.WorkBranch with
         | None -> ()
         | Some branch ->
@@ -392,7 +400,7 @@ let MakeTargets (args: Args) =
                 then hg "update -C %s" branch
                 else hg "branch %s" branch
 
-    Target "WS-Commit" <| fun () ->
+    Target.create "WS-Commit" <| fun _ ->
         let tag = "v" + version.Value.AsString
         if VC.isGit then
             git "add ."
@@ -406,21 +414,21 @@ let MakeTargets (args: Args) =
             hg "bookmark -i %s" tag
             hg "push --new-branch -b %s %s" (Hg.getCurrentBranch()) args.PushRemote
 
-    Target "WS-Publish" <| fun () ->
-        match environVarOrNone "NugetPublishUrl" with
+    Target.create "WS-Publish" <| fun _ ->
+        match Environment.environVarOrNone "NugetPublishUrl" with
         | Some nugetPublishUrl ->
-            tracefn "[NUGET] Publishing to %s" nugetPublishUrl 
-            Paket.Push <| fun p ->
+            Trace.tracefn "[NUGET] Publishing to %s" nugetPublishUrl 
+            Paket.push <| fun p ->
                 { p with
                     PublishUrl = nugetPublishUrl
                     WorkingDir = "build"
                 }
-        | _ -> traceError "[NUGET] Not publishing: NugetPublishUrl not set"
+        | _ -> Trace.traceError "[NUGET] Not publishing: NugetPublishUrl not set"
 
-    Target "UpdateLicense" <| fun () ->
+    Target.create "UpdateLicense" <| fun _ ->
         UpdateLicense.updateAllLicenses ()
 
-    Target "AddMissingLicense" <| fun () ->
+    Target.create "AddMissingLicense" <| fun _ ->
         UpdateLicense.interactiveAddMissingCopyright ()
 
     "WS-Clean"
@@ -439,7 +447,7 @@ let MakeTargets (args: Args) =
 
     "WS-Package"    
         ==> "WS-Commit"
-        =?> ("WS-Publish", getEnvironmentVarAsBoolOrDefault "TagAndCommit" false)
+        =?> ("WS-Publish", Environment.environVarAsBoolOrDefault "TagAndCommit" false)
 
     "WS-Update"
         ==> "WS-Publish"
@@ -453,20 +461,19 @@ let MakeTargets (args: Args) =
     {
         BuildDebug = "WS-BuildDebug"
         Publish = "WS-Publish"
-        CommitPublish = "WS-Publish"
     }
 
 type WSTargets with
 
     static member Default getVersion =
-        let buildBranch = environVarOrNone "BuildBranch"
+        let buildBranch = Environment.environVarOrNone "BuildBranch"
         {
             GetVersion = getVersion
             BuildAction = BuildAction.Solution "*.sln"
             Attributes = Seq.empty
             WorkBranch = buildBranch
             PushRemote =
-                environVarOrDefault "PushRemote"
+                Environment.environVarOrDefault "PushRemote"
                     (if VC.isGit then "origin" else "default")
         }
 

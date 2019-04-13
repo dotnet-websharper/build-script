@@ -100,7 +100,6 @@ let findSourceFilesWithoutCopyright () =
 
 /// Update all copyright notices in all F# files in WebSharper.
 let updateAllLicenses () =
-    let s = __SOURCE_DIRECTORY__
     let ( ++ ) a b = Path.Combine(a, b)
     updateLicense (thisDir ++ "LICENSE.txt")
 
