@@ -25,8 +25,6 @@ Versioning policy (as implemented in ComputeVersion):
 module WebSharper.Fake
 
 #nowarn "20"  // Ignore string result of ==>
-#nowarn "44"  // Ignore Obsolete on CommitPublish,
-              // which is stupidly triggered when creating a record value
 #load "../../../../../.fake/build.fsx/intellisense.fsx"
 #if INTERACTIVE
 #r "C:/.nuget/packages/netstandard.library/2.0.3/build/netstandard2.0/ref/netstandard.dll"
@@ -405,20 +403,6 @@ let MakeTargets (args: Args) =
                 then hg "update -C %s" branch
                 else hg "branch %s" branch
 
-    Target.create "WS-Commit" <| fun _ ->
-        let tag = "v" + version.Value.AsString
-        if VC.isGit then
-            git "add ."
-            git "commit --allow-empty -m \"[CI] %s\"" tag
-            git "tag %s" tag
-            git "push %s %s" args.PushRemote (Git.getCurrentBranch())
-            git "push %s %s" args.PushRemote tag
-        else
-            hg "add ."
-            hg "commit -m \"[CI] %s\"" tag
-            hg "bookmark -i %s" tag
-            hg "push --new-branch -b %s %s" (Hg.getCurrentBranch()) args.PushRemote
-
     Target.create "WS-Publish" <| fun _ ->
         match Environment.environVarOrNone "NugetPublishUrl" with
         | Some nugetPublishUrl ->
@@ -451,10 +435,6 @@ let MakeTargets (args: Args) =
         ==> "WS-Package"
         ==> "WS-Publish"
         ==> "CI-Release"
-
-    "WS-Package"
-        ==> "WS-Commit"
-        =?> ("WS-Publish", Environment.environVarAsBoolOrDefault "TagAndCommit" false)
 
     "WS-Update"
         ==> "WS-Publish"
