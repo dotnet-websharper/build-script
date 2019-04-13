@@ -14,8 +14,4 @@ if [ "$VisualStudioVersion" == ""  ]; then
     export VisualStudioVersion=15.0
 fi
 
-if [ "$WsUpdate" != "" ]; then
-    .paket/paket$exe update -g wsbuild --no-install
-fi
-
 .paket/fake$exe run build.fsx "$@"
