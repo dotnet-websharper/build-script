@@ -267,6 +267,9 @@ let verbose = getEnvironmentVarAsBoolOrDefault "verbose" false
 let msbuildVerbosity = if verbose then MSBuildVerbosity.Normal else MSBuildVerbosity.Minimal
 let dotnetArgs = if verbose then [ "-v"; "n" ] else []
 MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some msbuildVerbosity }
+environVarOrNone "MSBUILD_EXE_PATH" |> Option.iter (fun p ->
+    MSBuildDefaults <- { MSBuildDefaults with ToolPath = p }
+)
 
 let MakeTargets (args: Args) =
 
