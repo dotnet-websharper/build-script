@@ -129,6 +129,20 @@ let attempt n f =
 let private splitLines (s: string) =
     s.Split([| "\r\n"; "\n" |], StringSplitOptions.None)
 
+/// Generate a file at the given location, but leave it unchanged
+/// if the generated contents are identical to the existing file.
+/// `generate` receives the actual filename it should write to,
+/// which may be a temp file.
+let unchangedIfIdentical filename generate =
+    if File.Exists(filename) then
+        let tempFilename = Path.GetTempFileName()
+        generate tempFilename
+        if not (Shell.compareFiles true filename tempFilename) then
+            File.Delete(filename)
+            File.Move(tempFilename, filename)
+    else
+        generate filename
+
 module Git =
     let getCurrentBranch() =
         match Git.Information.getBranchName "." with
@@ -330,7 +344,8 @@ let MakeTargets (args: Args) =
         version
 
     Target.create "WS-GenAssemblyInfo" <| fun _ ->
-        AssemblyInfoFile.createFSharp ("build" </> "AssemblyInfo.fs") [
+        unchangedIfIdentical ("build" </> "AssemblyInfo.fs") <| fun file ->
+            AssemblyInfoFile.createFSharp file [
                 yield AssemblyInfo.Version (sprintf "%i.%i.0.0" version.Value.Major version.Value.Minor)
                 yield AssemblyInfo.FileVersion (sprintf "%i.%i.%i.%A" version.Value.Major version.Value.Minor version.Value.Patch version.Value.Build)
                 yield! args.Attributes
