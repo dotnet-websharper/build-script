@@ -14,4 +14,7 @@ if [ "$VisualStudioVersion" == ""  ]; then
     export VisualStudioVersion=15.0
 fi
 
-.paket/fake$EXE run build.fsx "$@"
+# Allow running `build SomeTask` instead of `build -t SomeTask`
+if [ "$1" != "" -a "$1" != -t -a "$1" != --target ]; then EXTRA_ARG=-t; else EXTRA_ARG=; fi
+
+.paket/fake$EXE run build.fsx $EXTRA_ARG "$@"
