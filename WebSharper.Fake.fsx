@@ -356,7 +356,10 @@ let MakeTargets (args: Args) =
         | BuildAction.Projects files ->
             let build = DotNet.msbuild <| fun p ->
                 p.WithMSBuildParams <| fun p ->
-                    { p with Verbosity = Some (msbuildVerbosity o) }
+                    { p with
+                        Verbosity = Some (msbuildVerbosity o)
+                        Properties = ["Configuration", string mode]
+                    }
             Seq.iter build files
         | Custom f -> f mode
         | Multiple actions -> Seq.iter (build o mode) actions
