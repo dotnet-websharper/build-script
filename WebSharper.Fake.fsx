@@ -403,6 +403,10 @@ let MakeTargets (args: Args) =
                 File.WriteAllLines(outName, s)
         Paket.pack <| fun p ->
             { p with
+                ToolPath =
+                    if Environment.isWindows
+                    then @".paket\paket.exe"
+                    else @".paket/paket"
                 OutputPath = "build"
                 Version = version.Value.AsString
             }
