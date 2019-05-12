@@ -263,6 +263,11 @@ type BuildMode =
         | Debug -> "Debug"
         | Release -> "Release"
 
+    member this.AsDotNet =
+        match this with
+        | Debug -> DotNet.BuildConfiguration.Debug
+        | Release -> DotNet.BuildConfiguration.Release
+
 [<NoComparison; NoEquality>]
 type BuildAction =
     | Projects of seq<string>
