@@ -1,5 +1,6 @@
 #r "paket:
 nuget Fake.Core.Target
+nuget Fake.DotNet.Cli
 nuget Fake.IO.FileSystem
 nuget Fake.Tools.Git
 //"
@@ -7,6 +8,7 @@ nuget Fake.Tools.Git
 open System.IO
 open Fake.Core
 open Fake.Core.TargetOperators
+open Fake.DotNet
 open Fake.IO
 open Fake.IO.FileSystemOperators
 open Fake.Tools
@@ -72,6 +74,10 @@ Target.create "RemoveFiles" <| fun _ ->
         Git.CommandHelper.showGitCommand dstDir (sprintf "rm -f %s" rel)
     )
 
+let installPaket() =
+    DotNet.exec id "restore" (dstDir </> ".paket")
+    |> ignore
+
 let fixPaketDependencies() =
     let path = dstDir </> "paket.dependencies"
     let lines = File.ReadAllLines path
@@ -115,6 +121,7 @@ let paketUpdate() =
 
 Target.description "Fix the paket dependencies"
 Target.create "UpdatePaket" <| fun _ ->
+    installPaket()
     fixPaketDependencies()
     paketUpdate()
 
@@ -144,9 +151,9 @@ Target.description "Convert and check that it builds"
 Target.create "All" ignore
 
 "AddFiles"
-    ==> "RemoveFiles"
     ==> "UpdatePaket"
     ==> "UpdateGitIgnore"
+    ==> "RemoveFiles"
     ==> "Convert"
     ==> "All"
 
