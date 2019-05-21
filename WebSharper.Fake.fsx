@@ -305,8 +305,8 @@ let msbuildVerbosity = verbose >> function
 let MakeTargets (args: Args) =
 
     let dirtyDirs =
-        !! "/**/bin"
-        ++ "/**/obj"
+        !! "./**/bin"
+        ++ "./**/obj"
         ++ "build"
 
     Target.create "WS-Clean" <| fun _ ->
