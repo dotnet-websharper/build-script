@@ -464,8 +464,11 @@ let MakeTargets (args: Args) =
         ==> "WS-Publish"
         ==> "CI-Release"
 
-    "WS-Update"
+    "WS-Restore"
         ==> "WS-Publish"
+
+    "WS-Restore"
+        ?=> "WS-GenAssemblyInfo"
 
     "WS-Clean"
         ==> "WS-Checkout"
