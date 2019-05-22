@@ -306,7 +306,8 @@ let MakeTargets (args: Args) =
 
     let dirtyDirs =
         !! "./**/bin"
-        ++ "./**/obj"
+        ++ "**/obj/Debug"
+        ++ "**/obj/Release"
         ++ "build"
 
     Target.create "WS-Clean" <| fun _ ->
