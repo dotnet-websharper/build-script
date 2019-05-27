@@ -271,8 +271,8 @@ MSBuildDefaults <- { MSBuildDefaults with Verbosity = Some msbuildVerbosity }
 let MakeTargets (args: Args) =
 
     let dirtyDirs =
-        !! "./**/bin"
-        ++ "./**/obj"
+        !! "/**/bin"
+        ++ "/**/obj"
         ++ "build"
 
     Target "WS-Clean" <| fun () ->
