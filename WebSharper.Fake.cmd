@@ -14,6 +14,9 @@ if not "%BuildBranch%"=="" (
 )
 
 if "%MSBUILD%"=="" (
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Preview\MSBuild\Current\Bin\" (
+    set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Preview\MSBuild\Current\Bin\"
+  )
   if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\MSBuild\Current\Bin\" (
     set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\MSBuild\Current\Bin\"
   )
@@ -22,6 +25,9 @@ if "%MSBUILD%"=="" (
   )
   if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\MSBuild\Current\Bin\" (
     set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\MSBuild\Current\Bin\"
+  )
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Preview\MSBuild\Current\Bin\" (
+    set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Preview\MSBuild\Current\Bin\"
   )
   if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\" (
     set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\"
