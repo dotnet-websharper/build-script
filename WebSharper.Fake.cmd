@@ -13,8 +13,34 @@ if not "%BuildBranch%"=="" (
   set /p BuildFromRef=<build\buildFromRef
 )
 
+if "%MSBUILD%"=="" (
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\MSBuild\Current\Bin\" (
+    set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\MSBuild\Current\Bin\"
+  )
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Professional\MSBuild\Current\Bin\" (
+    set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Professional\MSBuild\Current\Bin\"
+  )
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\MSBuild\Current\Bin\" (
+    set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\MSBuild\Current\Bin\"
+  )
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\" (
+    set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\"
+  )
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\" (
+    set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\"
+  )
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\" (
+    set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
+  )
+)
+
 if "%VisualStudioVersion%"=="" (
-  set VisualStudioVersion=15.0
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\" (
+    set VisualStudioVersion=15.0
+  )
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\" (
+    set VisualStudioVersion=16.0
+  )
 )
 
 packages\build\FAKE\tools\FAKE.exe build.fsx %*
