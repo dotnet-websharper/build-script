@@ -2,6 +2,11 @@
 setlocal
 set PATH=%GitToolPath%;%PATH%
 
+if not "%WsUpdate%"=="" (
+  .paket\paket.exe update -g build --no-install
+  if errorlevel 1 exit /b %errorlevel%
+)
+
 cls
 
 if not "%BuildBranch%"=="" (
