@@ -34,17 +34,17 @@ if "%MSBUILD%"=="" (
   if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\" (
     set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
   )
-  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Preview\MSBuild\Current\Bin\" (
-    set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Preview\MSBuild\Current\Bin\"
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Preview\MSBuild\15.0\Bin\" (
+    set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Preview\MSBuild\15.0\Bin\"
   )
-  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\MSBuild\Current\Bin\" (
-    set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\MSBuild\Current\Bin\"
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\" (
+    set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\"
   )
-  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Professional\MSBuild\Current\Bin\" (
-    set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Professional\MSBuild\Current\Bin\"
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\" (
+    set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\"
   )
-  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\MSBuild\Current\Bin\" (
-    set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\MSBuild\Current\Bin\"
+  if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\" (
+    set "MSBUILD=%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\"
   )
 )
 
