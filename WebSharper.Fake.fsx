@@ -365,6 +365,7 @@ let MakeTargets (args: Args) =
                     { p with
                         Verbosity = Some (msbuildVerbosity o)
                         Properties = ["Configuration", string mode]
+                        DisableInternalBinLog = true // workaround for https://github.com/fsharp/FAKE/issues/2515
                     }
             Seq.iter build files
         | Custom f -> f mode
