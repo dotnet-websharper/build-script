@@ -2,10 +2,8 @@
 setlocal
 set PATH=%GitToolPath%;%PATH%
 
-if not exist .paket\fake.exe dotnet tool install fake-cli --tool-path .paket
-
 if not "%BuildBranch%"=="" (
-  .paket\fake.exe run build.fsx -t ws-checkout
+  dotnet fake run build.fsx -t ws-checkout
   if errorlevel 1 exit /b %errorlevel%
 
   set /p BuildFromRef=<build\buildFromRef
@@ -25,7 +23,7 @@ set _Add-t=""
 set FirstArg=%1
 if not "%FirstArg%"=="" if not "%FirstArg:~0,1%"=="-" set _Add-t=1
 if "%_Add-t%"=="1" (
-  .paket\fake.exe run build.fsx -t %*
+  dotnet fake run build.fsx -t %*
 ) else (
-  .paket\fake.exe run build.fsx %*
+  dotnet fake run build.fsx %*
 )
