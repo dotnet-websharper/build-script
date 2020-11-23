@@ -410,10 +410,6 @@ let MakeTargets (args: Args) =
                 File.WriteAllLines(outName, s)
         Paket.pack <| fun p ->
             { p with
-                ToolPath =
-                    if Environment.isWindows
-                    then @".paket\paket.exe"
-                    else @".paket/paket"
                 OutputPath = "build"
                 Version = version.Value.AsString
             }
@@ -438,10 +434,6 @@ let MakeTargets (args: Args) =
             Trace.tracefn "[NUGET] Publishing to %s" nugetPublishUrl
             Paket.push <| fun p ->
                 { p with
-                    ToolPath =
-                        if Environment.isWindows
-                        then @".paket\paket.exe"
-                        else @".paket/paket"
                     PublishUrl = nugetPublishUrl
                     WorkingDir = "build"
                 }
