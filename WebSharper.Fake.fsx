@@ -322,11 +322,15 @@ let MakeTargets (args: Args) =
                 pkg.Name.Contains "WebSharper" || pkg.Name.Contains "Zafir")
         if needsUpdate then
             attempt 3 <| fun () ->
-                shell ".paket/paket.exe" "update -g %s %s"
-                    mainGroup.Name.Name
-                    (if Environment.environVarAsBoolOrDefault "PAKET_REDIRECTS" false
-                     then "--redirects"
-                     else "")
+                let res =
+                    DotNet.exec id "paket"
+                        (sprintf "update -g %s %s"
+                            mainGroup.Name.Name
+                            (if Environment.environVarAsBoolOrDefault "PAKET_REDIRECTS" false
+                             then "--redirects"
+                             else "")
+                        )
+                if not res.OK then failwith "dotnet paket update failed"
 
     Target.create "WS-Restore" <| fun _ ->
         if not (Environment.environVarAsBoolOrDefault "NOT_DOTNET" false) then
@@ -410,6 +414,7 @@ let MakeTargets (args: Args) =
                 File.WriteAllLines(outName, s)
         Paket.pack <| fun p ->
             { p with
+                ToolType = ToolType.CreateLocalTool()
                 OutputPath = "build"
                 Version = version.Value.AsString
             }
@@ -434,6 +439,7 @@ let MakeTargets (args: Args) =
             Trace.tracefn "[NUGET] Publishing to %s" nugetPublishUrl
             Paket.push <| fun p ->
                 { p with
+                    ToolType = ToolType.CreateLocalTool()
                     PublishUrl = nugetPublishUrl
                     WorkingDir = "build"
                 }
