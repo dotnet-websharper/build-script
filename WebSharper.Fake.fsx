@@ -22,15 +22,20 @@ Versioning policy (as implemented in ComputeVersion):
     * Otherwise, increment from the tag's patch number.
   * Build is set to $(BUILD_NUMBER) if that is defined, baseVersion.Build + 1 otherwise.
 *)
+
 module WebSharper.Fake
 
 #nowarn "20"  // Ignore string result of ==>
-#load "../../../../../.fake/build.fsx/intellisense.fsx"
-#if INTERACTIVE
-#r "C:/.nuget/packages/netstandard.library/2.0.3/build/netstandard2.0/ref/netstandard.dll"
-#endif
+#r "nuget: FAKE.Core"
+#r "nuget: Fake.Core.Target"
+#r "nuget: Fake.IO.FileSystem"
+#r "nuget: Fake.Tools.Git"
+#r "nuget: Fake.DotNet.Cli"
+#r "nuget: Fake.DotNet.AssemblyInfoFile"
+#r "nuget: Fake.DotNet.Paket"
+#r "nuget: Paket.Core"
+
 #load "UpdateLicense.fsx"
-#nowarn "49"
 
 open System
 open System.IO
