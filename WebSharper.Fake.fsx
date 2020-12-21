@@ -26,6 +26,18 @@ Versioning policy (as implemented in ComputeVersion):
 module WebSharper.Fake
 
 #nowarn "20"  // Ignore string result of ==>
+
+#if FAKE
+#r "paket:
+nuget FAKE.Core
+nuget Fake.Core.Target
+nuget Fake.IO.FileSystem
+nuget Fake.Tools.Git
+nuget Fake.DotNet.Cli
+nuget Fake.DotNet.AssemblyInfoFile
+nuget Fake.DotNet.Paket
+nuget Paket.Core //"
+#else
 #r "nuget: FAKE.Core"
 #r "nuget: Fake.Core.Target"
 #r "nuget: Fake.IO.FileSystem"
@@ -34,6 +46,7 @@ module WebSharper.Fake
 #r "nuget: Fake.DotNet.AssemblyInfoFile"
 #r "nuget: Fake.DotNet.Paket"
 #r "nuget: Paket.Core"
+#endif
 
 #load "UpdateLicense.fsx"
 
