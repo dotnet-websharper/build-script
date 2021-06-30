@@ -22,25 +22,25 @@ jobs:
         ref: websharper50
         path: core
 
+    - name: Build WS Core
+      run: ./build CI-Release
+      working-directory: ./core
+      env: 
+        WSPackageFolder: ../localnuget
+        BUILD_NUMBER: ${{ github.run_id }}
+
     - name: Check out WS.UI
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/ui
         ref: websharper50
         path: ui
-
-    - name: Build WS Core
-      run: ./build CI-Release
-      working-directory: ./core
-      env: 
-        NugetPublishUrl: ../localnuget
-        BUILD_NUMBER: ${{ github.run_id }}
-
+        
     - name: Build WS.UI
       run: ./build CI-Release
       working-directory: ./ui
       env: 
-        NugetPublishUrl: ../localnuget
+        WSPackageFolder: ../localnuget
         BUILD_NUMBER: ${{ github.run_id }}
 
     - name: Publish Nuget packages to GitHub registry
