@@ -32,18 +32,18 @@ jobs:
     - name: Build WS Core
       run: ./build CI-Build
       working-directory: ./core
-      with: 
+      env: 
         NugetPublishUrl: ../localnuget
         BUILD_NUMBER: ${{ github.run_id }}
 
     - name: Build WS.UI
       run: ./build CI-Build
       working-directory: ./ui
-      with: 
+      env: 
         NugetPublishUrl: ../localnuget
         BUILD_NUMBER: ${{ github.run_id }}
 
     - name: Publish Nuget packages to GitHub registry
       run: dotnet nuget push ./localnuget -s https://nuget.pkg.github.com/dotnet-websharper/index.json -k ${GITHUB_TOKEN}  
-      with:
+      env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
