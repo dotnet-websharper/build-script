@@ -30,14 +30,14 @@ jobs:
         path: ui
 
     - name: Build WS Core
-      run: ./build CI-Build
+      run: ./build CI-Release
       working-directory: ./core
       env: 
         NugetPublishUrl: ../localnuget
         BUILD_NUMBER: ${{ github.run_id }}
 
     - name: Build WS.UI
-      run: ./build CI-Build
+      run: ./build CI-Release
       working-directory: ./ui
       env: 
         NugetPublishUrl: ../localnuget
