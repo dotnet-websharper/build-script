@@ -46,6 +46,4 @@ jobs:
       working-directory: ./ui
 
     - name: Publish Nuget packages to GitHub registry
-      run: dotnet nuget push ./localnuget -s https://nuget.pkg.github.com/dotnet-websharper/index.json
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      run: dotnet nuget push ./localnuget -s https://nuget.pkg.github.com/dotnet-websharper/index.json --api-key ${{secrets.GITHUB_TOKEN}}
