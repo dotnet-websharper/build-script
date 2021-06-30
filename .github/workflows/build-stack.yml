@@ -1,0 +1,49 @@
+name: Build WebSharper 5 Stack
+
+on:
+  workflow_dispatch
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+
+    - name: Check out WS Core
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/core
+        ref: websharper50
+        path: core
+
+    - name: Check out WS.UI
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/ui
+        ref: websharper50
+        path: ui
+
+    - name: Build WS Core
+      run: ./build CI-Build
+      working-directory: ./core
+      with: 
+        NugetPublishUrl: ../localnuget
+        BUILD_NUMBER: ${{ github.run_id }}
+
+    - name: Build WS.UI
+      run: ./build CI-Build
+      working-directory: ./ui
+      with: 
+        NugetPublishUrl: ../localnuget
+        BUILD_NUMBER: ${{ github.run_id }}
+
+    - name: Publish Nuget packages to GitHub registry
+      run: dotnet nuget push ./localnuget -s https://nuget.pkg.github.com/dotnet-websharper/index.json -k ${GITHUB_TOKEN}  
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
