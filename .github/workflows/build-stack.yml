@@ -8,6 +8,14 @@ jobs:
 
     runs-on: windows-latest
 
+    permissions:
+      packages: write
+      contents: read
+      
+    env: 
+      WSPackageFolder: ../localnuget
+      BUILD_NUMBER: ${{ github.run_number }}
+    
     steps:
     
     - name: Setup .NET
@@ -25,9 +33,6 @@ jobs:
     - name: Build WS Core
       run: ./build CI-Release
       working-directory: ./core
-      env: 
-        WSPackageFolder: ../localnuget
-        BUILD_NUMBER: ${{ github.run_id }}
 
     - name: Check out WS.UI
       uses: actions/checkout@v2
@@ -39,11 +44,8 @@ jobs:
     - name: Build WS.UI
       run: ./build CI-Release
       working-directory: ./ui
-      env: 
-        WSPackageFolder: ../localnuget
-        BUILD_NUMBER: ${{ github.run_id }}
 
     - name: Publish Nuget packages to GitHub registry
-      run: dotnet nuget push ./localnuget -s https://nuget.pkg.github.com/dotnet-websharper/index.json -k ${GITHUB_TOKEN}  
+      run: dotnet nuget push ./localnuget -s https://nuget.pkg.github.com/dotnet-websharper/index.json
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
