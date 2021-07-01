@@ -258,8 +258,9 @@ type WSTargets =
     }
 
     member this.AddPrebuild s =
-        "WS-GenAssemblyInfo" ?=> s ==> "WS-BuildDebug"
-        "WS-GenAssemblyInfo" ?=> s ==> "WS-BuildRelease"
+        "WS-GenAssemblyInfo" ==> s 
+        s ==> "WS-BuildDebug"
+        s ==> "WS-BuildRelease"
         ()
 
 let msbuildVerbosity = verbose >> function
