@@ -45,5 +45,8 @@ jobs:
       run: ./build CI-Release
       working-directory: ./ui
 
+    - name: List packages within ./localnuget
+      run: ls ./localnuget
+
     - name: Publish Nuget packages to GitHub registry
       run: dotnet nuget push ./localnuget/*.nupkg --source https://nuget.pkg.github.com/dotnet-websharper/index.json --api-key ${{secrets.GITHUB_TOKEN}}
