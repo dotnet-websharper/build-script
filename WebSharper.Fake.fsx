@@ -129,21 +129,6 @@ let gitSilentNoFail cmd =
         Git.CommandHelper.directRunGitCommand "." s
     ) cmd
 
-let hg cmd = shell "hg" cmd
-let hg' cmd = shellOut "hg" cmd
-
-let attempt n f =
-    let rec tryRun attempt =
-        try
-            f()
-        with _ ->
-            if attempt < n then
-                printfn "attempt %i failed, retrying" attempt
-                tryRun (attempt + 1)
-            else
-                reraise()
-    tryRun 1
-
 let private splitLines (s: string) =
     s.Split([| "\r\n"; "\n" |], StringSplitOptions.None)
 
@@ -169,55 +154,16 @@ module Git =
             Environment.environVar "GIT_BRANCH"
         | s -> s
 
-module Hg =
-    let getBookmarks() =
-        hg' """bookmark -T "{bookmark} {node|short}\n" """
-        |> splitLines
-        |> Array.map (fun s -> s.Split(' ').[0])
-
-    let getCurrentCommitId() =
-        (hg' "id -i").Trim()
-
-    let getCurrentBranch() =
-        (hg' "branch").Trim()
-
-    let commitIdForBookmark (b: string) =
-        hg' """bookmark -T "{bookmark} {node|short}\n" """
-        |> splitLines
-        |> Array.pick (fun s ->
-            let a = s.Split(' ')
-            if a.[0] = b then Some a.[1] else None
-        )
-
-    let branchExists (b: string) =
-        hg' """branches -T "{branch}\n" """
-        |> splitLines
-        |> Array.contains b
-
-    let isAncestorOfCurrent (ref: string) =
-        let o = hg' """log --rev "ancestors(.) and %s" """ ref
-        not (String.IsNullOrWhiteSpace o)
-
 module VC =
-    let isGit = Directory.Exists ".git"
-
     let getTags() =
-        if isGit then
-            let _ok, out, _err = Git.CommandHelper.runGitCommand "." "tag --merged"
-            Array.ofList out
-        else
-            Hg.getBookmarks()
+        let _ok, out, _err = Git.CommandHelper.runGitCommand "." "tag --merged"
+        Array.ofList out
 
     let getCurrentCommitId() =
-        if isGit then
-            Git.Information.getCurrentSHA1 "."
-        else
-            Hg.getCurrentCommitId()
+        Git.Information.getCurrentSHA1 "."
 
     let commitIdForTag tag =
-        if isGit then
-            Git.Branches.getSHA1 "." ("refs/tags/" + tag)
-        else Hg.commitIdForBookmark tag
+        Git.Branches.getSHA1 "." ("refs/tags/" + tag)
 
 let ComputeVersion (baseVersion: option<Paket.SemVerInfo>) =
     let lastVersion, tag =
@@ -317,13 +263,14 @@ type WSTargets =
         ()
 
 let msbuildVerbosity = verbose >> function
-    | true -> MSBuildVerbosity.Normal
+    | true -> MSBuildVerbosity.Detailed
     | false -> MSBuildVerbosity.Minimal
 
 let MakeTargets (args: Args) =
 
     let dirtyDirs =
-        !! "./**/bin"
+        !! "**/bin/Debug"
+        ++ "**/bin/Release"
         ++ "**/obj/Debug"
         ++ "**/obj/Release"
         ++ "build"
@@ -339,22 +286,30 @@ let MakeTargets (args: Args) =
             |> Seq.exists (fun { Name = pkg } ->
                 pkg.Name.Contains "WebSharper" || pkg.Name.Contains "Zafir")
         if needsUpdate then
-            attempt 3 <| fun () ->
-                let res =
-                    DotNet.exec id "paket"
-                        (sprintf "update -g %s %s"
-                            mainGroup.Name.Name
-                            (if Environment.environVarAsBoolOrDefault "PAKET_REDIRECTS" false
-                             then "--redirects"
-                             else "")
-                        )
-                if not res.OK then failwith "dotnet paket update failed"
+            let res =
+                DotNet.exec id "paket"
+                    (sprintf "update -g %s %s"
+                        mainGroup.Name.Name
+                        (if Environment.environVarAsBoolOrDefault "PAKET_REDIRECTS" false
+                            then "--redirects"
+                            else "")
+                    )
+            if not res.OK then failwith "dotnet paket update failed"
 
     Target.create "WS-Restore" <| fun _ ->
         if not (Environment.environVarAsBoolOrDefault "NOT_DOTNET" false) then
             let slns = (Environment.environVarOrDefault "DOTNETSOLUTION" "").Trim('"').Split(';')
-            for sln in slns do
-                attempt 3 <| fun () -> shell "dotnet" "restore %s --disable-parallel" sln
+            let restore p =
+                DotNet.restore (fun o -> 
+                    { o with 
+                        DisableParallel = true
+                    }
+                ) p
+            if slns |> Array.isEmpty then
+                restore ""
+            else
+                for sln in slns do
+                    restore sln
 
     /// DO NOT force this lazy value in or before WS-Update.
     let version =
@@ -382,13 +337,15 @@ let MakeTargets (args: Args) =
     let rec build o mode action =
         match action with
         | BuildAction.Projects files ->
-            let build = DotNet.msbuild <| fun p ->
-                p.WithMSBuildParams <| fun p ->
-                    { p with
-                        Verbosity = Some (msbuildVerbosity o)
-                        Properties = ["Configuration", string mode]
-                        DisableInternalBinLog = true // workaround for https://github.com/fsharp/FAKE/issues/2515
-                    }
+            let build = DotNet.build <| fun p ->
+                { p with
+                    MSBuildParams = 
+                        { p.MSBuildParams with
+                            Verbosity = Some (msbuildVerbosity o)
+                            Properties = ["Configuration", string mode]
+                            DisableInternalBinLog = true // workaround for https://github.com/fsharp/FAKE/issues/2515
+                        }
+                }
             Seq.iter build files
         | Custom f -> f mode
         | Multiple actions -> Seq.iter (build o mode) actions
@@ -441,27 +398,10 @@ let MakeTargets (args: Args) =
         match args.WorkBranch with
         | None -> ()
         | Some branch ->
-            if VC.isGit then
-                try git "checkout -f %s" branch
-                with e ->
-                    try git "checkout -f -b %s" branch
-                    with _ -> raise e
-            else
-                if Hg.branchExists branch
-                then hg "update -C %s" branch
-                else hg "branch %s" branch
-
-    Target.create "WS-Publish" <| fun _ ->
-        match Environment.environVarOrNone "NugetPublishUrl" with
-        | Some nugetPublishUrl ->
-            Trace.tracefn "[NUGET] Publishing to %s" nugetPublishUrl
-            Paket.push <| fun p ->
-                { p with
-                    ToolType = ToolType.CreateLocalTool()
-                    PublishUrl = nugetPublishUrl
-                    WorkingDir = "build"
-                }
-        | _ -> Trace.traceError "[NUGET] Not publishing: NugetPublishUrl not set"
+            try git "checkout -f %s" branch
+            with e ->
+                try git "checkout -f -b %s" branch
+                with _ -> raise e
 
     Target.create "CI-Release" ignore
 
@@ -472,27 +412,25 @@ let MakeTargets (args: Args) =
         UpdateLicense.interactiveAddMissingCopyright ()
 
     "WS-Clean"
+        ==> "WS-Checkout"
+
+    "WS-Clean"
         ==> "WS-Update"
-        ==> "WS-Restore"
-        =?> ("WS-GenAssemblyInfo", Environment.environVarAsBoolOrDefault "BuildBranch" false)
+        ?=> "WS-Restore"
+
+    "WS-Restore"
+        ==> "WS-GenAssemblyInfo"
+        ==> "WS-BuildRelease"
+        ==> "WS-Package"
+        ==> "CI-Release"
 
     "WS-GenAssemblyInfo"
         ==> "WS-BuildDebug"
         ==> "Build"
-    "WS-GenAssemblyInfo"
-        ==> "WS-BuildRelease"
-        ==> "WS-Package"
-        ==> "WS-Publish"
+
+    "WS-Update"
         ==> "CI-Release"
 
-    "WS-Restore"
-        ==> "WS-Publish"
-
-    "WS-Restore"
-        ?=> "WS-GenAssemblyInfo"
-
-    "WS-Clean"
-        ==> "WS-Checkout"
 
     {
         BuildDebug = "Build"
@@ -511,9 +449,7 @@ type WSTargets with
             BuildAction = BuildAction.Solution "*.sln"
             Attributes = Seq.empty
             WorkBranch = buildBranch
-            PushRemote =
-                Environment.environVarOrDefault "PushRemote"
-                    (if VC.isGit then "origin" else "default")
+            PushRemote = Environment.environVarOrDefault "PushRemote" "origin"
         }
 
     static member Default () =
