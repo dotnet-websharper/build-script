@@ -296,15 +296,20 @@ let MakeTargets (args: Args) =
                     )
             if not res.OK then failwith "dotnet paket update failed"
 
-    Target.create "WS-Restore" <| fun _ ->
+    Target.create "WS-Restore" <| fun o ->
         if not (Environment.environVarAsBoolOrDefault "NOT_DOTNET" false) then
             let slns = (Environment.environVarOrDefault "DOTNETSOLUTION" "").Trim('"').Split(';')
-            let restore p =
-                DotNet.restore (fun o -> 
-                    { o with 
+            let restore proj =
+                DotNet.restore (fun p -> 
+                    { p with 
                         DisableParallel = true
+                        MSBuildParams = 
+                            { p.MSBuildParams with
+                                Verbosity = Some (msbuildVerbosity o)
+                                DisableInternalBinLog = true // workaround for https://github.com/fsharp/FAKE/issues/2515
+                            }
                     }
-                ) p
+                ) proj
             if slns |> Array.isEmpty then
                 restore ""
             else
