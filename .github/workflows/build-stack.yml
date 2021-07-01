@@ -15,6 +15,7 @@ jobs:
     env: 
       WSPackageFolder: ../localnuget
       BUILD_NUMBER: ${{ github.run_number }}
+      NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}} 
     
     steps:
     
@@ -22,6 +23,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
+        source-url: https://nuget.pkg.github.com/dotnet-websharper/index.json
 
     - name: Check out WS Core
       uses: actions/checkout@v2
@@ -49,5 +51,5 @@ jobs:
       run: ls ./localnuget
 
     - name: Publish Nuget packages to GitHub registry
-      run: dotnet nuget push *.nupkg --source https://nuget.pkg.github.com/dotnet-websharper/index.json --api-key ${{secrets.GITHUB_TOKEN}}
+      run: dotnet nuget push *.nupkg
       working-directory: ./localnuget
