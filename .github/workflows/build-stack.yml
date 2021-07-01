@@ -15,6 +15,7 @@ jobs:
     env: 
       WSPackageFolder: ../localnuget
       BUILD_NUMBER: ${{ github.run_number }}
+      NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     
     steps:
     
@@ -50,5 +51,5 @@ jobs:
       run: ls ./localnuget
 
     - name: Publish Nuget packages to GitHub registry
-      run: dotnet nuget push *.nupkg -k ${{secrets.GITHUB_TOKEN}}
+      run: dotnet nuget push *.nupkg -k %NUGET_AUTH_TOKEN%
       working-directory: ./localnuget
