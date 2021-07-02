@@ -50,6 +50,17 @@ jobs:
       run: ./build CI-Release
       working-directory: ./ui
 
+    - name: Check out WS.Templates
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/templates
+        ref: websharper50
+        path: templates
+        
+    - name: Build WS.Templates
+      run: ./build Package
+      working-directory: ./templates
+      
     - name: List packages within ./localnuget
       run: ls ./localnuget
 
