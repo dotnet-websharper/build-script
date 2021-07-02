@@ -50,3 +50,10 @@ jobs:
           --source https://nuget.pkg.github.com/dotnet-websharper/index.json 
           --api-key ${{secrets.GITHUB_TOKEN}}
       working-directory: ./localnuget
+      
+    - name: Push packages as artifacts on failure
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: Packages
+        path: ./localnuget
