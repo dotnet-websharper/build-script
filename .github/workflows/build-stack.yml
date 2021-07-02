@@ -19,14 +19,14 @@ jobs:
       with:
         dotnet-version: 5.0.x
         
-      - name: Add GitHub registry NuGet source
-        run: 
-          dotnet nuget 
-            add source https://nuget.pkg.github.com/dotnet-websharper/index.json 
-            --name github 
-            --username intellifactory-gh 
-            --password ${{secrets.PAT_PACKAGE}} 
-            --store-password-in-clear-text
+    - name: Add GitHub registry NuGet source
+      run: 
+        dotnet nuget 
+          add source https://nuget.pkg.github.com/dotnet-websharper/index.json 
+          --name github 
+          --username intellifactory-gh 
+          --password ${{secrets.PAT_PACKAGE}} 
+          --store-password-in-clear-text
 
     - name: Check out WS Core
       uses: actions/checkout@v2
