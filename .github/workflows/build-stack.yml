@@ -18,6 +18,15 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
+        
+      - name: Add GitHub registry NuGet source
+        run: 
+          dotnet nuget 
+            add source https://nuget.pkg.github.com/dotnet-websharper/index.json 
+            --name github 
+            --username intellifactory-gh 
+            --password ${{secrets.PAT_PACKAGE}} 
+            --store-password-in-clear-text
 
     - name: Check out WS Core
       uses: actions/checkout@v2
@@ -45,10 +54,7 @@ jobs:
       run: ls ./localnuget
 
     - name: Publish NuGet packages to GitHub registry
-      run: 
-        dotnet nuget push *.nupkg 
-          --source https://nuget.pkg.github.com/dotnet-websharper/index.json 
-          --api-key ${{secrets.GITHUB_TOKEN}}
+      run: dotnet nuget push *.nupkg --source github
       working-directory: ./localnuget
       
     - name: Push packages as artifacts on failure
