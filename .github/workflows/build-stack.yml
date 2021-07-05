@@ -11,7 +11,6 @@ jobs:
     env: 
       WSPackageFolder: ../localnuget
       BUILD_NUMBER: ${{ github.run_number }}
-      WSGitToken: ${{ secrets.PAT_PACKAGE }}  
     
     steps:
     
@@ -50,6 +49,7 @@ jobs:
         repository: dotnet-websharper/core
         ref: websharper50
         path: core
+        token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Build WS Core
       run: ./build CI-Release
@@ -61,6 +61,7 @@ jobs:
         repository: dotnet-websharper/ui
         ref: websharper50
         path: ui
+        token: ${{ secrets.PAT_PACKAGE }}
         
     - name: Build WS.UI
       run: ./build CI-Release
@@ -72,6 +73,7 @@ jobs:
         repository: dotnet-websharper/aspnetcore
         ref: websharper50
         path: aspnetcore
+        token: ${{ secrets.PAT_PACKAGE }}
         
     - name: Build WS.AspNetCore.WebSocket
       run: ./build CI-Release
@@ -83,6 +85,7 @@ jobs:
         repository: dotnet-websharper/templates
         ref: websharper50
         path: templates
+        token: ${{ secrets.PAT_PACKAGE }}
         
     - name: Build WS.Templates
       run: ./build CI-Release
