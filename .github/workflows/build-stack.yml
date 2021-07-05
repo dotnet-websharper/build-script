@@ -80,7 +80,7 @@ jobs:
         path: templates
         
     - name: Build WS.Templates
-      run: ./build Package
+      run: ./build CI-Release
       working-directory: ./templates
       
     - name: List packages within ./localnuget
