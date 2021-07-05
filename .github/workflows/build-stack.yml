@@ -29,6 +29,9 @@ jobs:
           --password ${{ secrets.PAT_PACKAGE }} 
           --store-password-in-clear-text
 
+    - name: Install Paket as global tool
+      run: dotnet tool install paket --global
+
     - name: Add credentials for Paket
       run:
         dotnet paket
