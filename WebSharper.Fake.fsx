@@ -368,12 +368,19 @@ let MakeTargets (args: Args) =
     Target.create "Build" ignore
 
     Target.create "WS-Package" <| fun _ ->      
+        let outputPath = Environment.environVarOrNone "WSPackageFolder" |> Option.defaultValue "build"
         Paket.pack <| fun p ->
             { p with
                 ToolType = ToolType.CreateLocalTool()
-                OutputPath = Environment.environVarOrNone "WSPackageFolder" |> Option.defaultValue "build"
+                OutputPath = outputPath
                 Version = version.Value.AsString
             }
+        let versionsFilePath = outputPath </> "versions.txt"
+        let repoName = Directory.GetCurrentDirectory() |> Path.getFullName
+        if not (File.exists versionsFilePath) then
+            File.writeNew versionsFilePath [ repoName + " " + version.Value.AsString ]
+        else
+            File.write true versionsFilePath [ repoName + " " + version.Value.AsString ]
 
     Target.create "WS-Checkout" <| fun _ ->
         match args.WorkBranch with
@@ -412,11 +419,35 @@ let MakeTargets (args: Args) =
     "WS-Update"
         ==> "CI-Release"
 
+    "WS-Update"
+    ==> "CI-Commit"
 
     {
         BuildDebug = "Build"
         Publish = "CI-Release"
     }
+
+Target.create "CI-Commit" <| fun _ ->
+    let outputPath = Environment.environVarOrNone "WSPackageFolder" |> Option.defaultValue "build"
+    let versionsFilePath = outputPath </> "versions.txt"
+    let repoName = Directory.GetCurrentDirectory() |> Path.getFullName
+    if File.exists versionsFilePath then
+        let versions = File.ReadAllLines versionsFilePath
+        let version =
+            versions |> Array.tryPick (fun l ->
+                if l.StartsWith(repoName + " ") then
+                    Some (l.[repoName.Length + 1 ..])
+                else None
+            )
+        match version with
+        | None ->
+            failwith "version not found in versions.txt for CI-Commit"
+        | Some v ->
+            git "add -a"
+            git "commit -m \"Version %s\" --allow-empty" v
+            git "push"
+    else
+        failwith "versions.txt not found for CI-Commit"
 
 let RunTargets (targets: WSTargets) =
     Target.runOrDefaultWithArguments targets.BuildDebug
