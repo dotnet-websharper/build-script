@@ -50,6 +50,17 @@ jobs:
       run: ./build CI-Release
       working-directory: ./ui
 
+    - name: Check out WS.AspNetCore.WebSocket
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/aspnetcore
+        ref: websharper50
+        path: aspnetcore
+        
+    - name: Build WS.AspNetCore.WebSocket
+      run: ./build CI-Release
+      working-directory: ./aspnetcore
+
     - name: Check out WS.Templates
       uses: actions/checkout@v2
       with:
