@@ -441,13 +441,17 @@ Target.create "CI-Commit" <| fun _ ->
             )
         match version with
         | None ->
-            failwith "version not found in versions.txt for CI-Commit"
+            failwith "version not found in versions.txt"
         | Some v ->
-            git "add -a"
-            git "commit -m \"Version %s\" --allow-empty" v
-            git "push"
+            match Environment.environVarOrNone "WSGitToken" with
+            | None ->
+                failwith "WSGitToken environment variable not found"
+            | Some gitToken ->
+                git "add -a"
+                git "commit -m \"Version %s\" --allow-empty" v
+                git "push https://%s@github.com/dotnet-websharper/%s.git" gitToken repoName
     else
-        failwith "versions.txt not found for CI-Commit"
+        failwith "versions.txt not found"
 
 let RunTargets (targets: WSTargets) =
     Target.runOrDefaultWithArguments targets.BuildDebug
