@@ -38,6 +38,11 @@ jobs:
           add-credentials https://nuget.pkg.github.com/dotnet-websharper/index.json
           --username intellifactory-gh 
           --password ${{ secrets.PAT_PACKAGE }}
+          
+    - name: Configure IntelliFactory CI git user
+      run: |
+        git config user.email "ci@intellifactory.com"
+        git config user.name "IntelliFactory CI"
 
     - name: Check out WS Core
       uses: actions/checkout@v2
