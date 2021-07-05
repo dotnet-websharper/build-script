@@ -41,8 +41,8 @@ jobs:
           
     - name: Configure IntelliFactory CI git user
       run: |
-        git config user.email "ci@intellifactory.com"
-        git config user.name "IntelliFactory CI"
+        git config --global user.email "ci@intellifactory.com"
+        git config --global user.name "IntelliFactory CI"
 
     - name: Check out WS Core
       uses: actions/checkout@v2
