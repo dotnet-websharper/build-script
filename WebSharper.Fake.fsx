@@ -443,13 +443,9 @@ Target.create "CI-Commit" <| fun _ ->
         | None ->
             failwith "version not found in versions.txt"
         | Some v ->
-            match Environment.environVarOrNone "WSGitToken" with
-            | None ->
-                failwith "WSGitToken environment variable not found"
-            | Some gitToken ->
-                git "add -A"
-                git "commit -m \"Version %s\" --allow-empty" v
-                git "push https://%s@github.com/dotnet-websharper/%s.git" gitToken repoName
+            git "add -A"
+            git "commit -m \"Version %s\" --allow-empty" v
+            git "push"
     else
         failwith "versions.txt not found"
 
