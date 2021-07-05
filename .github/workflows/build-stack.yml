@@ -11,6 +11,7 @@ jobs:
     env: 
       WSPackageFolder: ../localnuget
       BUILD_NUMBER: ${{ github.run_number }}
+      WSGitToken: ${{ secrets.PAT_PACKAGE }}  
     
     steps:
     
@@ -27,6 +28,13 @@ jobs:
           --username intellifactory-gh 
           --password ${{ secrets.PAT_PACKAGE }} 
           --store-password-in-clear-text
+
+    - name: Add credentials for Paket
+      run:
+        dotnet paket
+          config add-credentials https://nuget.pkg.github.com/dotnet-websharper/index.json
+          --username intellifactory-gh 
+          --password ${{ secrets.PAT_PACKAGE }}
 
     - name: Check out WS Core
       uses: actions/checkout@v2
@@ -78,6 +86,22 @@ jobs:
     - name: Publish NuGet packages to GitHub registry
       run: dotnet nuget push *.nupkg --source github --api-key ${{ secrets.PAT_PACKAGE }}
       working-directory: ./localnuget
+      
+    - name: Commit version on WS Core
+      run: ./build CI-Commit
+      working-directory: ./core
+
+    - name: Commit version on WS.UI
+      run: ./build CI-Commit
+      working-directory: ./ui
+      
+    - name: Commit version on WS.AspNetCore.WebSocket
+      run: ./build CI-Commit
+      working-directory: ./aspnetcore
+      
+    - name: Commit version on WS.Templates
+      run: ./build CI-Commit
+      working-directory: ./templates
       
     - name: Push packages as artifact
       if: always()
