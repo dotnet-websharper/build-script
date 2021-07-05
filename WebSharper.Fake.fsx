@@ -447,7 +447,7 @@ Target.create "CI-Commit" <| fun _ ->
             | None ->
                 failwith "WSGitToken environment variable not found"
             | Some gitToken ->
-                git "add -a"
+                git "add -A"
                 git "commit -m \"Version %s\" --allow-empty" v
                 git "push https://%s@github.com/dotnet-websharper/%s.git" gitToken repoName
     else
