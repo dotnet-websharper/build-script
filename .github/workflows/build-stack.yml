@@ -98,6 +98,18 @@ jobs:
       run: dotnet nuget push *.nupkg --source github --api-key ${{ secrets.PAT_PACKAGE }}
       working-directory: ./localnuget
       
+    - name: Push packages as artifact
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: Packages
+        path: ./localnuget
+
+    - name: Clean ./localnuget
+      uses: JesseTG/rm@v1.0.0
+      with:
+        path: ./localnuget
+
     - name: Commit version on WS Core
       run: ./build CI-Commit
       working-directory: ./core
@@ -113,10 +125,3 @@ jobs:
     - name: Commit version on WS.Templates
       run: ./build CI-Commit
       working-directory: ./templates
-      
-    - name: Push packages as artifact
-      if: always()
-      uses: actions/upload-artifact@v2
-      with:
-        name: Packages
-        path: ./localnuget
