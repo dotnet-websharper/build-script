@@ -375,7 +375,7 @@ let MakeTargets (args: Args) =
                 OutputPath = outputPath
                 Version = version.Value.AsString
             }
-        let versionsFilePath = outputPath </> "versions.txt"
+        let versionsFilePath = Environment.environVarOrNone "WSVersionsFile" |> Option.defaultValue "build/versions.txt"
         let repoName = Directory.GetCurrentDirectory() |> Path.GetFileName
         if not (File.exists versionsFilePath) then
             File.writeNew versionsFilePath [ repoName + " " + version.Value.AsString ]
@@ -428,8 +428,7 @@ let MakeTargets (args: Args) =
     }
 
 Target.create "CI-Commit" <| fun _ ->
-    let outputPath = Environment.environVarOrNone "WSPackageFolder" |> Option.defaultValue "build"
-    let versionsFilePath = outputPath </> "versions.txt"
+    let versionsFilePath = Environment.environVarOrNone "WSVersionsFile" |> Option.defaultValue "build/versions.txt"
     let repoName = Directory.GetCurrentDirectory() |> Path.GetFileName
     if File.exists versionsFilePath then
         let versions = File.ReadAllLines versionsFilePath
