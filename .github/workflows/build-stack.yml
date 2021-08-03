@@ -91,6 +91,18 @@ jobs:
     - name: Build WS.Templates
       run: ./build CI-Release
       working-directory: ./templates
+
+    - name: Check out WS.JQuery
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/jquery
+        ref: master
+        path: jquery
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Build WS.JQuery
+      run: ./build CI-Release
+      working-directory: ./jquery
       
     - name: List packages within ./localnuget
       run: ls ./localnuget
@@ -126,3 +138,7 @@ jobs:
     - name: Commit version on WS.Templates
       run: ./build CI-Commit
       working-directory: ./templates
+    
+    - name: Commit version on WS.JQuery
+      run: ./build CI-Commit
+      working-directory: ./jquery
