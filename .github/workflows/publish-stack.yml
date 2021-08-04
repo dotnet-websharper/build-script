@@ -1,0 +1,90 @@
+name: Publish WebSharper 5 Core Stack
+
+on:
+  workflow_dispatch
+
+jobs:
+  publish:
+
+    runs-on: windows-latest
+      
+    steps:
+
+    - name: Download Packages Artifact
+      uses: dawidd6/action-download-artifact@v2
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        workflow: build-stack.yml
+        name: Packages
+        path: Packages
+
+    - name: Push to NuGet
+      run:
+        dotnet nuget push "Packages/*.nupkg"
+          --api-key ${{ secrets.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+    - name: Check out WS Core
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/core
+        ref: websharper50
+        path: core
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Tag WS Core
+      run: ./build CI-Tag
+      working-directory: ./core
+
+    - name: Check out WS.UI
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/ui
+        ref: websharper50
+        path: ui
+        token: ${{ secrets.PAT_PACKAGE }}
+        
+    - name: Tag WS.UI
+      run: ./build CI-Tag
+      working-directory: ./ui
+
+    - name: Check out WS.AspNetCore.WebSocket
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/aspnetcore
+        ref: websharper50
+        path: aspnetcore
+        token: ${{ secrets.PAT_PACKAGE }}
+        
+    - name: Tag WS.AspNetCore.WebSocket
+      run: ./build CI-Tag
+      working-directory: ./aspnetcore
+
+    - name: Check out WS.Templates
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/templates
+        ref: websharper50
+        path: templates
+        token: ${{ secrets.PAT_PACKAGE }}
+        
+    - name: Tag WS.Templates
+      run: ./build CI-Tag
+      working-directory: ./templates
+
+    - name: Check out WS.JQuery
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/jquery
+        ref: master
+        path: jquery
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Tag WS.JQuery
+      run: ./build CI-Tag
+      working-directory: ./jquery
+
+    # TODO: push vsix
+
+    # TODO: push to CDN
