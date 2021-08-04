@@ -124,13 +124,24 @@ let git cmd =
         Git.CommandHelper.directRunGitCommandAndFail "." s
     ) cmd
 
+let private splitLines (s: string) =
+    s.Split([| "\r\n"; "\n" |], StringSplitOptions.None)
+
+let gitOut cmd =
+    use memStr = new MemoryStream()
+    CreateProcess.fromRawCommandLine Git.CommandHelper.gitPath cmd
+    |> CreateProcess.ensureExitCode
+    |> CreateProcess.withStandardOutput (UseStream(false, memStr))
+    |> Proc.run
+    |> ignore
+    memStr.Seek(0L, SeekOrigin.Begin) |> ignore
+    use reader = new StreamReader(memStr)
+    reader.ReadToEnd() |> splitLines
+
 let gitSilentNoFail cmd =
     Printf.kprintf (fun s ->
         Git.CommandHelper.directRunGitCommand "." s
     ) cmd
-
-let private splitLines (s: string) =
-    s.Split([| "\r\n"; "\n" |], StringSplitOptions.None)
 
 /// Generate a file at the given location, but leave it unchanged
 /// if the generated contents are identical to the existing file.
@@ -447,6 +458,37 @@ Target.create "CI-Commit" <| fun _ ->
             git "push"
     else
         failwith "versions.txt not found"
+
+Target.create "CI-Tag" <| fun _ ->
+    let lastCICommitLog =
+        gitOut "log --author=\"ci@intellifactory.com\" -n 1"
+    // prints something like:
+        //commit 39a5220f342488162bc5625fd2db3f9c13048626 (HEAD -> websharper50, origin/websharper50)
+        //Author: IntelliFactory CI <ci@intellifactory.com>
+        //Date:   Tue Aug 3 16:42:05 2021 +0000
+        //
+        //    Version 5.0.0.60-preview1
+
+    let commitSHA = 
+        lastCICommitLog |> Seq.pick (fun l ->
+            let l = l.Trim()
+            if l.StartsWith("commit ") then
+                Some (l.Split(" ").[1])
+            else
+                None
+        )
+
+    let tagName =
+        lastCICommitLog |> Seq.pick (fun l ->
+            let l = l.Trim()
+            if l.StartsWith "Version " then
+                Some (l.Split(" ").[1])
+            else
+                None
+        )
+     
+    git "tag %s %s" tagName commitSHA
+    git "push origin %s" tagName
 
 let RunTargets (targets: WSTargets) =
     Target.runOrDefaultWithArguments targets.BuildDebug
