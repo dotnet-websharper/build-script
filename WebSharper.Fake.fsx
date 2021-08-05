@@ -473,7 +473,7 @@ Target.create "CI-Tag" <| fun _ ->
         lastCICommitLog |> Seq.pick (fun l ->
             let l = l.Trim()
             if l.StartsWith("commit ") then
-                Some (l.Split(" ").[1])
+                Some (l.Split(' ').[1])
             else
                 None
         )
@@ -482,7 +482,7 @@ Target.create "CI-Tag" <| fun _ ->
         lastCICommitLog |> Seq.pick (fun l ->
             let l = l.Trim()
             if l.StartsWith "Version " then
-                Some (l.Split(" ").[1])
+                Some (l.Split(' ').[1])
             else
                 None
         )
