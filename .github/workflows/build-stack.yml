@@ -103,6 +103,18 @@ jobs:
     - name: Build WS.JQuery
       run: ./build CI-Release
       working-directory: ./jquery
+
+    - name: Check out WS.Forms
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/forms
+        ref: master
+        path: forms
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Build WS.Forms
+      run: ./build CI-Release
+      working-directory: ./forms
       
     - name: List packages within ./localnuget
       run: ls ./localnuget

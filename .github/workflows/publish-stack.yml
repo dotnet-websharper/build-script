@@ -85,6 +85,18 @@ jobs:
       run: ./build CI-Tag
       working-directory: ./jquery
 
+    - name: Check out WS.Forms
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/forms
+        ref: master
+        path: forms
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Tag WS.Forms
+      run: ./build CI-Tag
+      working-directory: ./forms
+
     # TODO: push vsix
 
     # TODO: push to CDN
