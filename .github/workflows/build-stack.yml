@@ -108,7 +108,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/forms
-        ref: master
+        ref: websharper50
         path: forms
         token: ${{ secrets.PAT_PACKAGE }}
 
