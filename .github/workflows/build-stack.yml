@@ -154,3 +154,7 @@ jobs:
     - name: Commit version on WS.JQuery
       run: ./build CI-Commit
       working-directory: ./jquery
+
+    - name: Commit version on WS.Forms
+      run: ./build CI-Commit
+      working-directory: ./forms
