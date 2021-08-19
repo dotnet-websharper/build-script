@@ -97,6 +97,18 @@ jobs:
       run: ./build CI-Tag
       working-directory: ./forms
 
+    - name: Check out WS.MVU
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/mvu
+        ref: master
+        path: mvu
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Tag WS.MVU
+      run: ./build CI-Tag
+      working-directory: ./mvu
+
     # TODO: push vsix
 
     # TODO: push to CDN
