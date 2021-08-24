@@ -188,6 +188,6 @@ jobs:
       run: ./build CI-Commit
       working-directory: ./mvu
 
-      - name: Commit version on WS.Leaflet
+    - name: Commit version on WS.Leaflet
       run: ./build CI-Commit
       working-directory: ./leaflet
