@@ -109,6 +109,18 @@ jobs:
       run: ./build CI-Tag
       working-directory: ./mvu
 
+    - name: Check out WS.Leaflet
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/leaflet
+        ref: master
+        path: leaflet
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Tag WS.Leaflet
+      run: ./build CI-Tag
+      working-directory: ./leaflet
+
     # TODO: push vsix
 
     # TODO: push to CDN
