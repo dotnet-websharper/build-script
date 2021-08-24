@@ -127,10 +127,6 @@ jobs:
     - name: Build WS.MVU
       run: ./build CI-Release
       working-directory: ./mvu
-            
-    - name: Build WS.Leaflet
-      run: ./build CI-Release
-      working-directory: ./leaflet
 
     - name: Check out WS.Leaflet
       uses: actions/checkout@v2
@@ -139,7 +135,10 @@ jobs:
         ref: websharper50
         path: leaflet
         token: ${{ secrets.PAT_PACKAGE }}
-            
+
+    - name: Build WS.Leaflet
+      run: ./build CI-Release
+      working-directory: ./leaflet
 
     - name: List packages within ./localnuget
       run: ls ./localnuget
