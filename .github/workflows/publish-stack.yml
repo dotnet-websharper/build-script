@@ -121,6 +121,42 @@ jobs:
       run: ./build CI-Tag
       working-directory: ./leaflet
 
+    - name: Check out WS.React
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/react
+        ref: master
+        path: react
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Tag WS.React
+      run: ./build CI-Tag
+      working-directory: ./react
+
+    - name: Check out WS.D3
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/d3
+        ref: master
+        path: d3
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Tag WS.D3
+      run: ./build CI-Tag
+      working-directory: ./d3
+
+    - name: Check out WS.SignalR
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/signalr
+        ref: master
+        path: signalr
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Tag WS.SignalR
+      run: ./build CI-Tag
+      working-directory: ./signalr
+
     # TODO: push vsix
 
     # TODO: push to CDN

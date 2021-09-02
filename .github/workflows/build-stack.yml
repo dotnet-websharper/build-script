@@ -190,3 +190,15 @@ jobs:
     - name: Commit version on WS.Leaflet
       run: ./build CI-Commit
       working-directory: ./leaflet
+
+    - name: Commit version on WS.D3
+      run: ./build CI-Commit
+      working-directory: ./d3
+
+    - name: Commit version on WS.React
+      run: ./build CI-Commit
+      working-directory: ./react
+
+    - name: Commit version on WS.SignalR
+      run: ./build CI-Commit
+      working-directory: ./signalr
