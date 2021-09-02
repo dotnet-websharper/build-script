@@ -140,6 +140,42 @@ jobs:
       run: ./build CI-Release
       working-directory: ./leaflet
 
+    - name: Check out WS.D3
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/d3
+        ref: websharper50
+        path: d3
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Build WS.D3
+      run: ./build CI-Release
+      working-directory: ./d3
+
+    - name: Check out WS.React
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/react
+        ref: websharper50
+        path: react
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Build WS.React
+      run: ./build CI-Release
+      working-directory: ./react
+
+    - name: Check out WS.SignalR
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/signalr
+        ref: websharper50
+        path: signalr
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Build WS.SignalR
+      run: ./build CI-Release
+      working-directory: ./signalr
+
     - name: List packages within ./localnuget
       run: ls ./localnuget
 
