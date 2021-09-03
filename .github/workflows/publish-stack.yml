@@ -29,7 +29,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/core
-        ref: websharper50
+        ref: master
         path: core
         token: ${{ secrets.PAT_PACKAGE }}
 
@@ -41,7 +41,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/ui
-        ref: websharper50
+        ref: master
         path: ui
         token: ${{ secrets.PAT_PACKAGE }}
         
@@ -53,7 +53,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/aspnetcore
-        ref: websharper50
+        ref: master
         path: aspnetcore
         token: ${{ secrets.PAT_PACKAGE }}
         
@@ -65,7 +65,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/templates
-        ref: websharper50
+        ref: master
         path: templates
         token: ${{ secrets.PAT_PACKAGE }}
         
