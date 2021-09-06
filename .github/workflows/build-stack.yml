@@ -224,6 +224,18 @@ jobs:
       run: ./build CI-Release
       working-directory: ./chartjs
 
+    - name: Check out WS.Charting
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/charting
+        ref: master
+        path: charting
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Build WS.Charting
+      run: ./build CI-Release
+      working-directory: ./charting
+
     - name: List packages within ./localnuget
       run: ls ./localnuget
 
@@ -295,10 +307,14 @@ jobs:
       run: ./build CI-Commit
       working-directory: ./moment
 
-    - name: Commit version on WS.ChartJS
+    - name: Commit version on WS.Plotly
       run: ./build CI-Commit
       working-directory: ./plotly
 
     - name: Commit version on WS.ChartJS
       run: ./build CI-Commit
       working-directory: ./chartjs
+
+    - name: Commit version on WS.Charting
+      run: ./build CI-Commit
+      working-directory: ./charting

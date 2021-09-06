@@ -206,6 +206,18 @@ jobs:
       run: ./build CI-Tag
       working-directory: ./chartjs
 
+    - name: Check out WS.Charting
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/charting
+        ref: master
+        path: charting
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Tag WS.Charting
+      run: ./build CI-Tag
+      working-directory: ./charting
+
     # TODO: push vsix
 
     # TODO: push to CDN
