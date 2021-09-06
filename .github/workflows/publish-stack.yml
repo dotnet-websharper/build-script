@@ -20,10 +20,11 @@ jobs:
 
     - name: Push to NuGet
       run:
-        dotnet nuget push /Packages/*.nupkg
+        dotnet nuget push Packages/*.nupkg
           --api-key ${{ secrets.NUGET_API_KEY }}
           --source https://api.nuget.org/v3/index.json
           --skip-duplicate
+      working-directory: .
 
     - name: Check out WS Core
       uses: actions/checkout@v2
