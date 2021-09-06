@@ -176,6 +176,54 @@ jobs:
       run: ./build CI-Release
       working-directory: ./signalr
 
+    - name: Check out WS.DateFNS
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/datefns
+        ref: master
+        path: datefns
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Build WS.DateFNS
+      run: ./build CI-Release
+      working-directory: ./datefns
+
+    - name: Check out WS.Moment
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/moment
+        ref: master
+        path: moment
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Build WS.Moment
+      run: ./build CI-Release
+      working-directory: ./moment
+
+    - name: Check out WS.Plotly
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/plotly
+        ref: master
+        path: plotly
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Build WS.Plotly
+      run: ./build CI-Release
+      working-directory: ./plotly
+
+    - name: Check out WS.ChartJS
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/chartjs
+        ref: master
+        path: chartjs
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Build WS.Chartjs
+      run: ./build CI-Release
+      working-directory: ./chartjs
+
     - name: List packages within ./localnuget
       run: ls ./localnuget
 
@@ -238,3 +286,19 @@ jobs:
     - name: Commit version on WS.SignalR
       run: ./build CI-Commit
       working-directory: ./signalr
+
+    - name: Commit version on WS.DateFNS
+      run: ./build CI-Commit
+      working-directory: ./datefns
+
+    - name: Commit version on WS.Moment
+      run: ./build CI-Commit
+      working-directory: ./moment
+
+    - name: Commit version on WS.ChartJS
+      run: ./build CI-Commit
+      working-directory: ./plotly
+
+    - name: Commit version on WS.ChartJS
+      run: ./build CI-Commit
+      working-directory: ./chartjs

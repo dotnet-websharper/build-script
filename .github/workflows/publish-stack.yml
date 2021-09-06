@@ -158,6 +158,54 @@ jobs:
       run: ./build CI-Tag
       working-directory: ./signalr
 
+    - name: Check out WS.DateFNS
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/datefns
+        ref: master
+        path: datefns
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Tag WS.DateFNS
+      run: ./build CI-Tag
+      working-directory: ./datefns
+
+    - name: Check out WS.Moment
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/moment
+        ref: master
+        path: moment
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Tag WS.Moment
+      run: ./build CI-Tag
+      working-directory: ./moment
+
+    - name: Check out WS.Plotly
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/plotly
+        ref: master
+        path: plotly
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Tag WS.Plotly
+      run: ./build CI-Tag
+      working-directory: ./plotly
+
+    - name: Check out WS.ChartJS
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/chartjs
+        ref: master
+        path: chartjs
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Tag WS.ChartJS
+      run: ./build CI-Tag
+      working-directory: ./chartjs
+
     # TODO: push vsix
 
     # TODO: push to CDN
