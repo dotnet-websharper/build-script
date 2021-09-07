@@ -23,6 +23,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <KeyOriginatorFile Condition=" '$(INTELLIFACTORY)' != '' And $(Signed) != 'False' ">$(INTELLIFACTORY)/keys/IntelliFactory.snk</KeyOriginatorFile>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <Target Name="IncludeVersionFile" BeforeTargets="CoreCompile">
     <ItemGroup>
