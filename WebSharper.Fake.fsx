@@ -487,8 +487,11 @@ Target.create "CI-Tag" <| fun _ ->
                 None
         )
      
-    git "tag %s %s" tagName commitSHA
-    git "push origin %s" tagName
+    try
+        git "tag %s %s" tagName commitSHA
+        git "push origin %s" tagName
+    with _ ->
+        Trace.log "Tagging failed, ignored."
 
 let RunTargets (targets: WSTargets) =
     Target.runOrDefaultWithArguments targets.BuildDebug
