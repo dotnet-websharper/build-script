@@ -469,6 +469,9 @@ Target.create "CI-Tag" <| fun _ ->
         //
         //    Version 5.0.0.60-preview1
 
+    Trace.log "git log returned:"
+    lastCICommitLog |> Array.iter Trace.log
+
     let commitSHA = 
         lastCICommitLog |> Seq.pick (fun l ->
             let l = l.Trim()
