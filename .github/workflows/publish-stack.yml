@@ -34,6 +34,7 @@ jobs:
         ref: master
         path: core
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 10
 
     - name: Tag WS Core
       run: ./build CI-Tag
@@ -46,6 +47,7 @@ jobs:
         ref: master
         path: ui
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 10
         
     - name: Tag WS.UI
       run: ./build CI-Tag
@@ -58,6 +60,7 @@ jobs:
         ref: master
         path: aspnetcore
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 10
         
     - name: Tag WS.AspNetCore.WebSocket
       run: ./build CI-Tag
@@ -70,6 +73,7 @@ jobs:
         ref: master
         path: templates
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 10
         
     - name: Tag WS.Templates
       run: ./build CI-Tag
@@ -82,6 +86,7 @@ jobs:
         ref: master
         path: jquery
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 10
 
     - name: Tag WS.JQuery
       run: ./build CI-Tag
@@ -94,6 +99,7 @@ jobs:
         ref: master
         path: forms
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 10
 
     - name: Tag WS.Forms
       run: ./build CI-Tag
@@ -106,6 +112,7 @@ jobs:
         ref: master
         path: mvu
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 10
 
     - name: Tag WS.MVU
       run: ./build CI-Tag
@@ -118,6 +125,7 @@ jobs:
         ref: master
         path: leaflet
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 10
 
     - name: Tag WS.Leaflet
       run: ./build CI-Tag
@@ -130,6 +138,7 @@ jobs:
         ref: master
         path: react
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 10
 
     - name: Tag WS.React
       run: ./build CI-Tag
@@ -142,6 +151,7 @@ jobs:
         ref: master
         path: d3
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 10
 
     - name: Tag WS.D3
       run: ./build CI-Tag
@@ -154,6 +164,7 @@ jobs:
         ref: master
         path: signalr
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 10
 
     - name: Tag WS.SignalR
       run: ./build CI-Tag
@@ -166,6 +177,7 @@ jobs:
         ref: master
         path: datefns
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 10
 
     - name: Tag WS.DateFNS
       run: ./build CI-Tag
@@ -178,6 +190,7 @@ jobs:
         ref: master
         path: moment
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 10
 
     - name: Tag WS.Moment
       run: ./build CI-Tag
@@ -190,6 +203,7 @@ jobs:
         ref: master
         path: plotly
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 10
 
     - name: Tag WS.Plotly
       run: ./build CI-Tag
@@ -202,6 +216,7 @@ jobs:
         ref: master
         path: chartjs
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 10
 
     - name: Tag WS.ChartJS
       run: ./build CI-Tag
@@ -214,6 +229,7 @@ jobs:
         ref: master
         path: charting
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 10
 
     - name: Tag WS.Charting
       run: ./build CI-Tag
