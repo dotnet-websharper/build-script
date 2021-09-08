@@ -128,15 +128,10 @@ let private splitLines (s: string) =
     s.Split([| "\r\n"; "\n" |], StringSplitOptions.None)
 
 let gitOut cmd =
-    use memStr = new MemoryStream()
-    CreateProcess.fromRawCommandLine Git.CommandHelper.gitPath cmd
-    |> CreateProcess.ensureExitCode
-    |> CreateProcess.withStandardOutput (UseStream(false, memStr))
-    |> Proc.run
-    |> ignore
-    memStr.Seek(0L, SeekOrigin.Begin) |> ignore
-    use reader = new StreamReader(memStr)
-    reader.ReadToEnd() |> splitLines
+    Printf.kprintf (fun s ->
+        Trace.logfn "> git %s" s
+        Git.CommandHelper.getGitResult "." s 
+    ) cmd
 
 let gitSilentNoFail cmd =
     Printf.kprintf (fun s ->
@@ -470,7 +465,7 @@ Target.create "CI-Tag" <| fun _ ->
         //    Version 5.0.0.60-preview1
 
     Trace.log "git log returned:"
-    lastCICommitLog |> Array.iter Trace.log
+    lastCICommitLog |> List.iter Trace.log
 
     let commitSHA = 
         lastCICommitLog |> Seq.pick (fun l ->
