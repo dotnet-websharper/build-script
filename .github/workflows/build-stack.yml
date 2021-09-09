@@ -1,7 +1,12 @@
 name: Build WebSharper 5 Core Stack
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      stackKind:
+        description: 'Select stack kind: all/core/ui'
+        required: false
+        default: 'all'
 
 jobs:
   build:
@@ -46,6 +51,7 @@ jobs:
 
     - name: Check out WS Core
       uses: actions/checkout@v2
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
       with:
         repository: dotnet-websharper/core
         ref: master
@@ -53,11 +59,13 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Build WS Core
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
       run: ./build CI-Release
       working-directory: ./core
 
     - name: Check out WS.UI
       uses: actions/checkout@v2
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
       with:
         repository: dotnet-websharper/ui
         ref: master
@@ -65,11 +73,13 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
         
     - name: Build WS.UI
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
       run: ./build CI-Release
       working-directory: ./ui
 
     - name: Check out WS.AspNetCore.WebSocket
       uses: actions/checkout@v2
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       with:
         repository: dotnet-websharper/aspnetcore
         ref: master
@@ -77,11 +87,13 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
         
     - name: Build WS.AspNetCore.WebSocket
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       run: ./build CI-Release
       working-directory: ./aspnetcore
 
     - name: Check out WS.Templates
       uses: actions/checkout@v2
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
       with:
         repository: dotnet-websharper/templates
         ref: master
@@ -89,11 +101,13 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
         
     - name: Build WS.Templates
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
       run: ./build CI-Release
       working-directory: ./templates
 
     - name: Check out WS.JQuery
       uses: actions/checkout@v2
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       with:
         repository: dotnet-websharper/jquery
         ref: master
@@ -101,11 +115,13 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Build WS.JQuery
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       run: ./build CI-Release
       working-directory: ./jquery
 
     - name: Check out WS.Forms
       uses: actions/checkout@v2
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       with:
         repository: dotnet-websharper/forms
         ref: master
@@ -113,10 +129,12 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Build WS.Forms
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       run: ./build CI-Release
       working-directory: ./forms
       
     - name: Check out WS.MVU
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/mvu
@@ -125,11 +143,13 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
     
     - name: Build WS.MVU
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       run: ./build CI-Release
       working-directory: ./mvu
 
     - name: Check out WS.Leaflet
       uses: actions/checkout@v2
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       with:
         repository: dotnet-websharper/leaflet
         ref: master
@@ -137,11 +157,13 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Build WS.Leaflet
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       run: ./build CI-Release
       working-directory: ./leaflet
 
     - name: Check out WS.D3
       uses: actions/checkout@v2
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       with:
         repository: dotnet-websharper/d3
         ref: master
@@ -149,11 +171,13 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Build WS.D3
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       run: ./build CI-Release
       working-directory: ./d3
 
     - name: Check out WS.React
       uses: actions/checkout@v2
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       with:
         repository: dotnet-websharper/react
         ref: master
@@ -161,11 +185,13 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Build WS.React
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       run: ./build CI-Release
       working-directory: ./react
 
     - name: Check out WS.SignalR
       uses: actions/checkout@v2
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       with:
         repository: dotnet-websharper/signalr
         ref: master
@@ -173,11 +199,13 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Build WS.SignalR
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       run: ./build CI-Release
       working-directory: ./signalr
 
     - name: Check out WS.DateFNS
       uses: actions/checkout@v2
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       with:
         repository: dotnet-websharper/datefns
         ref: master
@@ -185,11 +213,13 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Build WS.DateFNS
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       run: ./build CI-Release
       working-directory: ./datefns
 
     - name: Check out WS.Moment
       uses: actions/checkout@v2
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       with:
         repository: dotnet-websharper/moment
         ref: master
@@ -197,11 +227,13 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Build WS.Moment
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       run: ./build CI-Release
       working-directory: ./moment
 
     - name: Check out WS.Plotly
       uses: actions/checkout@v2
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       with:
         repository: dotnet-websharper/plotly
         ref: master
@@ -209,11 +241,13 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Build WS.Plotly
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       run: ./build CI-Release
       working-directory: ./plotly
 
     - name: Check out WS.ChartJS
       uses: actions/checkout@v2
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       with:
         repository: dotnet-websharper/chartjs
         ref: master
@@ -221,11 +255,13 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Build WS.Chartjs
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       run: ./build CI-Release
       working-directory: ./chartjs
 
     - name: Check out WS.Charting
       uses: actions/checkout@v2
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       with:
         repository: dotnet-websharper/charting
         ref: master
@@ -233,6 +269,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Build WS.Charting
+      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       run: ./build CI-Release
       working-directory: ./charting
 
