@@ -51,6 +51,7 @@ nuget Paket.Core //"
 #load "UpdateLicense.fsx"
 
 open System
+open System.Diagnostics
 open System.IO
 open System.Text.RegularExpressions
 open Fake.Core
@@ -275,6 +276,14 @@ let msbuildVerbosity = verbose >> function
 
 let MakeTargets (args: Args) =
 
+    Target.create "WS-Stop" <| fun _ ->
+        try
+            Process.GetProcessesByName("wsfscservice")
+            |> Array.iter (fun x -> x.Kill())
+            |> ignore
+        with
+        | _ -> ()
+    
     let dirtyDirs =
         !! "**/bin/Debug"
         ++ "**/bin/Release"
@@ -425,8 +434,12 @@ let MakeTargets (args: Args) =
     "WS-Update"
         ==> "CI-Release"
 
-    "WS-Update"
-    ==> "CI-Commit"
+    "WS-Stop"
+        ?=> "WS-Clean"
+
+    "WS-Stop"
+        ==> "WS-Update"
+        ==> "CI-Commit"
 
     {
         BuildDebug = "Build"
