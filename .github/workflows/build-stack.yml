@@ -57,6 +57,7 @@ jobs:
         ref: master
         path: core
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 100
 
     - name: Build WS Core
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
@@ -71,6 +72,7 @@ jobs:
         ref: master
         path: ui
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 100
         
     - name: Build WS.UI
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
@@ -85,6 +87,7 @@ jobs:
         ref: master
         path: aspnetcore
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 100
         
     - name: Build WS.AspNetCore.WebSocket
       if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
@@ -99,6 +102,7 @@ jobs:
         ref: master
         path: templates
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 100
         
     - name: Build WS.Templates
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
@@ -113,6 +117,7 @@ jobs:
         ref: master
         path: jquery
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 100
 
     - name: Build WS.JQuery
       if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
@@ -127,6 +132,7 @@ jobs:
         ref: master
         path: forms
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 100
 
     - name: Build WS.Forms
       if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
@@ -141,6 +147,7 @@ jobs:
         ref: master
         path: mvu
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 100
     
     - name: Build WS.MVU
       if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
@@ -155,6 +162,7 @@ jobs:
         ref: master
         path: leaflet
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 100
 
     - name: Build WS.Leaflet
       if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
@@ -169,6 +177,7 @@ jobs:
         ref: master
         path: d3
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 100
 
     - name: Build WS.D3
       if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
@@ -183,6 +192,7 @@ jobs:
         ref: master
         path: react
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 100
 
     - name: Build WS.React
       if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
@@ -197,6 +207,7 @@ jobs:
         ref: master
         path: signalr
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 100
 
     - name: Build WS.SignalR
       if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
@@ -211,6 +222,7 @@ jobs:
         ref: master
         path: datefns
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 100
 
     - name: Build WS.DateFNS
       if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
@@ -225,6 +237,7 @@ jobs:
         ref: master
         path: moment
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 100
 
     - name: Build WS.Moment
       if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
@@ -239,6 +252,7 @@ jobs:
         ref: master
         path: plotly
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 100
 
     - name: Build WS.Plotly
       if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
@@ -253,6 +267,7 @@ jobs:
         ref: master
         path: chartjs
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 100
 
     - name: Build WS.Chartjs
       if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
@@ -267,6 +282,7 @@ jobs:
         ref: master
         path: charting
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 100
 
     - name: Build WS.Charting
       if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
