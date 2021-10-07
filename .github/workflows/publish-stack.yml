@@ -1,7 +1,12 @@
 name: Publish WebSharper 5 Core Stack
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      buildRunNumber:
+        description: 'Select build run number'
+        required: false
+        default: ''
 
 jobs:
   publish:
@@ -15,6 +20,7 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         workflow: build-stack.yml
+        run_number: ${{ github.event.inputs.buildRunNumber }}
         name: Packages
         path: Packages
 
