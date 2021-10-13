@@ -105,7 +105,7 @@ jobs:
         fetch-depth: 100
         
     - name: Build WS.Templates
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
       run: ./build CI-Release
       working-directory: ./templates
 
