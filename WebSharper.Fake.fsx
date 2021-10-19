@@ -311,6 +311,17 @@ let MakeTargets (args: Args) =
                             else "")
                     )
             if not res.OK then failwith "dotnet paket update failed"
+        for g in depsFile.Groups |> Map.keys do
+            if g.Name.ToLower().StartsWith("test") then
+                let res =
+                    DotNet.exec id "paket"
+                        (sprintf "update -g %s %s"
+                            g.Name
+                            (if Environment.environVarAsBoolOrDefault "PAKET_REDIRECTS" false
+                                then "--redirects"
+                                else "")
+                        )
+                if not res.OK then failwith "dotnet paket update failed"
 
     Target.create "WS-Restore" <| fun o ->
         if not (Environment.environVarAsBoolOrDefault "NOT_DOTNET" false) then
