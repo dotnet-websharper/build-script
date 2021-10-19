@@ -311,7 +311,7 @@ let MakeTargets (args: Args) =
                             else "")
                     )
             if not res.OK then failwith "dotnet paket update failed"
-        for g in depsFile.Groups |> Map.keys do
+        for g in depsFile.Groups.Keys do
             if g.Name.ToLower().StartsWith("test") then
                 let res =
                     DotNet.exec id "paket"
