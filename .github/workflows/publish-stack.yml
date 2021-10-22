@@ -241,6 +241,18 @@ jobs:
       run: ./build CI-Tag
       working-directory: ./charting
 
+    - name: Check out WS.HighlightJS
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/highlightjs
+        ref: master
+        path: highlightjs
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Tag WS.HighlightJS
+      run: ./build CI-Tag
+      working-directory: ./highlightjs
+
     # TODO: push vsix
 
     # TODO: push to CDN

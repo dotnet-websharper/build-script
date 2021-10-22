@@ -289,6 +289,18 @@ jobs:
       run: ./build CI-Release
       working-directory: ./charting
 
+    - name: Check out WS.HighlightJS
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/highlightjs
+        ref: master
+        path: highlightjs
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Build WS.HighlightJS
+      run: ./build CI-Release
+      working-directory: ./highlightjs
+
     - name: List packages within ./localnuget
       run: ls ./localnuget
 
@@ -391,3 +403,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
       run: ./build CI-Commit
       working-directory: ./charting
+
+    - name: Commit version on WS.HighlightJS
+      run: ./build CI-Commit
+      working-directory: ./highlightjs
