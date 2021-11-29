@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       stackKind:
-        description: 'Select stack kind: all/core/ui/templates'
+        description: 'Select stack kind: all/core/ui/templates/extension names'
         required: false
         default: 'all'
 
@@ -81,7 +81,7 @@ jobs:
 
     - name: Check out WS.AspNetCore.WebSocket
       uses: actions/checkout@v2
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mvu') }}
       with:
         repository: dotnet-websharper/aspnetcore
         ref: master
@@ -90,7 +90,7 @@ jobs:
         fetch-depth: 100
         
     - name: Build WS.AspNetCore.WebSocket
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mvu') }}
       run: ./build CI-Release
       working-directory: ./aspnetcore
 
@@ -111,7 +111,7 @@ jobs:
 
     - name: Check out WS.JQuery
       uses: actions/checkout@v2
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'jquery') }}
       with:
         repository: dotnet-websharper/jquery
         ref: master
@@ -120,13 +120,13 @@ jobs:
         fetch-depth: 100
 
     - name: Build WS.JQuery
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'jquery') }}
       run: ./build CI-Release
       working-directory: ./jquery
 
     - name: Check out WS.Forms
       uses: actions/checkout@v2
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'forms') }}
       with:
         repository: dotnet-websharper/forms
         ref: master
@@ -135,12 +135,12 @@ jobs:
         fetch-depth: 100
 
     - name: Build WS.Forms
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'forms') }}
       run: ./build CI-Release
       working-directory: ./forms
       
     - name: Check out WS.MVU
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mvu')) }}
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/mvu
@@ -150,13 +150,13 @@ jobs:
         fetch-depth: 100
     
     - name: Build WS.MVU
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mvu')) }}
       run: ./build CI-Release
       working-directory: ./mvu
 
     - name: Check out WS.Leaflet
       uses: actions/checkout@v2
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'leaflet')) }}
       with:
         repository: dotnet-websharper/leaflet
         ref: master
@@ -165,13 +165,13 @@ jobs:
         fetch-depth: 100
 
     - name: Build WS.Leaflet
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'leaflet')) }}
       run: ./build CI-Release
       working-directory: ./leaflet
 
     - name: Check out WS.D3
       uses: actions/checkout@v2
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'd3') }}
       with:
         repository: dotnet-websharper/d3
         ref: master
@@ -180,13 +180,13 @@ jobs:
         fetch-depth: 100
 
     - name: Build WS.D3
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'd3') }}
       run: ./build CI-Release
       working-directory: ./d3
 
     - name: Check out WS.React
       uses: actions/checkout@v2
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') }}
       with:
         repository: dotnet-websharper/react
         ref: master
@@ -195,13 +195,13 @@ jobs:
         fetch-depth: 100
 
     - name: Build WS.React
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') }}
       run: ./build CI-Release
       working-directory: ./react
 
     - name: Check out WS.SignalR
       uses: actions/checkout@v2
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'signalr') }}
       with:
         repository: dotnet-websharper/signalr
         ref: master
@@ -210,13 +210,13 @@ jobs:
         fetch-depth: 100
 
     - name: Build WS.SignalR
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'signalr') }}
       run: ./build CI-Release
       working-directory: ./signalr
 
     - name: Check out WS.DateFNS
       uses: actions/checkout@v2
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'datefns') }}
       with:
         repository: dotnet-websharper/datefns
         ref: master
@@ -225,13 +225,13 @@ jobs:
         fetch-depth: 100
 
     - name: Build WS.DateFNS
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'datefns') }}
       run: ./build CI-Release
       working-directory: ./datefns
 
     - name: Check out WS.Moment
       uses: actions/checkout@v2
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'moment') }}
       with:
         repository: dotnet-websharper/moment
         ref: master
@@ -240,13 +240,13 @@ jobs:
         fetch-depth: 100
 
     - name: Build WS.Moment
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'moment') }}
       run: ./build CI-Release
       working-directory: ./moment
 
     - name: Check out WS.Plotly
       uses: actions/checkout@v2
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'plotly') }}
       with:
         repository: dotnet-websharper/plotly
         ref: master
@@ -255,13 +255,13 @@ jobs:
         fetch-depth: 100
 
     - name: Build WS.Plotly
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'plotly') }}
       run: ./build CI-Release
       working-directory: ./plotly
 
     - name: Check out WS.ChartJS
       uses: actions/checkout@v2
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'chartjs') }}
       with:
         repository: dotnet-websharper/chartjs
         ref: master
@@ -270,13 +270,13 @@ jobs:
         fetch-depth: 100
 
     - name: Build WS.Chartjs
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'chartjs') }}
       run: ./build CI-Release
       working-directory: ./chartjs
 
     - name: Check out WS.Charting
       uses: actions/checkout@v2
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'charting') }}
       with:
         repository: dotnet-websharper/charting
         ref: master
@@ -285,11 +285,26 @@ jobs:
         fetch-depth: 100
 
     - name: Build WS.Charting
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'charting') }}
       run: ./build CI-Release
       working-directory: ./charting
 
+    - name: Check out WS.Highcharts
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highcharts') }}
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/highcharts
+        ref: master
+        path: highcharts
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Build WS.Highcharts
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highcharts') }}
+      run: ./build CI-Release
+      working-directory: ./highcharts
+      
     - name: Check out WS.HighlightJS
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highlightjs') }}
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/highlightjs
@@ -298,6 +313,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Build WS.HighlightJS
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highlightjs') }}
       run: ./build CI-Release
       working-directory: ./highlightjs
 
@@ -335,7 +351,7 @@ jobs:
       working-directory: ./ui
       
     - name: Commit version on WS.AspNetCore.WebSocket
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mvu') }}
       run: ./build CI-Commit
       working-directory: ./aspnetcore
       
@@ -345,65 +361,71 @@ jobs:
       working-directory: ./templates
     
     - name: Commit version on WS.JQuery
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'jquery') }}
       run: ./build CI-Commit
       working-directory: ./jquery
 
     - name: Commit version on WS.Forms
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'forms') }}
       run: ./build CI-Commit
       working-directory: ./forms
 
     - name: Commit version on WS.MVU
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mvu') }}
       run: ./build CI-Commit
       working-directory: ./mvu
 
     - name: Commit version on WS.Leaflet
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'leaflet') }}
       run: ./build CI-Commit
       working-directory: ./leaflet
 
     - name: Commit version on WS.D3
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'd3') }}
       run: ./build CI-Commit
       working-directory: ./d3
 
     - name: Commit version on WS.React
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') }}
       run: ./build CI-Commit
       working-directory: ./react
 
     - name: Commit version on WS.SignalR
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'signalr') }}
       run: ./build CI-Commit
       working-directory: ./signalr
 
     - name: Commit version on WS.DateFNS
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'datefns') }}
       run: ./build CI-Commit
       working-directory: ./datefns
 
     - name: Commit version on WS.Moment
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'moment') }}
       run: ./build CI-Commit
       working-directory: ./moment
 
     - name: Commit version on WS.Plotly
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'plotly') }}
       run: ./build CI-Commit
       working-directory: ./plotly
 
     - name: Commit version on WS.ChartJS
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'chartjs') }}
       run: ./build CI-Commit
       working-directory: ./chartjs
 
     - name: Commit version on WS.Charting
-      if: ${{ success() && (github.event.inputs.stackKind == 'all') }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'charting') }}
       run: ./build CI-Commit
       working-directory: ./charting
 
+    - name: Commit version on WS.Highcharts
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highcharts') }}
+      run: ./build CI-Commit
+      working-directory: ./highcharts
+
     - name: Commit version on WS.HighlightJS
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highlightjs') }}
       run: ./build CI-Commit
       working-directory: ./highlightjs

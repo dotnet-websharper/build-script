@@ -241,6 +241,18 @@ jobs:
       run: ./build CI-Tag
       working-directory: ./charting
 
+    - name: Check out WS.Highcharts
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/highcharts
+        ref: master
+        path: highcharts
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Tag WS.Highcharts
+      run: ./build CI-Tag
+      working-directory: ./highcharts
+
     - name: Check out WS.HighlightJS
       uses: actions/checkout@v2
       with:
