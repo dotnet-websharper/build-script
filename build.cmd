@@ -16,6 +16,9 @@ if "%VisualStudioVersion%"=="" (
   if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\" (
     set VisualStudioVersion=16.0
   )
+  if exist "%ProgramFiles%\Microsoft Visual Studio\2022\" (
+    set VisualStudioVersion=17.0
+  )
 )
 
 :: Allow running `build SomeTask` instead of `build -t SomeTask`
