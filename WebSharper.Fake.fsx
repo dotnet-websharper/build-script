@@ -366,15 +366,15 @@ let MakeTargets (args: Args) =
                 yield! args.Attributes
             ]
 
-    let rec build o mode action =
+    let rec build o (mode: BuildMode) action =
         match action with
         | BuildAction.Projects files ->
             let build = DotNet.build <| fun p ->
                 { p with
+                    Configuration = mode.AsDotNet
                     MSBuildParams = 
                         { p.MSBuildParams with
                             Verbosity = Some (msbuildVerbosity o)
-                            Properties = ["Configuration", string mode]
                             DisableInternalBinLog = true // workaround for https://github.com/fsharp/FAKE/issues/2515
                         }
                 }
