@@ -57,7 +57,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS Core
-      run: ../build-script/${{ github.event.inputs.updateFolder }}/update
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./core
 
     - name: Check out WS.UI
@@ -69,8 +69,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
         
     - name: Update WS.UI
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
-      run: ./build CI-Release
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./ui
 
     - name: Check out WS.AspNetCore.WebSocket
@@ -82,8 +81,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
         
     - name: Update WS.AspNetCore.WebSocket
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'aspnetcore')) }}
-      run: ./build CI-Release
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./aspnetcore
 
     - name: Check out WS.Templates
@@ -95,7 +93,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
         
     - name: Update WS.Templates
-      run: ./build CI-Release
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./templates
 
     - name: Check out WS.JQuery
@@ -107,7 +105,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.JQuery
-      run: ./build CI-Release
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./jquery
 
     - name: Check out WS.Forms
@@ -119,7 +117,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.Forms
-      run: ./build CI-Release
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./forms
       
     - name: Check out WS.MVU
@@ -131,7 +129,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
     
     - name: Update WS.MVU
-      run: ./build CI-Release
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./mvu
 
     - name: Check out WS.Leaflet
@@ -143,7 +141,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.Leaflet
-      run: ./build CI-Release
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./leaflet
 
     - name: Check out WS.D3
@@ -155,7 +153,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.D3
-      run: ./build CI-Release
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./d3
 
     - name: Check out WS.React
@@ -167,7 +165,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.React
-      run: ./build CI-Release
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./react
 
     - name: Check out WS.SignalR
@@ -179,7 +177,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.SignalR
-      run: ./build CI-Release
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./signalr
 
     - name: Check out WS.DateFNS
@@ -191,7 +189,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.DateFNS
-      run: ./build CI-Release
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./datefns
 
     - name: Check out WS.Moment
@@ -203,7 +201,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.Moment
-      run: ./build CI-Release
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./moment
 
     - name: Check out WS.Plotly
@@ -215,7 +213,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.Plotly
-      run: ./build CI-Release
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./plotly
 
     - name: Check out WS.ChartJS
@@ -227,7 +225,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.Chartjs
-      run: ./build CI-Release
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./chartjs
 
     - name: Check out WS.Charting
@@ -239,7 +237,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.Charting
-      run: ./build CI-Release
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./charting
 
     - name: Check out WS.Highcharts
@@ -251,7 +249,7 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.Highcharts
-      run: ./build CI-Release
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./highcharts
       
     - name: Check out WS.HighlightJS
@@ -263,5 +261,5 @@ jobs:
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.HighlightJS
-      run: ./build CI-Release
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./highlightjs
