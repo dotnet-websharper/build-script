@@ -1,4 +1,4 @@
-name: Build WebSharper 5 Core Stack
+name: Update WebSharper 5 Core Stack
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ jobs:
   build:
 
     runs-on: windows-latest
-      
+    
     env: 
       WSPackageFolder: ../localnuget
       WSVersionsFile: ../versions.txt
@@ -23,8 +23,8 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.301
-        
+        dotnet-version: 6.0.101
+
     - name: Add GitHub registry NuGet source
       run: 
         dotnet nuget 
@@ -33,7 +33,7 @@ jobs:
           --username intellifactory-gh 
           --password ${{ secrets.PAT_PACKAGE }} 
           --store-password-in-clear-text
-
+        
     - name: Install Paket as global tool
       run: dotnet tool install paket --global
 

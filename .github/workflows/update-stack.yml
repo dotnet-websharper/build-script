@@ -1,42 +1,52 @@
-name: Publish WebSharper 5 Core Stack
+name: Build WebSharper 5 Core Stack
 
 on:
   workflow_dispatch:
     inputs:
-      buildRunNumber:
-        description: 'Select build run number'
-        required: false
-        default: ''
+      updateFolder:
+        description: "Select which folder's update.cmd to run"
+        required: true
 
 jobs:
-  publish:
+  update:
 
     runs-on: windows-latest
-      
+          
     steps:
-
+    
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.101
         
-    - name: Download Packages Artifact
-      uses: dawidd6/action-download-artifact@v2
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        workflow: build-stack.yml
-        run_number: ${{ github.event.inputs.buildRunNumber }}
-        name: Packages
-        path: Packages
+    - name: Add GitHub registry NuGet source
+      run: 
+        dotnet nuget 
+          add source https://nuget.pkg.github.com/dotnet-websharper/index.json 
+          --name github 
+          --username intellifactory-gh 
+          --password ${{ secrets.PAT_PACKAGE }} 
+          --store-password-in-clear-text
 
-    - name: Push to NuGet
+    - name: Install Paket as global tool
+      run: dotnet tool install paket --global
+
+    - name: Add credentials for Paket
       run:
-        dotnet nuget push *.nupkg
-          --api-key ${{ secrets.NUGET_API_KEY }}
-          --source https://api.nuget.org/v3/index.json
-          --skip-duplicate
-          --timeout 1800
-      working-directory: ./Packages
+        paket config
+          add-credentials https://nuget.pkg.github.com/dotnet-websharper/index.json
+          --username intellifactory-gh 
+          --password ${{ secrets.PAT_PACKAGE }}
+          
+    - name: Configure IntelliFactory CI git user
+      run: |
+        git config --global user.email "ci@intellifactory.com"
+        git config --global user.name "IntelliFactory CI"
+
+    - name: Check out build-script
+      uses: actions/checkout@v2
+      with:
+        path: build-script
 
     - name: Check out WS Core
       uses: actions/checkout@v2
@@ -45,10 +55,9 @@ jobs:
         ref: master
         path: core
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 10
 
-    - name: Tag WS Core
-      run: ./build CI-Tag
+    - name: Update WS Core
+      run: ../build-script/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./core
 
     - name: Check out WS.UI
@@ -58,10 +67,10 @@ jobs:
         ref: master
         path: ui
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 10
         
-    - name: Tag WS.UI
-      run: ./build CI-Tag
+    - name: Update WS.UI
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
+      run: ./build CI-Release
       working-directory: ./ui
 
     - name: Check out WS.AspNetCore.WebSocket
@@ -71,10 +80,10 @@ jobs:
         ref: master
         path: aspnetcore
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 10
         
-    - name: Tag WS.AspNetCore.WebSocket
-      run: ./build CI-Tag
+    - name: Update WS.AspNetCore.WebSocket
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'aspnetcore')) }}
+      run: ./build CI-Release
       working-directory: ./aspnetcore
 
     - name: Check out WS.Templates
@@ -84,10 +93,9 @@ jobs:
         ref: master
         path: templates
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 10
         
-    - name: Tag WS.Templates
-      run: ./build CI-Tag
+    - name: Update WS.Templates
+      run: ./build CI-Release
       working-directory: ./templates
 
     - name: Check out WS.JQuery
@@ -97,10 +105,9 @@ jobs:
         ref: master
         path: jquery
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 10
 
-    - name: Tag WS.JQuery
-      run: ./build CI-Tag
+    - name: Update WS.JQuery
+      run: ./build CI-Release
       working-directory: ./jquery
 
     - name: Check out WS.Forms
@@ -110,12 +117,11 @@ jobs:
         ref: master
         path: forms
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 10
 
-    - name: Tag WS.Forms
-      run: ./build CI-Tag
+    - name: Update WS.Forms
+      run: ./build CI-Release
       working-directory: ./forms
-
+      
     - name: Check out WS.MVU
       uses: actions/checkout@v2
       with:
@@ -123,10 +129,9 @@ jobs:
         ref: master
         path: mvu
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 10
-
-    - name: Tag WS.MVU
-      run: ./build CI-Tag
+    
+    - name: Update WS.MVU
+      run: ./build CI-Release
       working-directory: ./mvu
 
     - name: Check out WS.Leaflet
@@ -136,24 +141,10 @@ jobs:
         ref: master
         path: leaflet
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 10
 
-    - name: Tag WS.Leaflet
-      run: ./build CI-Tag
+    - name: Update WS.Leaflet
+      run: ./build CI-Release
       working-directory: ./leaflet
-
-    - name: Check out WS.React
-      uses: actions/checkout@v2
-      with:
-        repository: dotnet-websharper/react
-        ref: master
-        path: react
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 10
-
-    - name: Tag WS.React
-      run: ./build CI-Tag
-      working-directory: ./react
 
     - name: Check out WS.D3
       uses: actions/checkout@v2
@@ -162,11 +153,22 @@ jobs:
         ref: master
         path: d3
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 10
 
-    - name: Tag WS.D3
-      run: ./build CI-Tag
+    - name: Update WS.D3
+      run: ./build CI-Release
       working-directory: ./d3
+
+    - name: Check out WS.React
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/react
+        ref: master
+        path: react
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Update WS.React
+      run: ./build CI-Release
+      working-directory: ./react
 
     - name: Check out WS.SignalR
       uses: actions/checkout@v2
@@ -175,10 +177,9 @@ jobs:
         ref: master
         path: signalr
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 10
 
-    - name: Tag WS.SignalR
-      run: ./build CI-Tag
+    - name: Update WS.SignalR
+      run: ./build CI-Release
       working-directory: ./signalr
 
     - name: Check out WS.DateFNS
@@ -188,10 +189,9 @@ jobs:
         ref: master
         path: datefns
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 10
 
-    - name: Tag WS.DateFNS
-      run: ./build CI-Tag
+    - name: Update WS.DateFNS
+      run: ./build CI-Release
       working-directory: ./datefns
 
     - name: Check out WS.Moment
@@ -201,10 +201,9 @@ jobs:
         ref: master
         path: moment
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 10
 
-    - name: Tag WS.Moment
-      run: ./build CI-Tag
+    - name: Update WS.Moment
+      run: ./build CI-Release
       working-directory: ./moment
 
     - name: Check out WS.Plotly
@@ -214,10 +213,9 @@ jobs:
         ref: master
         path: plotly
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 10
 
-    - name: Tag WS.Plotly
-      run: ./build CI-Tag
+    - name: Update WS.Plotly
+      run: ./build CI-Release
       working-directory: ./plotly
 
     - name: Check out WS.ChartJS
@@ -227,10 +225,9 @@ jobs:
         ref: master
         path: chartjs
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 10
 
-    - name: Tag WS.ChartJS
-      run: ./build CI-Tag
+    - name: Update WS.Chartjs
+      run: ./build CI-Release
       working-directory: ./chartjs
 
     - name: Check out WS.Charting
@@ -240,10 +237,9 @@ jobs:
         ref: master
         path: charting
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 10
 
-    - name: Tag WS.Charting
-      run: ./build CI-Tag
+    - name: Update WS.Charting
+      run: ./build CI-Release
       working-directory: ./charting
 
     - name: Check out WS.Highcharts
@@ -254,10 +250,10 @@ jobs:
         path: highcharts
         token: ${{ secrets.PAT_PACKAGE }}
 
-    - name: Tag WS.Highcharts
-      run: ./build CI-Tag
+    - name: Update WS.Highcharts
+      run: ./build CI-Release
       working-directory: ./highcharts
-
+      
     - name: Check out WS.HighlightJS
       uses: actions/checkout@v2
       with:
@@ -266,10 +262,6 @@ jobs:
         path: highlightjs
         token: ${{ secrets.PAT_PACKAGE }}
 
-    - name: Tag WS.HighlightJS
-      run: ./build CI-Tag
+    - name: Update WS.HighlightJS
+      run: ./build CI-Release
       working-directory: ./highlightjs
-
-    # TODO: push vsix
-
-    # TODO: push to CDN
