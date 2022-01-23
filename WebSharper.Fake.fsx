@@ -375,6 +375,7 @@ let MakeTargets (args: Args) =
                     MSBuildParams = 
                         { p.MSBuildParams with
                             Verbosity = Some (msbuildVerbosity o)
+                            Properties = ["Configuration", string mode]
                             DisableInternalBinLog = true // workaround for https://github.com/fsharp/FAKE/issues/2515
                         }
                 }
