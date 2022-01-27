@@ -67,6 +67,7 @@ usage: build [FAKE options] [--] [options]
 
 options:
  -v, --verbose      Verbose build output
+ -d, --debug        Build in Debug configuration
 """
 
 let opts =
@@ -82,7 +83,10 @@ let opts =
             with DocoptException _ ->
                 Trace.traceError usage
                 reraise()
+
 let verbose = opts >> DocoptResult.hasFlag "-v"
+   
+let isDebug = opts >> DocoptResult.hasFlag "-d"
 
 let private mainGroupName = Paket.Domain.GroupName "Main"
 
@@ -256,6 +260,7 @@ type Args =
         Attributes : seq<AssemblyInfo.Attribute>
         WorkBranch : option<string>
         PushRemote : string
+        HasDefaultBuild : bool
     }
 
 type WSTargets =
@@ -270,9 +275,38 @@ type WSTargets =
         s ==> "WS-BuildRelease"
         ()
 
-let msbuildVerbosity = verbose >> function
+let msbuildVerbosity = 
+    verbose >> function
     | true -> MSBuildVerbosity.Detailed
     | false -> MSBuildVerbosity.Minimal
+
+let buildModeFromFlag =
+    isDebug >> function
+    | true -> BuildMode.Debug
+    | false -> BuildMode.Release
+
+let build o (mode: BuildMode) action =
+    let rec buildRec action =
+        match action with
+        | BuildAction.Projects files ->
+            let build = DotNet.build <| fun p ->
+                { p with
+                    Configuration = mode.AsDotNet
+                    MSBuildParams = 
+                        match Environment.environVarOrNone "OS" with
+                        | Some "Windows_NT" ->
+                            { p.MSBuildParams with
+                                Verbosity = Some (msbuildVerbosity o)
+                                Properties = ["Configuration", string mode]
+                                DisableInternalBinLog = true // workaround for https://github.com/fsharp/FAKE/issues/2515
+                            }
+                        | _ ->
+                            p.MSBuildParams
+                }
+            Seq.iter build files
+        | Custom f -> f mode
+        | Multiple actions -> Seq.iter buildRec actions
+    buildRec action
 
 let MakeTargets (args: Args) =
 
@@ -300,27 +334,17 @@ let MakeTargets (args: Args) =
         let needsUpdate =
             mainGroup.Packages
             |> Seq.exists (fun { Name = pkg } ->
-                pkg.Name.Contains "WebSharper" || pkg.Name.Contains "Zafir")
+                pkg.Name.Contains "WebSharper")
         if needsUpdate then
             let res =
                 DotNet.exec id "paket"
-                    (sprintf "update -g %s %s"
-                        mainGroup.Name.Name
-                        (if Environment.environVarAsBoolOrDefault "PAKET_REDIRECTS" false
-                            then "--redirects"
-                            else "")
-                    )
+                    (sprintf "update -g %s" mainGroup.Name.Name)
             if not res.OK then failwith "dotnet paket update failed"
         for g, _ in depsFile.Groups |> Map.toSeq do
             if g.Name.ToLower().StartsWith("test") then
                 let res =
                     DotNet.exec id "paket"
-                        (sprintf "update -g %s %s"
-                            g.Name
-                            (if Environment.environVarAsBoolOrDefault "PAKET_REDIRECTS" false
-                                then "--redirects"
-                                else "")
-                        )
+                        (sprintf "update -g %s" g.Name)
                 if not res.OK then failwith "dotnet paket update failed"
 
     Target.create "WS-Restore" <| fun o ->
@@ -366,33 +390,14 @@ let MakeTargets (args: Args) =
                 yield! args.Attributes
             ]
 
-    let rec build o (mode: BuildMode) action =
-        match action with
-        | BuildAction.Projects files ->
-            let build = DotNet.build <| fun p ->
-                { p with
-                    Configuration = mode.AsDotNet
-                    MSBuildParams = 
-                        { p.MSBuildParams with
-                            Verbosity = Some (msbuildVerbosity o)
-                            Properties = ["Configuration", string mode]
-                            DisableInternalBinLog = true // workaround for https://github.com/fsharp/FAKE/issues/2515
-                        }
-                }
-            Seq.iter build files
-        | Custom f -> f mode
-        | Multiple actions -> Seq.iter (build o mode) actions
-
-    let build o mode =
-        build o mode args.BuildAction
-
     Target.create "WS-BuildDebug" <| fun o ->
-        build o BuildMode.Debug
+        build o BuildMode.Debug args.BuildAction
 
     Target.create "WS-BuildRelease" <| fun o ->
-        build o BuildMode.Release
+        build o BuildMode.Release args.BuildAction
 
-    Target.create "Build" ignore
+    if args.HasDefaultBuild then
+        Target.create "Build" ignore
 
     Target.create "WS-Package" <| fun _ ->      
         let outputPath = Environment.environVarOrNone "WSPackageFolder" |> Option.defaultValue "build"
@@ -434,14 +439,17 @@ let MakeTargets (args: Args) =
         ?=> "WS-Restore"
 
     "WS-Restore"
-        ==> "WS-GenAssemblyInfo"
         ==> "WS-BuildRelease"
         ==> "WS-Package"
         ==> "CI-Release"
 
-    "WS-GenAssemblyInfo"
+    "WS-Clean"
+        ?=> "WS-GenAssemblyInfo"
         ==> "WS-BuildDebug"
-        ==> "Build"
+        =?> ("Build", args.HasDefaultBuild)
+
+    "WS-GenAssemblyInfo"
+        ==> "WS-BuildRelease"
 
     "WS-Update"
         ==> "CI-Release"
@@ -529,6 +537,7 @@ type WSTargets with
             Attributes = Seq.empty
             WorkBranch = buildBranch
             PushRemote = Environment.environVarOrDefault "PushRemote" "origin"
+            HasDefaultBuild = false
         }
 
     static member Default () =
