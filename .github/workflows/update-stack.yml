@@ -1,4 +1,4 @@
-name: Update WebSharper 5 Core Stack
+name: Update WebSharper Core Stack
 
 on:
   workflow_dispatch:

@@ -1,4 +1,4 @@
-name: Publish WebSharper 5 Core Stack
+name: Publish WebSharper Core Stack
 
 on:
   workflow_dispatch:
