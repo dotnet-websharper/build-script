@@ -328,7 +328,7 @@ jobs:
 
     - name: Build WS.MathJax
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mathjax')) }}
-      run: ./build CI-Release
+      run: ./build CI-Release --verbose
       working-directory: ./mathjax
 
     - name: List packages within ./localnuget
