@@ -270,6 +270,18 @@ jobs:
       run: ./build CI-Tag
       working-directory: ./highlightjs
 
+    - name: Check out WS.MathJax
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/mathjax
+        ref: master
+        path: mathjax
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Tag WS.MathJax
+      run: ./build CI-Tag
+      working-directory: ./mathjax
+
     # TODO: push vsix
 
     # TODO: push to CDN

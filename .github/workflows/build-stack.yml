@@ -317,6 +317,20 @@ jobs:
       run: ./build CI-Release
       working-directory: ./highlightjs
 
+    - name: Check out WS.MathJax
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mathjax')) }}
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/mathjax
+        ref: master
+        path: mathjax
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Build WS.MathJax
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mathjax')) }}
+      run: ./build CI-Release
+      working-directory: ./mathjax
+
     - name: List packages within ./localnuget
       run: ls ./localnuget
 
@@ -429,3 +443,8 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highlightjs')) }}
       run: ./build CI-Commit
       working-directory: ./highlightjs
+
+    - name: Commit version on WS.MathJax
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mathjax')) }}
+      run: ./build CI-Commit
+      working-directory: ./mathjax
