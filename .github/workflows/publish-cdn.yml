@@ -1,0 +1,26 @@
+name: Publish to WebSharper CDN
+
+on:
+  workflow_dispatch
+
+jobs:
+  update:
+
+    runs-on: windows-latest
+          
+    env: 
+      CND_WEBSHARPER_COM_LOGIN: ${{ secrets.CND_WEBSHARPER_COM_LOGIN }}
+
+    steps:
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.101
+        
+    - name: Check out build-script
+      uses: actions/checkout@v2
+
+    - name: Run CND Publisher
+      run: dotnet fsi Publisher.fsx
+      working-directory: ./core
