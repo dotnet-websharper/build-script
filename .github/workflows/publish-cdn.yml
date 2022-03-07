@@ -9,7 +9,7 @@ jobs:
     runs-on: windows-latest
           
     env: 
-      CND_WEBSHARPER_COM_LOGIN: ${{ secrets.CND_WEBSHARPER_COM_LOGIN }}
+      CDN_WEBSHARPER_COM_LOGIN: ${{ secrets.CDN_WEBSHARPER_COM_LOGIN }}
 
     steps:
     
@@ -21,6 +21,5 @@ jobs:
     - name: Check out build-script
       uses: actions/checkout@v2
 
-    - name: Run CND Publisher
+    - name: Run CDN Publisher
       run: dotnet fsi Publisher.fsx
-      working-directory: ./core
