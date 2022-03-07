@@ -131,7 +131,7 @@ let cdnBase = "http://cdn.websharper.com"
 let credentials =
     "Basic " + (webSharperCDNLogin |> Encoding.ASCII.GetBytes |> Convert.ToBase64String)
 
-let tryUploadToCdn asmName asmVersion (resources: (Mono.Cecil.EmbeddedResource * string)[]) =
+let tryUploadToCdn pkgName pkgVersion asmName asmVersion (resources: (Mono.Cecil.EmbeddedResource * string)[]) =
     let isUploaded =
         use client = new System.Net.Http.HttpClient()
         let resp =
@@ -154,8 +154,9 @@ let tryUploadToCdn asmName asmVersion (resources: (Mono.Cecil.EmbeddedResource *
             let content = new StreamContent(resource.GetResourceStream())
             formData.Add(content, "files", name)
         use msg =
+            let uri = sprintf "%s/post/%s/%s/%s/%s" cdnBase pkgName pkgVersion asmName asmVersion
             new HttpRequestMessage(
-                RequestUri = Uri(cdnBase + "/post/" + asmName + "/" + asmVersion),
+                RequestUri = Uri(uri),
                 Content = formData,
                 Method = HttpMethod.Post)
         msg.Headers.Add("Authorization", credentials)
@@ -176,11 +177,12 @@ for package in webSharperPackages do
 
     let mutable i = 0
     while i < versions.Length do
-        let packageRes = downloadPackage package versions[i]
+        let version = versions[i]
+        let packageRes = downloadPackage package version
 
         let uploadRes =
             packageRes |> Array.map (fun (resources, asmName, asmVersion) ->
-                tryUploadToCdn asmName asmVersion resources   
+                tryUploadToCdn package.Identity.Id (string version.Version) asmName asmVersion resources   
             )
             |> Array.forall id
 
