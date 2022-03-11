@@ -11,8 +11,8 @@ on:
         description: 'Select .NET SDK version'
         required: false
         default: '6.0.101'
-      skipChutzpahTesting:
-        description: 'Skip Chutzpah testing on WS Core'
+      skipCoreTesting:
+        description: 'Skip Core testing'
         required: false
         default: 'false'
 
@@ -25,7 +25,7 @@ jobs:
       WSPackageFolder: ../localnuget
       WSVersionsFile: ../versions.txt
       BUILD_NUMBER: ${{ github.run_number }}
-      SKIP_CHUTZPAH_TESTING: ${{ github.event.inputs.skipChutzpahTesting }}
+      SKIP_CORE_TESTING: ${{ github.event.inputs.skipCoreTesting }}
     
     steps:
     
