@@ -31,5 +31,5 @@ jobs:
     - name: Check out build-script
       uses: actions/checkout@v2
 
-    - name: Update WS Core
-      run: ./test-templates
+    - name: Create and build WS Templates
+      run: ./test-templates.sh

@@ -1,3 +1,6 @@
+dotnet new sln -o "templatetest"
+pushd "templatetest"
+
 dotnet new -i WebSharper.Templates
 
 dotnet new websharper-lib -o Fs.Lib -lang f#
