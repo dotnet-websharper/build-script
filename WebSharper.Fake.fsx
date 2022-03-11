@@ -537,7 +537,7 @@ type WSTargets with
             Attributes = Seq.empty
             WorkBranch = buildBranch
             PushRemote = Environment.environVarOrDefault "PushRemote" "origin"
-            HasDefaultBuild = false
+            HasDefaultBuild = true
         }
 
     static member Default () =
