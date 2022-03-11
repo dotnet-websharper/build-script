@@ -7,10 +7,14 @@ on:
         description: 'Select stack kind: all/core/ui/templates/extension names'
         required: false
         default: 'all'
-      dotnetversion:
+      dotnetVersion:
         description: 'Select .NET SDK version'
         required: false
         default: '6.0.101'
+      skipChutzpahTesting:
+        description: 'Skip Chutzpah testing on WS Core'
+        required: false
+        default: 'false'
 
 jobs:
   build:
@@ -21,13 +25,14 @@ jobs:
       WSPackageFolder: ../localnuget
       WSVersionsFile: ../versions.txt
       BUILD_NUMBER: ${{ github.run_number }}
+      SKIP_CHUTZPAH_TESTING: ${{ github.event.inputs.skipChutzpahTesting }}
     
     steps:
     
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: ${{ github.event.inputs.dotnetversion }}
+        dotnet-version: ${{ github.event.inputs.dotnetVersion }}
 
     - name: Add GitHub registry NuGet source
       run: 
