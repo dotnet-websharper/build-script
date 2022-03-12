@@ -36,11 +36,3 @@ jobs:
         chmod +x ./test-templates.sh
         ./test-templates.sh
       shell: bash
-      if: ${{ matrix.os != 'macos-latest' }}
-
-    - name: Create and build WS Templates
-      run: |
-        chmod +x ./test-templates.sh
-        ./test-templates.sh
-      shell: sh
-      if: ${{ matrix.os == 'macos-latest' }}
