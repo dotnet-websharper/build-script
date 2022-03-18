@@ -48,14 +48,4 @@ dotnet sln add Cs.Prx/Cs.Prx.csproj
 
 dotnet build
 
-timeout 30s dotnet run --project Fs.Web/Fs.Web.fsproj
-
-timeout 30s dotnet run --project Cs.Web/Cs.Web.csproj
-
-timeout 30s dotnet run --project Fs.Spa/Fs.Spa.fsproj
-
-timeout 30s dotnet run --project Cs.Spa/Cs.Spa.csproj
-
-timeout 30s dotnet run --project Fs.Min/Fs.Min.fsproj
-
-timeout 30s dotnet run --project Cs.Min/Cs.Min.csproj
+dotnet fsi ../test-templates.fsx
