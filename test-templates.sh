@@ -48,4 +48,7 @@ dotnet sln add Cs.Prx/Cs.Prx.csproj
 
 dotnet build
 
+dotnet dev-certs https --clean
+dotnet dev-certs https --trust
+
 dotnet fsi ../test-templates.fsx
