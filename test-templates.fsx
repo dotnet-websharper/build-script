@@ -2,6 +2,11 @@ open System.IO
 open System.Diagnostics
 open System.Threading
 open System.Net.Http
+open System.Net
+
+// ignore localhost SSL errors
+ServicePointManager.ServerCertificateValidationCallback <-
+    fun _ _ _ _ -> true
 
 let runSite relPath =
     let mutable startedOk = false
