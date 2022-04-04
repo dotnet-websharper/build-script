@@ -2,11 +2,6 @@ open System.IO
 open System.Diagnostics
 open System.Threading
 open System.Net.Http
-open System.Net
-
-// ignore localhost SSL errors
-ServicePointManager.ServerCertificateValidationCallback <-
-    fun _ _ _ _ -> true
 
 let runSite relPath =
     let mutable startedOk = false
@@ -36,7 +31,12 @@ let runSite relPath =
     proc.BeginOutputReadLine()
     started.WaitOne() |> ignore
 
-    use client = new HttpClient()
+    let handler = new HttpClientHandler()
+    // ignore localhost SSL errors
+    handler.ServerCertificateCustomValidationCallback <-
+        fun _ _ _ _ -> true
+    use client = new HttpClient(handler, true)
+
     let resp = client.GetAsync("http://localhost:5000/").Result
 
     if not resp.IsSuccessStatusCode then
