@@ -24,7 +24,7 @@ let runSite relPath =
     )
     proc.Exited.Add(fun _ -> 
         if not startedOk then
-            failwithf "Starting project %s failed." relPath    
+            failwithf "Starting project %s failed." relPath
     )
 
     proc.Start() |> ignore
@@ -45,6 +45,8 @@ let runSite relPath =
         printfn "Testing %s ok." relPath
 
     proc.Kill()
+    Thread.Sleep(3000)
+    printfn "Run stopped."
     
 runSite "Fs.Web/Fs.Web.fsproj"
 runSite "Cs.Web/Cs.Web.csproj"
