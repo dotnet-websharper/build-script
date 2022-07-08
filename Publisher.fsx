@@ -99,6 +99,8 @@ let getResources (fileStream: Stream) =
             )
         Some (resources |> Array.ofSeq, asmName, asmVersion)
 
+let errors = ResizeArray()
+
 let downloadPackage (package: IPackageSearchMetadata) (version: VersionInfo) =
     let packageStream = new MemoryStream()
     
@@ -125,6 +127,7 @@ let downloadPackage (package: IPackageSearchMetadata) (version: VersionInfo) =
 
     else
         eprintfn "NuGet download failed."
+        errors.Add(sprintf "Downloading package %s version %O" package.Identity.Id version.Version)
         [||]
 
 let cdnBase = "http://cdn.websharper.com"
@@ -135,7 +138,7 @@ let tryUploadToCdn pkgName pkgVersion asmName asmVersion (resources: (Mono.Cecil
     let isUploaded =
         use client = new System.Net.Http.HttpClient()
         let resp =
-            client.GetAsync(cdnBase + "/exists/" + asmName + "/" + asmVersion) 
+            client.GetAsync(cdnBase + "/exists/" + pkgName + "/" + pkgVersion) 
             |> Task.RunSynchronously
         let respContent =
             resp.Content.ReadAsStringAsync()
@@ -170,6 +173,7 @@ let tryUploadToCdn pkgName pkgVersion asmName asmVersion (resources: (Mono.Cecil
                 resp.Content.ReadAsStringAsync()
                 |> Task.RunSynchronously
             eprintfn "KO\n  %s" err
+            errors.Add(sprintf "Posting on the CDN: %s %s" asmName asmVersion)
         false
 
 for package in webSharperPackages do
@@ -191,3 +195,9 @@ for package in webSharperPackages do
             i <- versions.Length
         else
             i <- i + 1
+
+if errors.Count > 0 then
+    eprintfn "Errors during:"
+    for e in errors do
+        eprintfn "%s" e    
+    failwith "Publisher has finished with errors, see log."
