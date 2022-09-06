@@ -59,14 +59,14 @@ jobs:
         git config --global user.name "IntelliFactory CI"
 
     - name: Check out WS Core
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
       with:
         repository: dotnet-websharper/core
         ref: master
         path: core
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 100
+        fetch-depth: 0
 
     - name: Build WS Core
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
@@ -74,14 +74,14 @@ jobs:
       working-directory: ./core
 
     - name: Check out WS.UI
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
       with:
         repository: dotnet-websharper/ui
         ref: master
         path: ui
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 100
+        fetch-depth: 0
         
     - name: Build WS.UI
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
@@ -89,14 +89,14 @@ jobs:
       working-directory: ./ui
 
     - name: Check out WS.AspNetCore.WebSocket
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'aspnetcore')) }}
       with:
         repository: dotnet-websharper/aspnetcore
         ref: master
         path: aspnetcore
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 100
+        fetch-depth: 0
         
     - name: Build WS.AspNetCore.WebSocket
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'aspnetcore')) }}
@@ -104,14 +104,14 @@ jobs:
       working-directory: ./aspnetcore
 
     - name: Check out WS.Templates
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
       with:
         repository: dotnet-websharper/templates
         ref: master
         path: templates
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 100
+        fetch-depth: 0
         
     - name: Build WS.Templates
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
@@ -119,14 +119,14 @@ jobs:
       working-directory: ./templates
 
     - name: Check out WS.JQuery
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'jquery')) }}
       with:
         repository: dotnet-websharper/jquery
         ref: master
         path: jquery
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 100
+        fetch-depth: 0
 
     - name: Build WS.JQuery
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'jquery')) }}
@@ -134,14 +134,14 @@ jobs:
       working-directory: ./jquery
 
     - name: Check out WS.Forms
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'forms')) }}
       with:
         repository: dotnet-websharper/forms
         ref: master
         path: forms
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 100
+        fetch-depth: 0
 
     - name: Build WS.Forms
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'forms')) }}
@@ -150,13 +150,13 @@ jobs:
       
     - name: Check out WS.MVU
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mvu')) }}
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: dotnet-websharper/mvu
         ref: master
         path: mvu
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 100
+        fetch-depth: 0
     
     - name: Build WS.MVU
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mvu')) }}
@@ -164,14 +164,14 @@ jobs:
       working-directory: ./mvu
 
     - name: Check out WS.Leaflet
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'leaflet')) }}
       with:
         repository: dotnet-websharper/leaflet
         ref: master
         path: leaflet
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 100
+        fetch-depth: 0
 
     - name: Build WS.Leaflet
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'leaflet')) }}
@@ -179,14 +179,14 @@ jobs:
       working-directory: ./leaflet
 
     - name: Check out WS.D3
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'd3')) }}
       with:
         repository: dotnet-websharper/d3
         ref: master
         path: d3
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 100
+        fetch-depth: 0
 
     - name: Build WS.D3
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'd3')) }}
@@ -194,14 +194,14 @@ jobs:
       working-directory: ./d3
 
     - name: Check out WS.React
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react')) }}
       with:
         repository: dotnet-websharper/react
         ref: master
         path: react
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 100
+        fetch-depth: 0
 
     - name: Build WS.React
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react')) }}
@@ -209,14 +209,14 @@ jobs:
       working-directory: ./react
 
     - name: Check out WS.SignalR
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'signalr')) }}
       with:
         repository: dotnet-websharper/signalr
         ref: master
         path: signalr
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 100
+        fetch-depth: 0
 
     - name: Build WS.SignalR
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'signalr')) }}
@@ -224,14 +224,14 @@ jobs:
       working-directory: ./signalr
 
     - name: Check out WS.DateFNS
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'datefns')) }}
       with:
         repository: dotnet-websharper/datefns
         ref: master
         path: datefns
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 100
+        fetch-depth: 0
 
     - name: Build WS.DateFNS
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'datefns')) }}
@@ -239,14 +239,14 @@ jobs:
       working-directory: ./datefns
 
     - name: Check out WS.Moment
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'moment')) }}
       with:
         repository: dotnet-websharper/moment
         ref: master
         path: moment
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 100
+        fetch-depth: 0
 
     - name: Build WS.Moment
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'moment')) }}
@@ -254,14 +254,14 @@ jobs:
       working-directory: ./moment
 
     - name: Check out WS.Plotly
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'plotly')) }}
       with:
         repository: dotnet-websharper/plotly
         ref: master
         path: plotly
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 100
+        fetch-depth: 0
 
     - name: Build WS.Plotly
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'plotly')) }}
@@ -269,14 +269,14 @@ jobs:
       working-directory: ./plotly
 
     - name: Check out WS.ChartJS
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'chartjs')) }}
       with:
         repository: dotnet-websharper/chartjs
         ref: master
         path: chartjs
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 100
+        fetch-depth: 0
 
     - name: Build WS.Chartjs
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'chartjs')) }}
@@ -284,14 +284,14 @@ jobs:
       working-directory: ./chartjs
 
     - name: Check out WS.Charting
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'charting')) }}
       with:
         repository: dotnet-websharper/charting
         ref: master
         path: charting
         token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 100
+        fetch-depth: 0
 
     - name: Build WS.Charting
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'charting')) }}
@@ -300,7 +300,7 @@ jobs:
 
     - name: Check out WS.Highcharts
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highcharts')) }}
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: dotnet-websharper/highcharts
         ref: master
@@ -314,7 +314,7 @@ jobs:
       
     - name: Check out WS.HighlightJS
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highlightjs')) }}
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: dotnet-websharper/highlightjs
         ref: master
@@ -328,7 +328,7 @@ jobs:
 
     - name: Check out WS.MathJax
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mathjax')) }}
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: dotnet-websharper/mathjax
         ref: master
