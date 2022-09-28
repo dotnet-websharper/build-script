@@ -10,7 +10,7 @@ on:
       dotnetVersion:
         description: 'Select .NET SDK version'
         required: false
-        default: '6.0.101'
+        default: '6.0.x'
       skipCoreTesting:
         description: 'Skip Core testing'
         required: false
@@ -30,7 +30,7 @@ jobs:
     steps:
     
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ github.event.inputs.dotnetVersion }}
 
