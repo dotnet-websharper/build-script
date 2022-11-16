@@ -323,6 +323,8 @@ let MakeTargets (args: Args) =
         ++ "**/bin/Release"
         ++ "**/obj/Debug"
         ++ "**/obj/Release"
+        ++ "**/Scripts/WebSharper"
+        ++ "**/Content/WebSharper"
         ++ "build"
 
     Target.create "WS-Clean" <| fun _ ->
