@@ -350,6 +350,7 @@ let MakeTargets (args: Args) =
                 if not res.OK then failwith "dotnet paket update failed"
 
     Target.create "WS-Restore" <| fun o ->
+        DotNet.exec id "paket" "restore"
         if not (Environment.environVarAsBoolOrDefault "NOT_DOTNET" false) then
             let slns = (Environment.environVarOrDefault "DOTNETSOLUTION" "").Trim('"').Split(';')
             let restore proj =
