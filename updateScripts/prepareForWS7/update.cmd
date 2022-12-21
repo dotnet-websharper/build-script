@@ -6,6 +6,7 @@ for /f %%i in ('git.exe rev-parse --show-toplevel') do (
 if "%reponame%" NEQ "core" (
     git branch -b websharper70
     git push -u origin websharper70
+    git checkout master
     dotnet fsi removePrerelease.fsx
 ) else (
     dotnet fsi removePrerelease.fsx
