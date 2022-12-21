@@ -3,16 +3,12 @@ for /f %%i in ('git.exe rev-parse --show-toplevel') do (
     SET reponame=%%~ni
 )
 
-echo %reponame%
-
-if %reponame% NEQ "build-script" (
-    @REM git branch -b websharper70
-    @REM git push -u origin websharper70
-    @REM dotnet fsi removePrerelease.fsx
-    echo "FALSE"
+if "%reponame%" NEQ "core" (
+    git branch -b websharper70
+    git push -u origin websharper70
+    dotnet fsi removePrerelease.fsx
 ) else (
-    @REM dotnet fsi removePrerelease.fsx
-    echo "TRUE"
+    dotnet fsi removePrerelease.fsx
 )
 
 git add -A 
