@@ -68,7 +68,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
       with:
         repository: dotnet-websharper/core
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: core
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -83,7 +83,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
       with:
         repository: dotnet-websharper/ui
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: ui
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -98,7 +98,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'aspnetcore')) }}
       with:
         repository: dotnet-websharper/aspnetcore
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: aspnetcore
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -113,7 +113,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
       with:
         repository: dotnet-websharper/templates
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: templates
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -128,7 +128,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'jquery')) }}
       with:
         repository: dotnet-websharper/jquery
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: jquery
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -143,7 +143,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'forms')) }}
       with:
         repository: dotnet-websharper/forms
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: forms
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -158,7 +158,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: dotnet-websharper/mvu
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: mvu
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -173,7 +173,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'leaflet')) }}
       with:
         repository: dotnet-websharper/leaflet
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: leaflet
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -188,7 +188,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'd3')) }}
       with:
         repository: dotnet-websharper/d3
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: d3
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -203,7 +203,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react')) }}
       with:
         repository: dotnet-websharper/react
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: react
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -218,7 +218,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'signalr')) }}
       with:
         repository: dotnet-websharper/signalr
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: signalr
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -233,7 +233,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'datefns')) }}
       with:
         repository: dotnet-websharper/datefns
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: datefns
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -248,7 +248,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'moment')) }}
       with:
         repository: dotnet-websharper/moment
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: moment
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -263,7 +263,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'plotly')) }}
       with:
         repository: dotnet-websharper/plotly
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: plotly
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -278,7 +278,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'chartjs')) }}
       with:
         repository: dotnet-websharper/chartjs
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: chartjs
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -293,7 +293,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'charting')) }}
       with:
         repository: dotnet-websharper/charting
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: charting
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -308,7 +308,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: dotnet-websharper/highcharts
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: highcharts
         token: ${{ secrets.PAT_PACKAGE }}
 
@@ -322,7 +322,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: dotnet-websharper/highlightjs
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: highlightjs
         token: ${{ secrets.PAT_PACKAGE }}
 
@@ -336,7 +336,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: dotnet-websharper/mathjax
-        ref: $${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch}}
         path: mathjax
         token: ${{ secrets.PAT_PACKAGE }}
 
