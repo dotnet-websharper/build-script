@@ -1,6 +1,6 @@
 @ECHO OFF
 
-git branch -b websharper70
+git branch websharper70
 git checkout websharper70
 git push -u origin websharper70
 
