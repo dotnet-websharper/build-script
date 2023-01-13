@@ -1,4 +1,4 @@
-name: Test WebSharper Templates
+name: 2. Test WebSharper Templates
 
 on:
   workflow_dispatch

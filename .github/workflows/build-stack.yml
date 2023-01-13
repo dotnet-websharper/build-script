@@ -1,4 +1,4 @@
-name: Build WebSharper Core Stack
+name: 1. Build WebSharper Core Stack
 
 on:
   workflow_dispatch:
