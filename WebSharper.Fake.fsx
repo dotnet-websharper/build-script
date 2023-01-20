@@ -492,7 +492,7 @@ Target.create "CI-Commit" <| fun _ ->
 
 Target.create "CI-Tag" <| fun _ ->
     let lastCICommitLog =
-        gitOut "log --author=\"ci@intellifactory.com\" -n 1"
+        gitOut "log --author=\"ci@intellifactory.com\" "
     // prints something like:
         //commit 39a5220f342488162bc5625fd2db3f9c13048626 (HEAD -> websharper50, origin/websharper50)
         //Author: IntelliFactory CI <ci@intellifactory.com>
