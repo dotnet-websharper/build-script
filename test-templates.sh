@@ -1,3 +1,5 @@
+set -e
+
 dotnet new sln -o "templatetest"
 pushd "templatetest"
 
