@@ -3,10 +3,18 @@ set -e
 dotnet new sln -o "templatetest"
 pushd "templatetest"
 
-if [ -z "$1" ]; then
-  dotnet new install WebSharper.Templates
+if [[ $1 =~ ^6.* ]]; then
+  if [ -z "$2" ]; then
+    dotnet new -i WebSharper.Templates
+  else
+    dotnet new -i WebSharper.Templates::$1
+  fi
 else
-  dotnet new install WebSharper.Templates::$1
+  if [ -z "$2" ]; then
+    dotnet new install WebSharper.Templates
+  else
+    dotnet new install WebSharper.Templates::$1
+  fi
 fi
 
 dotnet new websharper-lib -o Fs.Lib -lang f#
