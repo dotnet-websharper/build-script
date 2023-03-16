@@ -3,7 +3,11 @@ set -e
 dotnet new sln -o "templatetest"
 pushd "templatetest"
 
-dotnet new -i WebSharper.Templates
+if [ -z "$1" ]; then
+  dotnet new install WebSharper.Templates
+else
+  dotnet new install WebSharper.Templates::$1
+fi
 
 dotnet new websharper-lib -o Fs.Lib -lang f#
 dotnet sln add Fs.Lib/Fs.Lib.fsproj

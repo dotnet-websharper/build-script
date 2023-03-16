@@ -1,7 +1,12 @@
 name: 2. Test WebSharper Templates
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      nugetversion:
+        description: 'Specify NuGet version'
+        required: false
+        default: ''
 
 jobs:
   test:
@@ -34,5 +39,5 @@ jobs:
     - name: Create and build WS Templates
       run: |
         chmod +x ./test-templates.sh
-        ./test-templates.sh
+        ./test-templates.sh "${{ github.event.inputs.nugetversion }}"
       shell: bash
