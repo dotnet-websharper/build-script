@@ -7,13 +7,13 @@ if [[ $1 =~ ^6.* ]]; then
   if [ -z "$2" ]; then
     dotnet new -i WebSharper.Templates
   else
-    dotnet new -i WebSharper.Templates::$1
+    dotnet new -i WebSharper.Templates::$2
   fi
 else
   if [ -z "$2" ]; then
     dotnet new install WebSharper.Templates
   else
-    dotnet new install WebSharper.Templates::$1
+    dotnet new install WebSharper.Templates::$2
   fi
 fi
 
