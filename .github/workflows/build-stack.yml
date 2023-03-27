@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       stackKind:
-        description: 'Select stack kind: all/core/ui/templates/extension names'
+        description: 'Select stack kind: all/core/ui/templates/extension/elmish names'
         required: false
         default: 'all'
       dotnetVersion:
@@ -344,6 +344,20 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mathjax')) }}
       run: ./build CI-Release
       working-directory: ./mathjax
+
+    - name: Check out WS.Elmish
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish')) }}
+      uses: actions/checkout@v3
+      with:
+        repository: dotnet-websharper/elmish2
+        ref: ${{ github.event.inputs.branch}}
+        path: elmish
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Build WS.Elmish
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish')) }}
+      run: ./wsbuild
+      working-directory: ./elmish
 
     - name: List packages within ./localnuget
       run: ls ./localnuget
