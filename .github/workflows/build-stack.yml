@@ -349,7 +349,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish')) }}
       uses: actions/checkout@v3
       with:
-        repository: dotnet-websharper/elmish2
+        repository: dotnet-websharper/elmish
         ref: ${{ github.event.inputs.branch}}
         path: elmish
         token: ${{ secrets.PAT_PACKAGE }}
