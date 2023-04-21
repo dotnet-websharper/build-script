@@ -19,6 +19,10 @@ on:
         description: 'Branch to use for build process'
         required: false
         default: 'master'
+      coreBranch:
+        description: 'Branch to use for building core'
+        required: false
+        default: ''
 
 
 jobs:
@@ -65,10 +69,20 @@ jobs:
 
     - name: Check out WS Core
       uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
+      if: ${{ success() && github.event.inputs.coreBranch == '' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
       with:
         repository: dotnet-websharper/core
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
+        path: core
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Check out WS Core branch ${{ github.event.inputs.coreBranch }}
+      uses: actions/checkout@v3
+      if: ${{ success() && github.event.inputs.coreBranch != '' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
+      with:
+        repository: dotnet-websharper/core
+        ref: ${{ github.event.inputs.coreBranch }}
         path: core
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
