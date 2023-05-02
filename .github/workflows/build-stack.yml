@@ -214,7 +214,7 @@ jobs:
 
     - name: Check out WS.React
       uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react')) }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
       with:
         repository: dotnet-websharper/react
         ref: ${{ github.event.inputs.branch}}
@@ -223,7 +223,7 @@ jobs:
         fetch-depth: 0
 
     - name: Build WS.React
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react')) }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
       run: ./build CI-Release
       working-directory: ./react
 
@@ -373,6 +373,21 @@ jobs:
       run: ./wsbuild
       working-directory: ./elmish
 
+    - name: Check out WS.Elmish.React
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
+      with:
+        repository: dotnet-websharper/elmish.react
+        ref: main
+        path: elmish.react
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WS.Elmish.React
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
+      run: ./build CI-Release
+      working-directory: ./elmish.react
+
     - name: List packages within ./localnuget
       run: ls ./localnuget
 
@@ -442,7 +457,7 @@ jobs:
       working-directory: ./d3
 
     - name: Commit version on WS.React
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react')) }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
       run: ./build CI-Commit
       working-directory: ./react
 
@@ -490,3 +505,8 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mathjax')) }}
       run: ./build CI-Commit
       working-directory: ./mathjax
+
+    - name: Commit version on WS.Elmish.React
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
+      run: ./build CI-Commit
+      working-directory: ./elmish.react
