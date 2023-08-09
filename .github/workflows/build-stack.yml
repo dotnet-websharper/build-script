@@ -416,19 +416,39 @@ jobs:
       run: ./build CI-Commit
       working-directory: ./core
 
+    - name: Tag version on WS Core
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
+      run: ./build CI-Tag
+      working-directory: ./core
+
     - name: Commit version on WS.UI
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
       run: ./build CI-Commit
+      working-directory: ./ui
+
+    - name: Tag version on WS.UI
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
+      run: ./build CI-Tag
       working-directory: ./ui
       
     - name: Commit version on WS.AspNetCore.WebSocket
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'aspnetcore')) }}
       run: ./build CI-Commit
       working-directory: ./aspnetcore
+
+    - name: Tag version on WS.AspNetCore.WebSocket
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'aspnetcore')) }}
+      run: ./build CI-Tag
+      working-directory: ./aspnetcore
       
     - name: Commit version on WS.Templates
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
       run: ./build CI-Commit
+      working-directory: ./templates
+
+    - name: Tag version on WS.Templates
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
+      run: ./build CI-Tag
       working-directory: ./templates
     
     - name: Commit version on WS.JQuery
@@ -436,9 +456,19 @@ jobs:
       run: ./build CI-Commit
       working-directory: ./jquery
 
+    - name: Tag version on WS.JQuery
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'jquery')) }}
+      run: ./build CI-Tag
+      working-directory: ./jquery
+
     - name: Commit version on WS.Forms
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'forms')) }}
       run: ./build CI-Commit
+      working-directory: ./forms
+
+    - name: Tag version on WS.Forms
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'forms')) }}
+      run: ./build CI-Tag
       working-directory: ./forms
 
     - name: Commit version on WS.MVU
@@ -446,9 +476,19 @@ jobs:
       run: ./build CI-Commit
       working-directory: ./mvu
 
+    - name: Tag version on WS.MVU
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mvu')) }}
+      run: ./build CI-Tag
+      working-directory: ./mvu
+
     - name: Commit version on WS.Leaflet
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'leaflet')) }}
       run: ./build CI-Commit
+      working-directory: ./leaflet
+
+    - name: Tag version on WS.Leaflet
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'leaflet')) }}
+      run: ./build CI-Tag
       working-directory: ./leaflet
 
     - name: Commit version on WS.D3
@@ -456,9 +496,19 @@ jobs:
       run: ./build CI-Commit
       working-directory: ./d3
 
+    - name: Tag version on WS.D3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'd3')) }}
+      run: ./build CI-Tag
+      working-directory: ./d3
+
     - name: Commit version on WS.React
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
       run: ./build CI-Commit
+      working-directory: ./react
+
+    - name: Tag version on WS.React
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
+      run: ./build CI-Tag
       working-directory: ./react
 
     - name: Commit version on WS.SignalR
@@ -466,9 +516,19 @@ jobs:
       run: ./build CI-Commit
       working-directory: ./signalr
 
+    - name: Tag version on WS.SignalR
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'signalr')) }}
+      run: ./build CI-Tag
+      working-directory: ./signalr
+
     - name: Commit version on WS.DateFNS
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'datefns')) }}
       run: ./build CI-Commit
+      working-directory: ./datefns
+
+    - name: Tag version on WS.DateFNS
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'datefns')) }}
+      run: ./build CI-Tag
       working-directory: ./datefns
 
     - name: Commit version on WS.Moment
@@ -476,9 +536,19 @@ jobs:
       run: ./build CI-Commit
       working-directory: ./moment
 
+    - name: Tag version on WS.Moment
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'moment')) }}
+      run: ./build CI-Tag
+      working-directory: ./moment
+
     - name: Commit version on WS.Plotly
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'plotly')) }}
       run: ./build CI-Commit
+      working-directory: ./plotly
+
+    - name: Tag version on WS.Plotly
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'plotly')) }}
+      run: ./build CI-Tag
       working-directory: ./plotly
 
     - name: Commit version on WS.ChartJS
@@ -486,9 +556,19 @@ jobs:
       run: ./build CI-Commit
       working-directory: ./chartjs
 
+    - name: Tag version on WS.ChartJS
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'chartjs')) }}
+      run: ./build CI-Tag
+      working-directory: ./chartjs
+
     - name: Commit version on WS.Charting
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'charting')) }}
       run: ./build CI-Commit
+      working-directory: ./charting
+
+    - name: Tag version on WS.Charting
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'charting')) }}
+      run: ./build CI-Tag
       working-directory: ./charting
 
     - name: Commit version on WS.Highcharts
@@ -496,9 +576,19 @@ jobs:
       run: ./build CI-Commit
       working-directory: ./highcharts
 
+    - name: Tag version on WS.Highcharts
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highcharts')) }}
+      run: ./build CI-Tag
+      working-directory: ./highcharts
+
     - name: Commit version on WS.HighlightJS
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highlightjs')) }}
       run: ./build CI-Commit
+      working-directory: ./highlightjs
+
+    - name: Tag version on WS.HighlightJS
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highlightjs')) }}
+      run: ./build CI-TAG
       working-directory: ./highlightjs
 
     - name: Commit version on WS.MathJax
@@ -506,7 +596,17 @@ jobs:
       run: ./build CI-Commit
       working-directory: ./mathjax
 
+    - name: Tag version on WS.MathJax
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mathjax')) }}
+      run: ./build CI-Tag
+      working-directory: ./mathjax
+
     - name: Commit version on WS.Elmish.React
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
       run: ./build CI-Commit
+      working-directory: ./elmish.react
+    
+    - name: Tag version on WS.Elmish.React
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
+      run: ./build CI-Tag
       working-directory: ./elmish.react
