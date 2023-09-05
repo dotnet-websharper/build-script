@@ -391,6 +391,25 @@ jobs:
     - name: List packages within ./localnuget
       run: ls ./localnuget
 
+    - name: Check out WS.SweetAlert
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'sweetalert')) }}
+      with:
+        repository: dotnet-websharper/sweetalert
+        ref: main
+        path: sweetalert
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WS.SweetAlert
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'sweetalert')) }}
+      run: ./build CI-Release
+      working-directory: ./sweetalert
+
+    - name: List packages within ./localnuget
+      run: ls ./localnuget
+    
+
     - name: Publish NuGet packages to GitHub registry
       run:
         dotnet nuget push *.nupkg
