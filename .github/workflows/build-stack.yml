@@ -388,15 +388,12 @@ jobs:
       run: ./build CI-Release
       working-directory: ./elmish.react
 
-    - name: List packages within ./localnuget
-      run: ls ./localnuget
-
     - name: Check out WS.SweetAlert
       uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'sweetalert')) }}
       with:
         repository: dotnet-websharper/sweetalert
-        ref: main
+        ref: websharper70
         path: sweetalert
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
