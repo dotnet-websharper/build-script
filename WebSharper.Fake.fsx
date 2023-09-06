@@ -209,10 +209,9 @@ let ComputeVersion (baseVersion: option<Paket.SemVerInfo>) =
                     match tag with
                     | Some tag -> VC.commitIdForTag tag
                     | None -> head
-                if head = tagged then
-                    lastVersion.Patch
-                else
-                    lastVersion.Patch + 1u
+                match Environment.environVarOrNone "INCREASE_PATCH_VERSION" with
+                | Some "true" -> lastVersion.Patch + 1u
+                | _ -> lastVersion.Patch
         with e ->
             Trace.traceImportant (sprintf "Warning: computing patch version: %s" e.Message)
             0u
