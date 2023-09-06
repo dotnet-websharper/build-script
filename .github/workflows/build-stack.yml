@@ -23,7 +23,11 @@ on:
         description: 'Branch to use for building core'
         required: false
         default: ''
-
+      increasePatch:
+        description: 'Increase patch version?'
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   build:
@@ -35,6 +39,7 @@ jobs:
       WSVersionsFile: ../versions.txt
       BUILD_NUMBER: ${{ github.run_number }}
       SKIP_CORE_TESTING: ${{ github.event.inputs.skipCoreTesting }}
+      INCREASE_PATCH_VERSION: ${{ github.event.inputs.increasePatch }}
     
     steps:
     
@@ -626,3 +631,13 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
       run: ./build CI-Tag
       working-directory: ./elmish.react
+
+    - name: Commit version on WS.SweetAlert
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'sweetalert')) }}
+      run: ./build CI-Commit
+      working-directory: ./sweetalert
+    
+    - name: Tag version on WS.SweetAlert
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'sweetalert')) }}
+      run: ./build CI-Tag
+      working-directory: ./sweetlalert
