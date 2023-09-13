@@ -408,10 +408,30 @@ jobs:
       run: ./build CI-Release
       working-directory: ./sweetalert
 
+    - name: Check out WS.Remarkable
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'remarkable')) }}
+      with:
+        repository: dotnet-websharper/remarkable
+        ref: websharper70
+        path: remarkable
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
     - name: Build WS.Remarkable
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'remarkable')) }}
       run: ./build CI-Release
       working-directory: ./remarkable
+
+    - name: Check out WS.JsPDF
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'jspdf')) }}
+      with:
+        repository: dotnet-websharper/jspdf
+        ref: websharper70
+        path: jspdf
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
 
     - name: Build WS.JsPDF
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'jspdf')) }}
