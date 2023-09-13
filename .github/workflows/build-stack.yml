@@ -408,6 +408,16 @@ jobs:
       run: ./build CI-Release
       working-directory: ./sweetalert
 
+    - name: Build WS.Remarkable
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'remarkable')) }}
+      run: ./build CI-Release
+      working-directory: ./remarkable
+
+    - name: Build WS.JsPDF
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'jspdf')) }}
+      run: ./build CI-Release
+      working-directory: ./jspdf
+
     - name: List packages within ./localnuget
       run: ls ./localnuget
     
@@ -641,3 +651,23 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'sweetalert')) }}
       run: ./build CI-Tag
       working-directory: ./sweetlalert
+
+    - name: Commit version on WS.Remarkable
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'remarkable')) }}
+      run: ./build CI-Commit
+      working-directory: ./remarkable
+    
+    - name: Tag version on WS.Remarkable
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'remarkable')) }}
+      run: ./build CI-Tag
+      working-directory: ./remarkable
+
+    - name: Commit version on WS.JsPDF
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'jspdf')) }}
+      run: ./build CI-Commit
+      working-directory: ./jspdf
+    
+    - name: Tag version on WS.JsPDF
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'jspdf')) }}
+      run: ./build CI-Tag
+      working-directory: ./jspdf
