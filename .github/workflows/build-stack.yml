@@ -670,7 +670,7 @@ jobs:
     - name: Tag version on WS.SweetAlert
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'sweetalert')) }}
       run: ./build CI-Tag
-      working-directory: ./sweetlalert
+      working-directory: ./sweetalert
 
     - name: Commit version on WS.Remarkable
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'remarkable')) }}
