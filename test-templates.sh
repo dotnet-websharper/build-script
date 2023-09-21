@@ -3,6 +3,8 @@ set -e
 dotnet new sln -o "templatetest"
 pushd "templatetest"
 
+export WebSharperBuildService="True"
+
 if [[ $1 =~ ^6.* ]]; then
   if [ -z "$2" ]; then
     dotnet new -i WebSharper.Templates
