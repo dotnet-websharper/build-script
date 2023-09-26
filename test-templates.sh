@@ -1,5 +1,7 @@
 set -e
 
+dotnet --list-sdks
+
 dotnet new sln -o "templatetest"
 pushd "templatetest"
 
