@@ -443,7 +443,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'animejs')) }}
       with:
         repository: dotnet-websharper/animejs
-        ref: websharper70
+        ref: main
         path: animejs
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
