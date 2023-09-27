@@ -438,6 +438,21 @@ jobs:
       run: ./build CI-Release
       working-directory: ./jspdf
 
+    - name: Check out WS.AnimeJS
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'animejs')) }}
+      with:
+        repository: dotnet-websharper/animejs
+        ref: websharper70
+        path: animejs
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WS.AnimeJS
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'animejs')) }}
+      run: ./build CI-Release
+      working-directory: ./animejs
+
     - name: List packages within ./localnuget
       run: ls ./localnuget
     
@@ -691,3 +706,13 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'jspdf')) }}
       run: ./build CI-Tag
       working-directory: ./jspdf
+
+    - name: Commit version on WS.AnimeJS
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'animejs')) }}
+      run: ./build CI-Commit
+      working-directory: ./animejs
+    
+    - name: Tag version on WS.AnimeJS
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'animejs')) }}
+      run: ./build CI-Tag
+      working-directory: ./animejs
