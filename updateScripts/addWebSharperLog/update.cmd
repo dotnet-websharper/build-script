@@ -1,0 +1,1 @@
+dotnet fsi %~dp0\update.fsx

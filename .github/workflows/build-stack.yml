@@ -453,6 +453,51 @@ jobs:
       run: ./build CI-Release
       working-directory: ./animejs
 
+    - name: Check out WS.Popover
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'popover')) }}
+      with:
+        repository: dotnet-websharper/popover
+        ref: main
+        path: popover
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WS.Popover
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'popover')) }}
+      run: ./build CI-Release
+      working-directory: ./popover
+
+    - name: Check out WS.PerformanceAPI
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'performanceapi')) }}
+      with:
+        repository: dotnet-websharper/performanceapi
+        ref: main
+        path: performanceapi
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WS.PerformanceAPI
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'performanceapi')) }}
+      run: ./build CI-Release
+      working-directory: ./performanceapi
+
+    - name: Check out WS.IndexedDB
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'w3c-indexeddb')) }}
+      with:
+        repository: dotnet-websharper/w3c-indexeddb
+        ref: main
+        path: w3c-indexeddb
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WS.IndexedDB
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'w3c-indexeddb')) }}
+      run: ./build CI-Release
+      working-directory: ./w3c-indexeddb
+
     - name: List packages within ./localnuget
       run: ls ./localnuget
     
@@ -716,3 +761,34 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'animejs')) }}
       run: ./build CI-Tag
       working-directory: ./animejs
+
+    - name: Commit version on WS.IndexedDB
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'w3c-indexeddb')) }}
+      run: ./build CI-Commit
+      working-directory: ./w3c-indexeddb
+    
+    - name: Tag version on WS.IndexedDB
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'w3c-indexeddb')) }}
+      run: ./build CI-Tag
+      working-directory: ./w3c-indexeddb
+
+    - name: Commit version on WS.PerformanceAPI
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'performanceapi')) }}
+      run: ./build CI-Commit
+      working-directory: ./performanceapi
+    
+    - name: Tag version on WS.PerformanceAPI
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'performanceapi')) }}
+      run: ./build CI-Tag
+      working-directory: ./performanceapi
+
+    - name: Commit version on WS.Popover
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'popover')) }}
+      run: ./build CI-Commit
+      working-directory: ./popover
+    
+    - name: Tag version on WS.Popover
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'popover')) }}
+      run: ./build CI-Tag
+      working-directory: ./popover
+    

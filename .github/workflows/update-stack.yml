@@ -52,7 +52,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/core
-        ref: master
+        ref: websharper70
         path: core
         token: ${{ secrets.PAT_PACKAGE }}
 
@@ -64,7 +64,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/ui
-        ref: master
+        ref: websharper70
         path: ui
         token: ${{ secrets.PAT_PACKAGE }}
         
@@ -76,7 +76,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/aspnetcore
-        ref: master
+        ref: websharper70
         path: aspnetcore
         token: ${{ secrets.PAT_PACKAGE }}
         
@@ -88,7 +88,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/templates
-        ref: master
+        ref: websharper70
         path: templates
         token: ${{ secrets.PAT_PACKAGE }}
         
@@ -100,7 +100,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/jquery
-        ref: master
+        ref: websharper70
         path: jquery
         token: ${{ secrets.PAT_PACKAGE }}
 
@@ -112,7 +112,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/forms
-        ref: master
+        ref: websharper70
         path: forms
         token: ${{ secrets.PAT_PACKAGE }}
 
@@ -124,7 +124,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/mvu
-        ref: master
+        ref: websharper70
         path: mvu
         token: ${{ secrets.PAT_PACKAGE }}
     
@@ -136,7 +136,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/leaflet
-        ref: master
+        ref: websharper70
         path: leaflet
         token: ${{ secrets.PAT_PACKAGE }}
 
@@ -148,7 +148,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/d3
-        ref: master
+        ref: websharper70
         path: d3
         token: ${{ secrets.PAT_PACKAGE }}
 
@@ -160,7 +160,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/react
-        ref: master
+        ref: websharper70
         path: react
         token: ${{ secrets.PAT_PACKAGE }}
 
@@ -172,7 +172,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/signalr
-        ref: master
+        ref: websharper70
         path: signalr
         token: ${{ secrets.PAT_PACKAGE }}
 
@@ -184,7 +184,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/datefns
-        ref: master
+        ref: websharper70
         path: datefns
         token: ${{ secrets.PAT_PACKAGE }}
 
@@ -196,7 +196,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/moment
-        ref: master
+        ref: websharper70
         path: moment
         token: ${{ secrets.PAT_PACKAGE }}
 
@@ -208,7 +208,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/plotly
-        ref: master
+        ref: websharper70
         path: plotly
         token: ${{ secrets.PAT_PACKAGE }}
 
@@ -220,7 +220,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/chartjs
-        ref: master
+        ref: websharper70
         path: chartjs
         token: ${{ secrets.PAT_PACKAGE }}
 
@@ -232,7 +232,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/charting
-        ref: master
+        ref: websharper70
         path: charting
         token: ${{ secrets.PAT_PACKAGE }}
 
@@ -244,7 +244,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/highcharts
-        ref: master
+        ref: websharper70
         path: highcharts
         token: ${{ secrets.PAT_PACKAGE }}
 
@@ -256,7 +256,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/highlightjs
-        ref: master
+        ref: websharper70
         path: highlightjs
         token: ${{ secrets.PAT_PACKAGE }}
 
@@ -268,10 +268,108 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: dotnet-websharper/mathjax
-        ref: master
+        ref: websharper70
         path: mathjax
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.MathJax
       run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
       working-directory: ./mathjax
+
+    - name: Check out WS.Elmish.React
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/elmish.react
+        ref: main
+        path: elmish.react
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Update WS.Elmish.React
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
+      working-directory: ./elmish.react
+
+    - name: Check out WS.SweetAlert
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/sweetalert
+        ref: websharper70
+        path: sweetalert
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Update WS.SweetlAlert
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
+      working-directory: ./sweetalert
+
+    - name: Check out WS.Remarkable
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/remarkable
+        ref: websharper70
+        path: remarkable
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Update WS.Remarkable
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
+      working-directory: ./remarkble
+
+    - name: Check out WS.JsPDF
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/jspdf
+        ref: websharper70
+        path: jspdf
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Update WS.JsPDF
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
+      working-directory: ./jsPDF
+
+    - name: Check out WS.AnimeJS
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/animejs
+        ref: main
+        path: animejs
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Update WS.AnimeJS
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
+      working-directory: ./animejs
+
+    - name: Check out WS.Popover
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/popover
+        ref: main
+        path: popover
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Update WS.Popover
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
+      working-directory: ./popover
+
+    - name: Check out WS.IndexedDB
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/w3c-indexeddb
+        ref: main
+        path: w3c-indexeddb
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Update WS.IndexedDB
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
+      working-directory: ./w3c-indexeddb
+
+    - name: Check out WS.PerformanceAPI
+      uses: actions/checkout@v2
+      with:
+        repository: dotnet-websharper/performanceapi
+        ref: main
+        path: performanceapi
+        token: ${{ secrets.PAT_PACKAGE }}
+
+    - name: Update WS.PerformanceAPI
+      run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
+      working-directory: ./performanceapi
+
+    
