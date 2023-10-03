@@ -310,7 +310,7 @@ jobs:
 
     - name: Update WS.Remarkable
       run: ../build-script/updateScripts/${{ github.event.inputs.updateFolder }}/update
-      working-directory: ./remarkble
+      working-directory: ./remarkable
 
     - name: Check out WS.JsPDF
       uses: actions/checkout@v2
