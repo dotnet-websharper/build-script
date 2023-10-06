@@ -498,6 +498,21 @@ jobs:
       run: ./build CI-Release
       working-directory: ./w3c-indexeddb
 
+    - name: Check out WS.WebRTC
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webrtc')) }}
+      with:
+        repository: dotnet-websharper/webrtc
+        ref: main
+        path: webrtc
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WS.WebRTC
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webrtc')) }}
+      run: ./build CI-Release
+      working-directory: ./webrtc
+
     - name: List packages within ./localnuget
       run: ls ./localnuget
     
@@ -791,4 +806,14 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'popover')) }}
       run: ./build CI-Tag
       working-directory: ./popover
+
+    - name: Commit version on WS.WebRTC
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'popover')) }}
+      run: ./build CI-Commit
+      working-directory: ./webrtc
+    
+    - name: Tag version on WS.WebRTC
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webrtc')) }}
+      run: ./build CI-Tag
+      working-directory: ./webrtc
     
