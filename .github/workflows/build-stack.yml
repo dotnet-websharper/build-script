@@ -503,7 +503,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webrtc')) }}
       with:
         repository: dotnet-websharper/webrtc
-        ref: main
+        ref: websharper70
         path: webrtc
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
