@@ -389,7 +389,6 @@ let MakeTargets (args: Args) =
             AssemblyInfoFile.createFSharp file [
                 yield AssemblyInfo.Version (sprintf "%i.%i.0.0" version.Value.Major version.Value.Minor)
                 yield AssemblyInfo.FileVersion (sprintf "%i.%i.%i.%A" version.Value.Major version.Value.Minor version.Value.Patch version.Value.Build)
-                yield AssemblyInfo.Description (sprintf "%s" version.Value.AsString)
                 yield! args.Attributes
             ]
 
