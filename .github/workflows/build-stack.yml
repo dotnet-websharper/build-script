@@ -473,7 +473,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'performanceapi')) }}
       with:
         repository: dotnet-websharper/performanceapi
-        ref: main
+        ref: initial
         path: performanceapi
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
