@@ -513,6 +513,36 @@ jobs:
       run: ./build CI-Release
       working-directory: ./webrtc
 
+    - name: Check out WS.FluentUI.React.Icons
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluentui-react-icons')) }}
+      with:
+        repository: dotnet-websharper/fluentui-react-icons
+        ref: main
+        path: fluentui-react-icons
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WS.FluentUI.React.Icons
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluentui-react-icons')) }}
+      run: ./build CI-Release
+      working-directory: ./fluentui-react-icons
+
+    - name: Check out WS.FluentUI.React.Components
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluentui-react-components')) }}
+      with:
+        repository: dotnet-websharper/fluentui-react-components
+        ref: main
+        path: fluentui-react-components
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WS.FluentUI.React.Components
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluentui-react-components')) }}
+      run: ./build CI-Release
+      working-directory: ./fluentui-react-components
+
     - name: List packages within ./localnuget
       run: ls ./localnuget
     
@@ -808,7 +838,7 @@ jobs:
       working-directory: ./popover
 
     - name: Commit version on WS.WebRTC
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'popover')) }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webrtc')) }}
       run: ./build CI-Commit
       working-directory: ./webrtc
     
@@ -816,4 +846,24 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webrtc')) }}
       run: ./build CI-Tag
       working-directory: ./webrtc
+
+    - name: Commit version on WS.FluentUI.React.Icons
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluentui-react-icons')) }}
+      run: ./build CI-Commit
+      working-directory: ./fluentui-react-icons
+    
+    - name: Tag version on WS.FluentUI.React.Icons
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluentui-react-icons')) }}
+      run: ./build CI-Tag
+      working-directory: ./fluentui-react-icons
+    
+    - name: Commit version on WS.FluentUI.React.Components
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluentui-react-components')) }}
+      run: ./build CI-Commit
+      working-directory: ./fluentui-react-components
+    
+    - name: Tag version on WS.FluentUI.React.Components
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluentui-react-components')) }}
+      run: ./build CI-Tag
+      working-directory: ./fluentui-react-components
     
