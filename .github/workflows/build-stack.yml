@@ -97,6 +97,21 @@ jobs:
       run: ./build CI-Release
       working-directory: ./core
 
+    - name: Check out WS.MathJS
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mathjs')) }}
+      with:
+        repository: dotnet-websharper/mathjs
+        ref: ${{ github.event.inputs.branch}}
+        path: mathjs
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+        
+    - name: Build WS.MathJS
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mathjs')) }}
+      run: ./build CI-Release
+      working-directory: ./mathjs
+
     - name: Check out WS.UI
       uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
@@ -576,6 +591,16 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
       run: ./build CI-Tag
       working-directory: ./core
+
+    - name: Commit version on WS.MathJS
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mathjs')) }}
+      run: ./build CI-Commit
+      working-directory: ./mathjs
+
+    - name: Tag version on WS.MathJS
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mathjs')) }}
+      run: ./build CI-Tag
+      working-directory: ./mathjs
 
     - name: Commit version on WS.UI
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
