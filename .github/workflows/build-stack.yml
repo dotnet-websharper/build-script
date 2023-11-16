@@ -102,7 +102,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mathjs')) }}
       with:
         repository: dotnet-websharper/mathjs
-        ref: ${{ github.event.inputs.branch}}
+        ref: master
         path: mathjs
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
