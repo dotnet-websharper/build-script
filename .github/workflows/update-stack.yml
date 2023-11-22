@@ -7,11 +7,14 @@ on:
         description: "Select which folder's update.cmd to run"
         required: true
 
+env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   update:
 
     runs-on: windows-latest
-          
+
     steps:
     
     - name: Setup .NET
