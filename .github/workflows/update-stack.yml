@@ -85,6 +85,7 @@ jobs:
         repository: dotnet-websharper/aspnetcore
         ref: master
         path: aspnetcore
+        fetch-depth: 0
         token: ${{ secrets.PAT_PACKAGE }}
         
     - name: Update WS.AspNetCore.WebSocket
@@ -97,6 +98,7 @@ jobs:
         repository: dotnet-websharper/templates
         ref: master
         path: templates
+        fetch-depth: 0
         token: ${{ secrets.PAT_PACKAGE }}
         
     - name: Update WS.Templates
@@ -109,6 +111,7 @@ jobs:
         repository: dotnet-websharper/jquery
         ref: master
         path: jquery
+        fetch-depth: 0
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.JQuery
@@ -121,6 +124,7 @@ jobs:
         repository: dotnet-websharper/forms
         ref: master
         path: forms
+        fetch-depth: 0
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.Forms
@@ -133,6 +137,7 @@ jobs:
         repository: dotnet-websharper/mvu
         ref: master
         path: mvu
+        fetch-depth: 0
         token: ${{ secrets.PAT_PACKAGE }}
     
     - name: Update WS.MVU
@@ -145,6 +150,7 @@ jobs:
         repository: dotnet-websharper/leaflet
         ref: master
         path: leaflet
+        fetch-depth: 0
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.Leaflet
@@ -157,6 +163,7 @@ jobs:
         repository: dotnet-websharper/d3
         ref: master
         path: d3
+        fetch-depth: 0
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.D3
@@ -169,6 +176,7 @@ jobs:
         repository: dotnet-websharper/react
         ref: master
         path: react
+        fetch-depth: 0
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.React
@@ -181,6 +189,7 @@ jobs:
         repository: dotnet-websharper/signalr
         ref: master
         path: signalr
+        fetch-depth: 0
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.SignalR
@@ -193,6 +202,7 @@ jobs:
         repository: dotnet-websharper/datefns
         ref: master
         path: datefns
+        fetch-depth: 0
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.DateFNS
@@ -205,6 +215,7 @@ jobs:
         repository: dotnet-websharper/moment
         ref: master
         path: moment
+        fetch-depth: 0
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.Moment
@@ -217,6 +228,7 @@ jobs:
         repository: dotnet-websharper/plotly
         ref: master
         path: plotly
+        fetch-depth: 0
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.Plotly
@@ -229,6 +241,7 @@ jobs:
         repository: dotnet-websharper/chartjs
         ref: master
         path: chartjs
+        fetch-depth: 0
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.Chartjs
@@ -241,6 +254,7 @@ jobs:
         repository: dotnet-websharper/charting
         ref: master
         path: charting
+        fetch-depth: 0
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.Charting
@@ -253,6 +267,7 @@ jobs:
         repository: dotnet-websharper/highcharts
         ref: master
         path: highcharts
+        fetch-depth: 0
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.Highcharts
@@ -265,6 +280,7 @@ jobs:
         repository: dotnet-websharper/highlightjs
         ref: master
         path: highlightjs
+        fetch-depth: 0
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.HighlightJS
@@ -277,6 +293,7 @@ jobs:
         repository: dotnet-websharper/mathjax
         ref: master
         path: mathjax
+        fetch-depth: 0
         token: ${{ secrets.PAT_PACKAGE }}
 
     - name: Update WS.MathJax
