@@ -9,7 +9,7 @@ git branch websharper60
 git checkout websharper60
 git push -u origin websharper60
 
-echo "${{ secrets.PAT_PR }}" > token.txt
+echo "$env:PR_TOKEN" > token.txt
 gh auth login --with-token < token.txt
 
 git checkout websharper70
