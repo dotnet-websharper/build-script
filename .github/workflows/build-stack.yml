@@ -413,7 +413,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'sweetalert')) }}
       with:
         repository: dotnet-websharper/sweetalert
-        ref: websharper70
+        ref: ${{ github.event.inputs.branch}}
         path: sweetalert
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -428,7 +428,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'remarkable')) }}
       with:
         repository: dotnet-websharper/remarkable
-        ref: websharper70
+        ref: ${{ github.event.inputs.branch}}
         path: remarkable
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -443,7 +443,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'jspdf')) }}
       with:
         repository: dotnet-websharper/jspdf
-        ref: websharper70
+        ref: ${{ github.event.inputs.branch}}
         path: jspdf
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -518,7 +518,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webrtc')) }}
       with:
         repository: dotnet-websharper/webrtc
-        ref: websharper70
+        ref: ${{ github.event.inputs.branch}}
         path: webrtc
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
