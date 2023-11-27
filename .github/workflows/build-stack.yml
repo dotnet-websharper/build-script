@@ -60,9 +60,6 @@ jobs:
     - name: Install Paket as global tool
       run: dotnet tool install paket --global
 
-    - name: Trust dotnet cert
-      run: dotnet dev-certs https --trust
-
     - name: Add credentials for Paket
       run:
         paket config
