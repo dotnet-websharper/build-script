@@ -97,6 +97,21 @@ jobs:
       run: ./build CI-Release
       working-directory: ./core
 
+    - name: Check out WS.UI
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
+      with:
+        repository: dotnet-websharper/ui
+        ref: ${{ github.event.inputs.branch}}
+        path: ui
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+        
+    - name: Build WS.UI
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
+      run: ./build CI-Release
+      working-directory: ./ui
+
     - name: Check out WS.MathJS
       uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mathjs')) }}
@@ -112,20 +127,6 @@ jobs:
       run: ./build CI-Release
       working-directory: ./mathjs
 
-    - name: Check out WS.UI
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
-      with:
-        repository: dotnet-websharper/ui
-        ref: ${{ github.event.inputs.branch}}
-        path: ui
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-        
-    - name: Build WS.UI
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
-      run: ./build CI-Release
-      working-directory: ./ui
 
     - name: Check out WS.AspNetCore.WebSocket
       uses: actions/checkout@v3
