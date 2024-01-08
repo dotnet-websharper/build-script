@@ -559,6 +559,21 @@ jobs:
       run: ./build CI-Release
       working-directory: ./fluentui-react-components
 
+    - name: Check out WS.Browser
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
+      with:
+        repository: dotnet-websharper/fable-browser
+        ref: ws-proxy-restart
+        path: fable-browser
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WS.Browser
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
+      run: ./build CI-Release
+      working-directory: ./fable-browser
+      
     - name: List packages within ./localnuget
       run: ls ./localnuget
     
@@ -892,4 +907,14 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluent')) }}
       run: ./build CI-Tag
       working-directory: ./fluentui-react-components
+
+    - name: Commit version on WS.Browser
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
+      run: ./build CI-Commit
+      working-directory: ./fable-browser
+    
+    - name: Tag version on WS.Browser
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
+      run: ./build CI-Tag
+      working-directory: ./fable-browser
     
