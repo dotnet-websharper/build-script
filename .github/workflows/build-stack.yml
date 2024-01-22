@@ -573,6 +573,22 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
       run: ./build CI-Release
       working-directory: ./fable-browser
+
+
+    - name: Check out WebSharper.FsLexYacc.Runtime
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fslexyacc')) }}
+      with:
+        repository: dotnet-websharper/WebSharper.FsLexYacc.Runtime
+        ref: master
+        path: fslexyacc
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WebSharper.FsLexYacc.Runtime
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fslexyacc')) }}
+      run: ./build CI-Release
+      working-directory: ./fslexyacc
       
     - name: List packages within ./localnuget
       run: ls ./localnuget
@@ -917,4 +933,14 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
       run: ./build CI-Tag
       working-directory: ./fable-browser
+
+    - name: Commit version on WebSharper.FsLexYacc.Runtime
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fslexyacc')) }}
+      run: ./build CI-Commit
+      working-directory: ./fslexyacc
+    
+    - name: Tag version on WebSharper.FsLexYacc.Runtime
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fslexyacc')) }}
+      run: ./build CI-Tag
+      working-directory: ./fslexyacc
     
