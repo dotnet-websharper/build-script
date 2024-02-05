@@ -56,6 +56,9 @@ jobs:
           --username intellifactory-gh 
           --password ${{ secrets.PAT_PACKAGE }} 
           --store-password-in-clear-text
+
+    - name: Install esbuild
+      run: npm i -g esbuild
         
     - name: Install Paket as global tool
       run: dotnet tool install paket --global
