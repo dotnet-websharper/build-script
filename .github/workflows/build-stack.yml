@@ -567,7 +567,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
       with:
         repository: dotnet-websharper/fable-browser
-        ref: ws-proxy-restart
+        ref: global-attribute-cleanup
         path: fable-browser
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
