@@ -592,6 +592,21 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fslexyacc')) }}
       run: ./build CI-Release
       working-directory: ./fslexyacc
+
+    - name: Check out WebSharper.Feliz
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'feliz')) }}
+      with:
+        repository: dotnet-websharper/WebSharper.Feliz
+        ref: with-partial-fable-proxy
+        path: feliz
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WebSharper.Feliz
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'feliz')) }}
+      run: ./build WS-Package
+      working-directory: ./feliz
       
     - name: List packages within ./localnuget
       run: ls ./localnuget
