@@ -607,6 +607,21 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'feliz')) }}
       run: ./build WS-Package
       working-directory: ./feliz
+
+    - name: Check out WebSharper.Fable.Mocha
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
+      with:
+        repository: dotnet-websharper/WebSharper.Fable.Mocha
+        ref: master
+        path: fable-mocha
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WebSharper.Fable.Mocha
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
+      run: ./build WS-Package
+      working-directory: ./fable-mocha
       
     - name: List packages within ./localnuget
       run: ls ./localnuget
@@ -961,4 +976,14 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fslexyacc')) }}
       run: ./build CI-Tag
       working-directory: ./fslexyacc
+
+    - name: Commit version on WebSharper.Fable.Mocha
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
+      run: ./build CI-Commit
+      working-directory: ./fable-mocha
+    
+    - name: Tag version on WebSharper.Fable.Mocha
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
+      run: ./build CI-Tag
+      working-directory: ./fable-mocha
     
