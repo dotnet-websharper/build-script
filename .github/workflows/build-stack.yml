@@ -28,6 +28,11 @@ on:
         type: boolean
         required: false
         default: false
+      coreOnly:
+        description: 'Core only?'
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   build:
@@ -47,6 +52,11 @@ jobs:
       uses: actions/setup-dotnet@v2.1.1
       with:
         dotnet-version: ${{ github.event.inputs.dotnetVersion }}
+
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v2.1.1
+      with:
+        dotnet-version: '8.0.x'
 
     - name: Add GitHub registry NuGet source
       run: 
@@ -148,7 +158,7 @@ jobs:
 
     - name: Check out WS.Templates
       uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
+      if: ${{ success() && github.event.inputs.coreOnly == false && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
       with:
         repository: dotnet-websharper/templates
         ref: ${{ github.event.inputs.branch}}
