@@ -67,6 +67,9 @@ jobs:
           --password ${{ secrets.PAT_PACKAGE }} 
           --store-password-in-clear-text
 
+    - name: List sdks
+      run: dotnet --list-sdks
+
     - name: Install esbuild
       run: npm i -g esbuild
         
