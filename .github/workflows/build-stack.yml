@@ -701,12 +701,12 @@ jobs:
       working-directory: ./aspnetcore
       
     - name: Commit version on WS.Templates
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
+      if: ${{ success() && github.event.inputs.coreOnly == false && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
       run: ./build CI-Commit
       working-directory: ./templates
 
     - name: Tag version on WS.Templates
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
+      if: ${{ success() && github.event.inputs.coreOnly == false && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
       run: ./build CI-Tag
       working-directory: ./templates
     
