@@ -454,6 +454,9 @@ let MakeTargets (args: Args) =
         ==> "WS-BuildRelease"
 
     "WS-Update"
+        ==> "WS-GenAssemblyInfo"
+
+    "WS-Update"
         ==> "CI-Release"
 
     "WS-Stop"
