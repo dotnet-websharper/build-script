@@ -161,7 +161,7 @@ jobs:
 
     - name: Check out WS.Templates
       uses: actions/checkout@v3
-      if: ${{ success() && github.event.inputs.coreOnly == false && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
       with:
         repository: dotnet-websharper/templates
         ref: ${{ github.event.inputs.branch}}
@@ -170,7 +170,7 @@ jobs:
         fetch-depth: 0
         
     - name: Build WS.Templates
-      if: ${{ success() && github.event.inputs.coreOnly == false && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
       run: ./build CI-Release
       working-directory: ./templates
 
@@ -701,12 +701,12 @@ jobs:
       working-directory: ./aspnetcore
       
     - name: Commit version on WS.Templates
-      if: ${{ success() && github.event.inputs.coreOnly == false && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
       run: ./build CI-Commit
       working-directory: ./templates
 
     - name: Tag version on WS.Templates
-      if: ${{ success() && github.event.inputs.coreOnly == false && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
       run: ./build CI-Tag
       working-directory: ./templates
     
