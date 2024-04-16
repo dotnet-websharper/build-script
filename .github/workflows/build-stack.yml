@@ -577,7 +577,7 @@ jobs:
 
     - name: Check out WS.Browser
       uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
       with:
         repository: dotnet-websharper/fable-browser
         ref: global-attribute-cleanup
@@ -586,7 +586,7 @@ jobs:
         fetch-depth: 0
 
     - name: Build WS.Browser
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
       run: ./build CI-Release
       working-directory: ./fable-browser
 
@@ -608,7 +608,7 @@ jobs:
 
     - name: Check out WebSharper.Feliz
       uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'feliz')) }}
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'feliz')) }}
       with:
         repository: dotnet-websharper/WebSharper.Feliz
         ref: with-partial-fable-proxy
@@ -617,13 +617,13 @@ jobs:
         fetch-depth: 0
 
     - name: Build WebSharper.Feliz
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'feliz')) }}
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'feliz')) }}
       run: ./build WS-Package
       working-directory: ./feliz
 
     - name: Check out WebSharper.Fable.Mocha
       uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
       with:
         repository: dotnet-websharper/WebSharper.Fable.Mocha
         ref: master
@@ -632,7 +632,7 @@ jobs:
         fetch-depth: 0
 
     - name: Build WebSharper.Fable.Mocha
-      if: ${{ success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
       run: ./build WS-Package
       working-directory: ./fable-mocha
       
@@ -956,7 +956,7 @@ jobs:
       working-directory: ./fluentui-react-icons
     
     - name: Tag version on WS.FluentUI.React.Icons
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluent')) }}
+      if: ${{  success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluent')) }}
       run: ./build CI-Tag
       working-directory: ./fluentui-react-icons
     
@@ -971,12 +971,12 @@ jobs:
       working-directory: ./fluentui-react-components
 
     - name: Commit version on WS.Browser
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
       run: ./build CI-Commit
       working-directory: ./fable-browser
     
     - name: Tag version on WS.Browser
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
       run: ./build CI-Tag
       working-directory: ./fable-browser
 
@@ -991,12 +991,12 @@ jobs:
       working-directory: ./fslexyacc
 
     - name: Commit version on WebSharper.Fable.Mocha
-      if: ${{ success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
       run: ./build CI-Commit
       working-directory: ./fable-mocha
     
     - name: Tag version on WebSharper.Fable.Mocha
-      if: ${{ success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
       run: ./build CI-Tag
       working-directory: ./fable-mocha
     
