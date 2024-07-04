@@ -27,7 +27,6 @@ module WebSharper.Fake
 
 #nowarn "20"  // Ignore string result of ==>
 
-#if INTERACTIVE
 #r "nuget: FAKE.Core"
 #r "nuget: Fake.Core.Target"
 #r "nuget: Fake.IO.FileSystem"
@@ -35,19 +34,7 @@ module WebSharper.Fake
 #r "nuget: Fake.DotNet.Cli"
 #r "nuget: Fake.DotNet.AssemblyInfoFile"
 #r "nuget: Fake.DotNet.Paket"
-#r "nuget: Paket.Core"
-#else
-#r "paket:
-nuget FAKE.Core
-nuget Fake.Core.Target
-nuget Fake.IO.FileSystem
-nuget Fake.Tools.Git
-nuget Fake.DotNet.Cli
-nuget Fake.DotNet.AssemblyInfoFile
-nuget Fake.DotNet.Paket
-nuget Paket.Core //"
-#endif
-
+#r "nuget: Paket.Core, 8.0.3"
 #load "UpdateLicense.fsx"
 
 open System
@@ -73,12 +60,12 @@ options:
 let opts =
     let parsed = ref None
     fun (o: TargetParameter) ->
-        match !parsed with
+        match parsed.Value with
         | Some p -> p
         | None ->
             try
                 let value = Docopt(usage).Parse(Array.ofSeq o.Context.Arguments)
-                parsed := Some value
+                parsed.Value <- Some value
                 value
             with DocoptException _ ->
                 Trace.traceError usage
