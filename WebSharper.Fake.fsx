@@ -34,7 +34,7 @@ module WebSharper.Fake
 #r "nuget: Fake.DotNet.Cli"
 #r "nuget: Fake.DotNet.AssemblyInfoFile"
 #r "nuget: Fake.DotNet.Paket"
-#r "nuget: Paket.Core, 8.0.3"
+#r "nuget: Paket.Core, 8.1.0-alpha004"
 #load "UpdateLicense.fsx"
 
 open System
