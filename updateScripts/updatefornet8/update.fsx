@@ -1,8 +1,8 @@
-let content =
+let content, fn =
     if System.IO.File.Exists "wsbuild.fsx" then
-        System.IO.File.ReadAllText "wsbuild.fsx"
+        System.IO.File.ReadAllText "wsbuild.fsx", "wsbuild.fsx"
     else
-        System.IO.File.ReadAllText "build.fsx"
+        System.IO.File.ReadAllText "build.fsx", "build.fsx"
 
 let structuredlogger, stlReplace =
     "#r \"nuget: Paket.Core, 8.1.0-alpha004\"", "#r \"nuget: Paket.Core, 8.1.0-alpha004\"\n#r \"nuget: MSBuild.StructuredLogger\""
@@ -16,3 +16,8 @@ let newPattern ="""System.Environment.GetCommandLineArgs()
 |> Fake.Core.Context.FakeExecutionContext.Create false __SOURCE_FILE__
 |> Fake.Core.Context.RuntimeContext.Fake
 |> Fake.Core.Context.setExecutionContext"""
+
+
+let nc = content.Replace(structuredlogger, stlReplace).Replace(pattern1, newPattern)
+
+System.IO.File.WriteAllText(fn, nc)
