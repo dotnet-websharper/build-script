@@ -1,4 +1,4 @@
-dotnet fsi update.fsx
+dotnet fsi %~dp0\update.fsx
 
 git add -A 
 git commit -m "Build fix"

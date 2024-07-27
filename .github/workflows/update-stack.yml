@@ -484,7 +484,7 @@ jobs:
     - name: Check out WS.Feliz
       uses: actions/checkout@v2
       with:
-        repository: dotnet-websharper/feliz
+        repository: dotnet-websharper/WebSharper.Feliz
         ref: net8upgrade
         path: feliz
         fetch-depth: 0
