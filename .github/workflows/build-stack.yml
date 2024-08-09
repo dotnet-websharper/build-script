@@ -249,20 +249,20 @@ jobs:
       run: ./build CI-Release
       working-directory: ./d3
 
-    - name: Check out WS.React
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
-      with:
-        repository: dotnet-websharper/react
-        ref: ${{ github.event.inputs.branch}}
-        path: react
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.React
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
-      run: ./build CI-Release
-      working-directory: ./react
+#    - name: Check out WS.React
+#      uses: actions/checkout@v3
+#      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
+#      with:
+#        repository: dotnet-websharper/react
+#        ref: ${{ github.event.inputs.branch}}
+#        path: react
+#        token: ${{ secrets.PAT_PACKAGE }}
+#        fetch-depth: 0
+#
+#    - name: Build WS.React
+#      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
+#      run: ./build CI-Release
+#      working-directory: ./react
 
     - name: Check out WS.SignalR
       uses: actions/checkout@v3
@@ -396,34 +396,34 @@ jobs:
       run: ./build CI-Release
       working-directory: ./mathjax
 
-    - name: Check out WS.Elmish
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish')) }}
-      uses: actions/checkout@v3
-      with:
-        repository: dotnet-websharper/elmish
-        ref: v4.x
-        path: elmish
-        token: ${{ secrets.PAT_PACKAGE }}
-
-    - name: Build WS.Elmish
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish')) }}
-      run: ./wsbuild
-      working-directory: ./elmish
-
-    - name: Check out WS.Elmish.React
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
-      with:
-        repository: dotnet-websharper/elmish.react
-        ref: net8upgrade
-        path: elmish.react
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.Elmish.React
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
-      run: ./build CI-Release
-      working-directory: ./elmish.react
+#    - name: Check out WS.Elmish
+#      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish')) }}
+#      uses: actions/checkout@v3
+#      with:
+#        repository: dotnet-websharper/elmish
+#        ref: v4.x
+#        path: elmish
+#        token: ${{ secrets.PAT_PACKAGE }}
+#
+#    - name: Build WS.Elmish
+#      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish')) }}
+#      run: ./wsbuild
+#      working-directory: ./elmish
+#
+#    - name: Check out WS.Elmish.React
+#      uses: actions/checkout@v3
+#      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
+#      with:
+#        repository: dotnet-websharper/elmish.react
+#        ref: net8upgrade
+#        path: elmish.react
+#        token: ${{ secrets.PAT_PACKAGE }}
+#        fetch-depth: 0
+#
+#    - name: Build WS.Elmish.React
+#      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
+#      run: ./build CI-Release
+#      working-directory: ./elmish.react
 
     - name: Check out WS.SweetAlert
       uses: actions/checkout@v3
@@ -760,15 +760,15 @@ jobs:
       run: ./build CI-Tag
       working-directory: ./d3
 
-    - name: Commit version on WS.React
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
-      run: ./build CI-Commit
-      working-directory: ./react
-
-    - name: Tag version on WS.React
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
-      run: ./build CI-Tag
-      working-directory: ./react
+#    - name: Commit version on WS.React
+#      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
+#      run: ./build CI-Commit
+#      working-directory: ./react
+#
+#    - name: Tag version on WS.React
+#      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
+#      run: ./build CI-Tag
+#      working-directory: ./react
 
     - name: Commit version on WS.SignalR
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'signalr')) }}
@@ -860,15 +860,15 @@ jobs:
       run: ./build CI-Tag
       working-directory: ./mathjax
 
-    - name: Commit version on WS.Elmish.React
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
-      run: ./build CI-Commit
-      working-directory: ./elmish.react
-    
-    - name: Tag version on WS.Elmish.React
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
-      run: ./build CI-Tag
-      working-directory: ./elmish.react
+#    - name: Commit version on WS.Elmish.React
+#      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
+#      run: ./build CI-Commit
+#      working-directory: ./elmish.react
+#    
+#    - name: Tag version on WS.Elmish.React
+#      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
+#      run: ./build CI-Tag
+#      working-directory: ./elmish.react
 
     - name: Commit version on WS.SweetAlert
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'sweetalert')) }}
@@ -999,4 +999,3 @@ jobs:
       if: ${{ false && success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
       run: ./build CI-Tag
       working-directory: ./fable-mocha
-    
