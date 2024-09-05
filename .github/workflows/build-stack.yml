@@ -640,7 +640,7 @@ jobs:
       uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
       with:
-        repository: dotnet-websharper/WebSharper.Capacitor
+        repository: dotnet-websharper/Capacitor
         ref: master
         path: capacitor
         token: ${{ secrets.PAT_PACKAGE }}
@@ -655,7 +655,7 @@ jobs:
       uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
       with:
-        repository: dotnet-websharper/WebSharper.Capacitor.Community
+        repository: dotnet-websharper/capacitor.community
         ref: main
         path: capacitor.community
         token: ${{ secrets.PAT_PACKAGE }}
