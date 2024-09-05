@@ -647,7 +647,7 @@ jobs:
         fetch-depth: 0
 
     - name: Build WebSharper.Capacitor
-      if: ${{ false && success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
       run: ./build WS-Package
       working-directory: ./capacitor
 
