@@ -635,6 +635,36 @@ jobs:
       if: ${{ false && success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
       run: ./build WS-Package
       working-directory: ./fable-mocha
+
+    - name: Check out WebSharper.Capacitor
+      uses: actions/checkout@v3
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
+      with:
+        repository: dotnet-websharper/WebSharper.Capacitor
+        ref: master
+        path: capacitor
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WebSharper.Capacitor
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
+      run: ./build WS-Package
+      working-directory: ./capacitor
+
+    - name: Check out WebSharper.Capacitor.Community
+      uses: actions/checkout@v3
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
+      with:
+        repository: dotnet-websharper/WebSharper.Capacitor.Community
+        ref: master
+        path: capacitor.community
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WebSharper.Capacitor.Community
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
+      run: ./build WS-Package
+      working-directory: ./capacitor.community
       
     - name: List packages within ./localnuget
       run: ls ./localnuget
@@ -999,3 +1029,23 @@ jobs:
       if: ${{ false && success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
       run: ./build CI-Tag
       working-directory: ./fable-mocha
+
+    - name: Commit version on WebSharper.Capacitor
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'capacitor')) }}
+      run: ./build CI-Commit
+      working-directory: ./capacitor
+    
+    - name: Tag version on WebSharper.Capacitor
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'capacitor')) }}
+      run: ./build CI-Tag
+      working-directory: ./capacitor
+
+    - name: Commit version on WebSharper.Capacitor.Community
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'capacitor')) }}
+      run: ./build CI-Commit
+      working-directory: ./capacitor.community
+    
+    - name: Tag version on WebSharper.Capacitor.Community
+      if: ${{ false && success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'capacitor')) }}
+      run: ./build CI-Tag
+      working-directory: ./capacitor.community
