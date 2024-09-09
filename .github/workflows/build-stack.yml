@@ -688,7 +688,7 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "| Package | Version |" >> $GITHUB_STEP_SUMMARY
         echo "|:---|:---|" >> $GITHUB_STEP_SUMMARY
-        dotnet fsi package-helper.fsx >> $GITHUB_STEP_SUMMARY
+        dotnet fsi ./package-helper.fsx >> $GITHUB_STEP_SUMMARY
 
     - name: Publish NuGet packages to GitHub registry
       run:
