@@ -61,6 +61,12 @@ jobs:
         echo "Core only: ${{ github.event.inputs.coreOnly }}" >> $GITHUB_STEP_SUMMARY
       shell: bash
 
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: |
+          package-helper.fsx
+        sparse-checkout-cone-mode: false
+
     
     - name: Setup .NET
       uses: actions/setup-dotnet@v2.1.1
@@ -683,15 +689,14 @@ jobs:
     - name: List packages within ./localnuget
       run: ls ./localnuget
 
-    - name: List files from repository
-      run: ls .
-    # - name: Packages
-    #   run: |
-    #     echo "# Packages :package:" >> $GITHUB_STEP_SUMMARY
-    #     echo "" >> $GITHUB_STEP_SUMMARY
-    #     echo "| Package | Version |" >> $GITHUB_STEP_SUMMARY
-    #     echo "|:---|:---|" >> $GITHUB_STEP_SUMMARY
-    #     dotnet fsi ./package-helper.fsx >> $GITHUB_STEP_SUMMARY
+    - name: Packages
+      run: |
+        echo "# Packages :package:" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Package | Version |" >> $GITHUB_STEP_SUMMARY
+        echo "|:---|:---|" >> $GITHUB_STEP_SUMMARY
+        dotnet fsi ./package-helper.fsx >> $GITHUB_STEP_SUMMARY
+      shell: bash
 
     - name: Publish NuGet packages to GitHub registry
       run:
