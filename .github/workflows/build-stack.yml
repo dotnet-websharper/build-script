@@ -47,6 +47,19 @@ jobs:
       INCREASE_PATCH_VERSION: ${{ github.event.inputs.increasePatch }}
     
     steps:
+
+    - name: Parameters
+      run: |
+        echo "# Parameters :wrench:" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Stack Kind: ${{ github.event.inputs.stackKind }}" >> $GITHUB_STEP_SUMMARY
+        echo "Dotnet version: ${{ github.event.inputs.dotnetVersion }}" >> $GITHUB_STEP_SUMMARY
+        echo "Skip core testing: ${{ github.event.inputs.skipCoreTesting }}" >> $GITHUB_STEP_SUMMARY
+        echo "Branch for stack: ${{ github.event.inputs.branch }}" >> $GITHUB_STEP_SUMMARY
+        echo "Branch for core: ${{ github.event.inputs.coreBranch }}" >> $GITHUB_STEP_SUMMARY
+        echo "Increase patch: ${{ github.event.inputs.increasePatch }}" >> $GITHUB_STEP_SUMMARY
+        echo "Core only: ${{ github.event.inputs.coreOnly }}" >> $GITHUB_STEP_SUMMARY
+
     
     - name: Setup .NET
       uses: actions/setup-dotnet@v2.1.1
@@ -668,7 +681,14 @@ jobs:
       
     - name: List packages within ./localnuget
       run: ls ./localnuget
-    
+
+    - name: Packages
+      run: |
+        echo "# Packages :package:" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Package | Version |" >> $GITHUB_STEP_SUMMARY
+        echo "|:---|:---|" >> $GITHUB_STEP_SUMMARY
+        dotnet fsi package-helper.fsx >> $GITHUB_STEP_SUMMARY
 
     - name: Publish NuGet packages to GitHub registry
       run:
