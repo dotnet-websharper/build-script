@@ -1,4 +1,4 @@
-System.IO.Directory.EnumerateFiles("localnuget")
+System.IO.Directory.EnumerateFiles("./localnuget")
 |> Seq.map (fun f ->
     let file = System.IO.FileInfo(f)
     let filename = file.Name.Replace(".nupkg", "")
