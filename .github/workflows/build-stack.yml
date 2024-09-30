@@ -65,6 +65,7 @@ jobs:
       with:
         sparse-checkout: |
           package-helper.fsx
+          notification-helper.fsx
         sparse-checkout-cone-mode: false
 
     
@@ -696,6 +697,12 @@ jobs:
         echo "| Package | Version |" >> $GITHUB_STEP_SUMMARY
         echo "|:---|:---|" >> $GITHUB_STEP_SUMMARY
         dotnet fsi ./package-helper.fsx >> $GITHUB_STEP_SUMMARY
+      shell: bash
+
+    - name: Notification
+      run: dotnet fsi ./notification-helper.fsx
+      env:
+        DISCORD_PACKAGE_FEED: ${{ secrets.DISCORD_PACKAGE_FEED }}
       shell: bash
 
     - name: Publish NuGet packages to GitHub registry
