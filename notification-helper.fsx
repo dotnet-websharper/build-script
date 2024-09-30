@@ -30,7 +30,7 @@ let packages =
         let len = splitByDots.Length
         let name = splitByDots[0..len-5] |> String.concat "."
         let version = splitByDots[len-4..] |> String.concat "."
-        sprintf "- %s %s [[link]] https://github.com/dotnet-websharper/core/pkgs/nuget/%s" name version name
+        sprintf "- %s %s [[link]](<https://github.com/dotnet-websharper/core/pkgs/nuget/%s>)" name version name
     )
     |> String.concat "\n"
 
