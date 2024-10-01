@@ -686,6 +686,21 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
       run: ./build WS-Package
       working-directory: ./capacitor.community
+
+    - name: Check out WebSharper.WebGPU
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webgpu')) }}
+      with:
+        repository: dotnet-websharper/webgpu
+        ref: main
+        path: webgpu
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WebSharper.WebGPU
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webgpu')) }}
+      run: ./build WS-Package
+      working-directory: ./webgpu
       
     - name: List packages within ./localnuget
       run: ls ./localnuget
@@ -1084,3 +1099,13 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'capacitor')) }}
       run: ./build CI-Tag
       working-directory: ./capacitor.community
+
+    - name: Commit version on WebSharper.WebGPU
+      if: ${{ success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'webgpu')) }}
+      run: ./build CI-Commit
+      working-directory: ./webgpu
+    
+    - name: Tag version on WebSharper.WebGPU
+      if: ${{ success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'webgpu')) }}
+      run: ./build CI-Tag
+      working-directory: ./webgpu
