@@ -692,7 +692,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webgpu')) }}
       with:
         repository: dotnet-websharper/webgpu
-        ref: main
+        ref: master
         path: webgpu
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
