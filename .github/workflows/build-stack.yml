@@ -707,7 +707,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'touchevents')) }}
       with:
         repository: dotnet-websharper/TouchEvents
-        ref: master
+        ref: main
         path: touchevents
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
