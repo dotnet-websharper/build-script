@@ -701,6 +701,21 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webgpu')) }}
       run: ./build WS-Package
       working-directory: ./webgpu
+
+    - name: Check out WebSharper.TouchEvents
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'touchevents')) }}
+      with:
+        repository: dotnet-websharper/TouchEvents
+        ref: master
+        path: touchevents
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WebSharper.TouchEvents
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'touchevents')) }}
+      run: ./build WS-Package
+      working-directory: ./touchevents
       
     - name: List packages within ./localnuget
       run: ls ./localnuget
@@ -1109,3 +1124,13 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'webgpu')) }}
       run: ./build CI-Tag
       working-directory: ./webgpu
+
+    - name: Commit version on WebSharper.TouchEvents
+      if: ${{ success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'touchevents')) }}
+      run: ./build CI-Commit
+      working-directory: ./touchevents
+    
+    - name: Tag version on WebSharper.TouchEvents
+      if: ${{ success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'touchevents')) }}
+      run: ./build CI-Tag
+      working-directory: ./touchevents
