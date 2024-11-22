@@ -687,6 +687,21 @@ jobs:
       run: ./build WS-Package
       working-directory: ./capacitor.community
 
+    - name: Check out WebSharper.Capacitor.CapGo
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
+      with:
+        repository: dotnet-websharper/capacitor.CapGo
+        ref: main
+        path: capacitor.capgo
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WebSharper.Capacitor.CapGo
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
+      run: ./build WS-Package
+      working-directory: ./capacitor.capgo
+
     - name: Check out WebSharper.WebGPU
       uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webgpu')) }}
@@ -1114,6 +1129,16 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'capacitor')) }}
       run: ./build CI-Tag
       working-directory: ./capacitor.community
+
+    - name: Commit version on WebSharper.Capacitor.CapGo
+      if: ${{ success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'capacitor')) }}
+      run: ./build CI-Commit
+      working-directory: ./capacitor.capgo
+    
+    - name: Tag version on WebSharper.Capacitor.CapGo
+      if: ${{ success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'capacitor')) }}
+      run: ./build CI-Tag
+      working-directory: ./capacitor.capgo
 
     - name: Commit version on WebSharper.WebGPU
       if: ${{ success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'webgpu')) }}
