@@ -8,3 +8,7 @@ if (($dirname -eq "core") -or ($dirname -eq "ui"))
 git branch websharper70
 git checkout websharper70
 git push -u origin websharper70
+
+git checkout master
+git merge net8upgrade
+git push origin master
