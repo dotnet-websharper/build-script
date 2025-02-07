@@ -70,6 +70,6 @@ dotnet sln add Fs.Prx/Fs.Prx.fsproj
 dotnet new websharper-prx -o Cs.Prx -lang c#
 dotnet sln add Cs.Prx/Cs.Prx.csproj
 
-dotnet build
+dotnet build -v d
 
 dotnet fsi ../test-templates.fsx
