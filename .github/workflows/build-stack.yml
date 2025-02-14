@@ -10,11 +10,11 @@ on:
       dotnetVersion:
         description: 'Select .NET SDK version'
         required: false
-        default: '6.0.x'
+        default: '8.0.x'
       skipCoreTesting:
         description: 'Skip Core testing'
         required: false
-        default: 'false'
+        default: 'true'
       branch:
         description: 'Branch to use for build process'
         required: false
