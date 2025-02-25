@@ -154,7 +154,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mathjs')) }}
       with:
         repository: dotnet-websharper/mathjs
-        ref: net8upgrade
+        ref:  ${{ github.event.inputs.branch}}
         path: mathjs
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -496,7 +496,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'animejs')) }}
       with:
         repository: dotnet-websharper/animejs
-        ref: net8upgrade
+        ref: main
         path: animejs
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -511,7 +511,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'popover')) }}
       with:
         repository: dotnet-websharper/popover
-        ref: net8upgrade
+        ref: main
         path: popover
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -526,7 +526,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'performanceapi')) }}
       with:
         repository: dotnet-websharper/performanceapi
-        ref: net8upgrade
+        ref: main
         path: performanceapi
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -541,7 +541,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'w3c-indexeddb')) }}
       with:
         repository: dotnet-websharper/w3c-indexeddb
-        ref: net8upgrade
+        ref: main
         path: w3c-indexeddb
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -601,7 +601,7 @@ jobs:
       if: ${{ false && success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
       with:
         repository: dotnet-websharper/fable-browser
-        ref: net8upgrade
+        ref: ${{ github.event.inputs.branch}}
         path: fable-browser
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -617,7 +617,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fslexyacc')) }}
       with:
         repository: dotnet-websharper/WebSharper.FsLexYacc.Runtime
-        ref: net8upgrade
+        ref: ${{ github.event.inputs.branch}}
         path: fslexyacc
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -632,7 +632,7 @@ jobs:
       if: ${{ false && success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'feliz')) }}
       with:
         repository: dotnet-websharper/WebSharper.Feliz
-        ref: net8upgrade
+        ref: ${{ github.event.inputs.branch}}
         path: feliz
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -647,7 +647,7 @@ jobs:
       if: ${{ false && success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
       with:
         repository: dotnet-websharper/WebSharper.Fable.Mocha
-        ref: net8upgrade
+        ref: ${{ github.event.inputs.branch}}
         path: fable-mocha
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
