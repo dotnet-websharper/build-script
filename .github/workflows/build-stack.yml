@@ -627,21 +627,6 @@ jobs:
       run: ./build CI-Release
       working-directory: ./fslexyacc
 
-    - name: Check out WebSharper.Feliz
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'feliz')) }}
-      with:
-        repository: dotnet-websharper/WebSharper.Feliz
-        ref: ${{ github.event.inputs.branch}}
-        path: feliz
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WebSharper.Feliz
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'feliz')) }}
-      run: ./build WS-Package
-      working-directory: ./feliz
-
     - name: Check out WebSharper.Fable.Mocha
       uses: actions/checkout@v3
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
@@ -656,6 +641,21 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
       run: ./build WS-Package
       working-directory: ./fable-mocha
+
+    - name: Check out WebSharper.Feliz
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'feliz')) }}
+      with:
+        repository: dotnet-websharper/WebSharper.Feliz
+        ref: ${{ github.event.inputs.branch}}
+        path: feliz
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+
+    - name: Build WebSharper.Feliz
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'feliz')) }}
+      run: ./build WS-Package
+      working-directory: ./feliz
 
     - name: Check out WebSharper.Capacitor
       uses: actions/checkout@v3
