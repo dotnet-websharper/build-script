@@ -33,7 +33,13 @@ jobs:
         name: Packages
         path: Packages
 
-    - name: Notification
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: |
+          package-exclude.fsx
+        sparse-checkout-cone-mode: false
+
+    - name: Exclude packages
       run: dotnet fsi ./package-exclude.fsx '${{ github.event.inputs.exclude }}'
       shell: bash
 
