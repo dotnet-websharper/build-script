@@ -19,6 +19,12 @@ jobs:
       
     steps:
 
+    - uses: actions/checkout@v4
+      with:
+        sparse-checkout: |
+          package-exclude.fsx
+        sparse-checkout-cone-mode: false
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
@@ -32,12 +38,6 @@ jobs:
         run_number: ${{ github.event.inputs.buildRunNumber }}
         name: Packages
         path: Packages
-
-    - uses: actions/checkout@v4
-      with:
-        sparse-checkout: |
-          package-exclude.fsx
-        sparse-checkout-cone-mode: false
 
     - name: Exclude packages
       run: dotnet fsi ./package-exclude.fsx '${{ github.event.inputs.exclude }}'
