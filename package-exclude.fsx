@@ -2,7 +2,7 @@ open System.IO
 
 if fsi.CommandLineArgs.Length > 1 then
 
-    let exclude = fsi.CommandLineArgs.[1].Split([|';'|])
+    let exclude = fsi.CommandLineArgs.[1].Split([|';'|], System.StringSplitOptions.RemoveEmptyEntries)
 
     Directory.GetFiles("./Packages")
     |> Array.iter (fun f ->
