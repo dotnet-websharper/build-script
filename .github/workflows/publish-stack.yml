@@ -7,6 +7,10 @@ on:
         description: 'Select build run number'
         required: false
         default: ''
+      exclude:
+        description: 'Package name patterns to exclude from publishing, separate by semicolon'
+        required: false
+        default: ''
 
 jobs:
   publish:
@@ -28,6 +32,10 @@ jobs:
         run_number: ${{ github.event.inputs.buildRunNumber }}
         name: Packages
         path: Packages
+
+    - name: Notification
+      run: dotnet fsi ./package-exclude.fsx '${{ github.event.inputs.exclude }}'
+      shell: bash
 
     - name: Push to NuGet
       run:
