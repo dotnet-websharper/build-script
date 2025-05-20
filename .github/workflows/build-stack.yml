@@ -731,6 +731,66 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'touchevents')) }}
       run: ./build WS-Package
       working-directory: ./touchevents
+
+    - name: Check out WebSharper.WebSerial
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webserial')) }}
+      with:
+        repository: dotnet-websharper/WebSerial
+        ref: main
+        path: webserial
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+    
+    - name: Build WebSharper.WebSerial
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webserial')) }}
+      run: ./build WS-Package
+      working-directory: ./webserial
+    
+    - name: Check out WebSharper.WebUSB
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webusb')) }}
+      with:
+        repository: dotnet-websharper/WebUSB
+        ref: main
+        path: webusb
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+    
+    - name: Build WebSharper.WebUSB
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webusb')) }}
+      run: ./build WS-Package
+      working-directory: ./webusb
+    
+    - name: Check out WebSharper.WebMIDI
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webmidi')) }}
+      with:
+        repository: dotnet-websharper/WebMIDI
+        ref: main
+        path: webmidi
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+    
+    - name: Build WebSharper.WebMIDI
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webmidi')) }}
+      run: ./build WS-Package
+      working-directory: ./webmidi
+    
+    - name: Check out WebSharper.WebLocks
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'weblocks')) }}
+      with:
+        repository: dotnet-websharper/WebLocks
+        ref: main
+        path: weblocks
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+    
+    - name: Build WebSharper.WebLocks
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'weblocks')) }}
+      run: ./build WS-Package
+      working-directory: ./weblocks
       
     - name: List packages within ./localnuget
       run: ls ./localnuget
@@ -1159,3 +1219,44 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'touchevents')) }}
       run: ./build CI-Tag
       working-directory: ./touchevents
+
+    
+    - name: Commit version on WebSharper.WebSerial
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webserial')) }}
+      run: ./build CI-Commit
+      working-directory: ./webserial
+    
+    - name: Tag version on WebSharper.WebSerial
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webserial')) }}
+      run: ./build CI-Tag
+      working-directory: ./webserial
+
+    - name: Commit version on WebSharper.WebUSB
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webusb')) }}
+      run: ./build CI-Commit
+      working-directory: ./webusb
+    
+    - name: Tag version on WebSharper.WebUSB
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webusb')) }}
+      run: ./build CI-Tag
+      working-directory: ./webusb
+
+    - name: Commit version on WebSharper.WebLocks
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'weblocks')) }}
+      run: ./build CI-Commit
+      working-directory: ./weblocks
+    
+    - name: Tag version on WebSharper.WebLocks
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'weblocks')) }}
+      run: ./build CI-Tag
+      working-directory: ./weblocks
+
+    - name: Commit version on WebSharper.WebMIDI
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webmidi')) }}
+      run: ./build CI-Commit
+      working-directory: ./webmidi
+    
+    - name: Tag version on WebSharper.WebMIDI
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webmidi')) }}
+      run: ./build CI-Tag
+      working-directory: ./webmidi
