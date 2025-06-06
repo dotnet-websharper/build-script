@@ -111,7 +111,7 @@ jobs:
 
     - name: Check out WS Core
       uses: actions/checkout@v3
-      if: ${{ success() && github.event.inputs.coreBranch == '' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
+      if: ${{ success() && github.event.inputs.coreBranch == '' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
       with:
         repository: dotnet-websharper/core
         ref: ${{ github.event.inputs.branch }}
@@ -121,7 +121,7 @@ jobs:
 
     - name: Check out WS Core branch ${{ github.event.inputs.coreBranch }}
       uses: actions/checkout@v3
-      if: ${{ success() && github.event.inputs.coreBranch != '' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
+      if: ${{ success() && github.event.inputs.coreBranch != '' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
       with:
         repository: dotnet-websharper/core
         ref: ${{ github.event.inputs.coreBranch }}
@@ -130,13 +130,13 @@ jobs:
         fetch-depth: 0
 
     - name: Build WS Core
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
       run: ./build CI-Release
       working-directory: ./core
 
     - name: Check out WS.UI
       uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
       with:
         repository: dotnet-websharper/ui
         ref: ${{ github.event.inputs.branch}}
@@ -145,7 +145,7 @@ jobs:
         fetch-depth: 0
         
     - name: Build WS.UI
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
       run: ./build CI-Release
       working-directory: ./ui
 
@@ -831,12 +831,12 @@ jobs:
         path: ./localnuget
 
     - name: Commit version on WS Core
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
       run: ./build CI-Commit
       working-directory: ./core
 
     - name: Tag version on WS Core
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
       run: ./build CI-Tag
       working-directory: ./core
 
@@ -851,12 +851,12 @@ jobs:
       working-directory: ./mathjs
 
     - name: Commit version on WS.UI
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
       run: ./build CI-Commit
       working-directory: ./ui
 
     - name: Tag version on WS.UI
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'ui')) }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
       run: ./build CI-Tag
       working-directory: ./ui
       
