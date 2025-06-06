@@ -111,7 +111,7 @@ jobs:
 
     - name: Check out WS Core
       uses: actions/checkout@v3
-      if: ${{ success() && github.event.inputs.coreBranch == '' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
+      if: ${{ success() && github.event.inputs.coreBranch == '' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
       with:
         repository: dotnet-websharper/core
         ref: ${{ github.event.inputs.branch }}
@@ -121,7 +121,7 @@ jobs:
 
     - name: Check out WS Core branch ${{ github.event.inputs.coreBranch }}
       uses: actions/checkout@v3
-      if: ${{ success() && github.event.inputs.coreBranch != '' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
+      if: ${{ success() && github.event.inputs.coreBranch != '' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
       with:
         repository: dotnet-websharper/core
         ref: ${{ github.event.inputs.coreBranch }}
@@ -130,7 +130,7 @@ jobs:
         fetch-depth: 0
 
     - name: Build WS Core
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
       run: ./build CI-Release
       working-directory: ./core
 
@@ -831,12 +831,12 @@ jobs:
         path: ./localnuget
 
     - name: Commit version on WS Core
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
       run: ./build CI-Commit
       working-directory: ./core
 
     - name: Tag version on WS Core
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
+      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
       run: ./build CI-Tag
       working-directory: ./core
 
