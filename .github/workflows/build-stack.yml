@@ -383,7 +383,8 @@ jobs:
         ref: ${{ github.event.inputs.branch}}
         path: highcharts
         token: ${{ secrets.PAT_PACKAGE }}
-
+        fetch-depth: 0
+        
     - name: Build WS.Highcharts
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highcharts')) }}
       run: ./build CI-Release
@@ -397,6 +398,7 @@ jobs:
         ref: ${{ github.event.inputs.branch}}
         path: highlightjs
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
 
     - name: Build WS.HighlightJS
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highlightjs')) }}
@@ -411,6 +413,7 @@ jobs:
         ref: ${{ github.event.inputs.branch}}
         path: mathjax
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
 
     - name: Build WS.MathJax
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mathjax')) }}
@@ -425,6 +428,7 @@ jobs:
         ref: websharper80
         path: elmish
         token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
 
     - name: Build WS.Elmish
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish')) }}
