@@ -167,7 +167,7 @@ jobs:
 
     - name: Check out WS.AspNetCore.WebSocket
       uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'aspnetcore')) }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'websocket')) }}
       with:
         repository: dotnet-websharper/aspnetcore
         ref: ${{ github.event.inputs.branch}}
@@ -176,7 +176,7 @@ jobs:
         fetch-depth: 0
         
     - name: Build WS.AspNetCore.WebSocket
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'aspnetcore')) }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'websocket')) }}
       run: ./build CI-Release
       working-directory: ./aspnetcore
 
@@ -865,12 +865,12 @@ jobs:
       working-directory: ./ui
       
     - name: Commit version on WS.AspNetCore.WebSocket
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'aspnetcore')) }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'websocket')) }}
       run: ./build CI-Commit
       working-directory: ./aspnetcore
 
     - name: Tag version on WS.AspNetCore.WebSocket
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'aspnetcore')) }}
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'websocket')) }}
       run: ./build CI-Tag
       working-directory: ./aspnetcore
       
