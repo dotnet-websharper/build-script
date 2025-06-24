@@ -296,14 +296,6 @@ let build o (mode: BuildMode) action =
 
 let MakeTargets (args: Args) =
 
-    Target.create "WS-Stop" <| fun _ ->
-        try
-            Process.GetProcessesByName("wsfscservice")
-            |> Array.iter (fun x -> x.Kill())
-            |> ignore
-        with
-        | _ -> ()
-    
     let dirtyDirs =
         !! "**/bin/Debug"
         ++ "**/bin/Release"
@@ -446,11 +438,7 @@ let MakeTargets (args: Args) =
     "WS-Update"
         ==> "CI-Release"
 
-    "WS-Stop"
-        ?=> "WS-Clean"
-
-    "WS-Stop"
-        ==> "WS-Update"
+    "WS-Update"
         ==> "CI-Commit"
 
     {
