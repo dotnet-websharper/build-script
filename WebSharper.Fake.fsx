@@ -318,13 +318,13 @@ let MakeTargets (args: Args) =
         if needsUpdate then
             let res =
                 DotNet.exec id "paket"
-                    (sprintf "update -g %s" mainGroup.Name.Name)
+                    (sprintf "update -g %s --no-install" mainGroup.Name.Name)
             if not res.OK then failwith "dotnet paket update failed"
         for g, _ in depsFile.Groups |> Map.toSeq do
             if g.Name.ToLower().StartsWith("test") then
                 let res =
                     DotNet.exec id "paket"
-                        (sprintf "update -g %s" g.Name)
+                        (sprintf "update -g %s --no-install" g.Name)
                 if not res.OK then failwith "dotnet paket update failed"
 
     Target.create "WS-Restore" <| fun o ->
@@ -522,3 +522,4 @@ type WSTargets with
 
     static member Default () =
         WSTargets.Default (fun () -> ComputeVersion None)
+
