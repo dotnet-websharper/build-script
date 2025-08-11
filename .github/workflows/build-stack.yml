@@ -795,6 +795,21 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'weblocks')) }}
       run: ./build WS-Package
       working-directory: ./weblocks
+
+    - name: Check out WebSharper.CodeMirror
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'codemirror')) }}
+      with:
+        repository: dotnet-websharper/CodeMirror
+        ref: main
+        path: codemirror
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+    
+    - name: Build WebSharper.CodeMirror
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'codemirror')) }}
+      run: ./build WS-Package
+      working-directory: ./codemirror
       
     - name: List packages within ./localnuget
       run: ls ./localnuget
@@ -1264,3 +1279,13 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webmidi')) }}
       run: ./build CI-Tag
       working-directory: ./webmidi
+
+    - name: Commit version on WebSharper.CodeMirror
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'codemirror')) }}
+      run: ./build CI-Commit
+      working-directory: ./codemirror
+    
+    - name: Tag version on WebSharper.CodeMirror
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'codemirror')) }}
+      run: ./build CI-Tag
+      working-directory: ./codemirror
