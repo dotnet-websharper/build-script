@@ -801,7 +801,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'codemirror')) }}
       with:
         repository: dotnet-websharper/CodeMirror
-        ref: main
+        ref: master
         path: codemirror
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
