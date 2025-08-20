@@ -816,7 +816,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webspeech')) }}
       with:
         repository: dotnet-websharper/WebSpeech
-        ref: websharper90
+        ref: master
         path: webspeech
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
