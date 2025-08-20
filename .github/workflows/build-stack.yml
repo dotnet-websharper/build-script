@@ -810,6 +810,21 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'codemirror')) }}
       run: ./build WS-Package
       working-directory: ./codemirror
+
+    - name: Check out WebSharper.WebSpeech
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webspeech')) }}
+      with:
+        repository: dotnet-websharper/WebSpeech
+        ref: websharper90
+        path: webspeech
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+    
+    - name: Build WebSharper.WebSpeech
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webspeech')) }}
+      run: ./build WS-Package
+      working-directory: ./webspeech
       
     - name: List packages within ./localnuget
       run: ls ./localnuget
@@ -1289,3 +1304,13 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'codemirror')) }}
       run: ./build CI-Tag
       working-directory: ./codemirror
+
+    - name: Commit version on WebSharper.WebSpeech
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webspeech')) }}
+      run: ./build CI-Commit
+      working-directory: ./webspeech
+    
+    - name: Tag version on WebSharper.WebSpeech
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webspeech')) }}
+      run: ./build CI-Tag
+      working-directory: ./webspeech
