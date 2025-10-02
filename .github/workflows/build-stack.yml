@@ -109,6 +109,28 @@ jobs:
         git config --global user.email "ci@intellifactory.com"
         git config --global user.name "IntelliFactory CI"
 
+    - name: Create IntelliFactory.snk
+      shell: pwsh  
+      run: |
+        $bytes = [Convert]::FromBase64String(${{ secrets.INTELLIFACTORY_KEY_BASE64 }})
+        $snkPath = $snkPath = Join-Path -Path $PWD -ChildPath "keys/IntelliFactory.snk"
+
+        # Ensure the directory exists
+        $dir = Split-Path $snkPath
+        if (-not (Test-Path $dir)) {
+            New-Item -ItemType Directory -Path $dir | Out-Null
+        }
+
+        # Write the decoded bytes
+        [System.IO.File]::WriteAllBytes($snkPath, $bytes)
+
+        # Set environment variable to current folder
+        "INTELLIFACTORY=$PWD" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+        # Log
+        Write-Host "SNK file written to: $snkPath"
+        Write-Host "INTELLIFACTORY set to: $PWD"
+
     - name: Check out WS Core
       uses: actions/checkout@v3
       if: ${{ success() && github.event.inputs.coreBranch == '' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
