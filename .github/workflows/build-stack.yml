@@ -11,8 +11,14 @@ on:
         description: 'Select .NET SDK version'
         required: false
         default: '9.0.x'
+      useIntelliFactorySNK:
+        description: 'Use IntelliFactory.snk'
+        type: boolean
+        required: false
+        default: 'false'
       skipCoreTesting:
         description: 'Skip Core testing'
+        type: boolean
         required: false
         default: 'false'
       branch:
@@ -110,9 +116,10 @@ jobs:
         git config --global user.name "IntelliFactory CI"
 
     - name: Create IntelliFactory.snk
+      if: ${{ github.event.inputs.useIntelliFactorySNK == 'true' }}
       shell: pwsh  
       run: |
-        $bytes = [Convert]::FromBase64String(${{ secrets.INTELLIFACTORY_KEY_BASE64 }})
+        $bytes = [Convert]::FromBase64String("${{ secrets.INTELLIFACTORY_KEY_BASE64 }}")
         $snkPath = $snkPath = Join-Path -Path $PWD -ChildPath "keys/IntelliFactory.snk"
 
         # Ensure the directory exists
