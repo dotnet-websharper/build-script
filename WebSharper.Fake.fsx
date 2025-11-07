@@ -329,32 +329,33 @@ let MakeTargets (args: Args) =
                 if not res.OK then failwith "dotnet paket update failed"
 
     Target.create "WS-Restore" <| fun o ->
+        let dotNetRestore proj =
+            DotNet.restore (fun p -> 
+                { p with 
+                    DisableParallel = true
+                    MSBuildParams = 
+                        { p.MSBuildParams with
+                            Verbosity = Some (msbuildVerbosity o)
+                            DisableInternalBinLog = true // workaround for https://github.com/fsharp/FAKE/issues/2515
+                        }
+                }
+            ) proj
         if args.RestoreProjectsSeparately then
             for proj in !! "**/*.*proj" do
                 let refs = Path.getDirectory proj </> "paket.references"
                 if File.exists refs then
                     printfn $"Restoring {proj}"
                     DotNet.exec id "paket" $"restore -p \"{proj}\"" |> ignore
+                    dotNetRestore proj
         else
             DotNet.exec id "paket" "restore" |> ignore
-        if not (Environment.environVarAsBoolOrDefault "NOT_DOTNET" false) then
-            let slns = (Environment.environVarOrDefault "DOTNETSOLUTION" "").Trim('"').Split(';')
-            let restore proj =
-                DotNet.restore (fun p -> 
-                    { p with 
-                        DisableParallel = true
-                        MSBuildParams = 
-                            { p.MSBuildParams with
-                                Verbosity = Some (msbuildVerbosity o)
-                                DisableInternalBinLog = true // workaround for https://github.com/fsharp/FAKE/issues/2515
-                            }
-                    }
-                ) proj
-            if slns |> Array.isEmpty then
-                restore ""
-            else
-                for sln in slns do
-                    restore sln
+            if not (Environment.environVarAsBoolOrDefault "NOT_DOTNET" false) then
+                let slns = (Environment.environVarOrDefault "DOTNETSOLUTION" "").Trim('"').Split(';')
+                if slns |> Array.isEmpty then
+                    dotNetRestore ""
+                else
+                    for sln in slns do
+                        dotNetRestore sln
 
     /// DO NOT force this lazy value in or before WS-Update.
     let version =
