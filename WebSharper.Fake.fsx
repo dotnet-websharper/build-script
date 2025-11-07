@@ -338,6 +338,13 @@ let MakeTargets (args: Args) =
                             Verbosity = Some (msbuildVerbosity o)
                             DisableInternalBinLog = true // workaround for https://github.com/fsharp/FAKE/issues/2515
                         }
+                    Common =
+                        if args.RestoreProjectsSeparately then
+                            { p.Common with
+                                CustomParams = Some "--no-dependencies"
+                            }
+                        else
+                            p.Common
                 }
             ) proj
         if args.RestoreProjectsSeparately then
