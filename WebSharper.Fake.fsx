@@ -344,8 +344,10 @@ let MakeTargets (args: Args) =
             for proj in !! "**/*.*proj" do
                 let refs = Path.getDirectory proj </> "paket.references"
                 if File.exists refs then
-                    printfn $"Restoring {proj}"
+                    printfn $"Restoring with paket: {proj}"
                     DotNet.exec id "paket" $"restore -p \"{proj}\"" |> ignore
+                else
+                    printfn $"Restoring with dotnet: {proj}"
                     dotNetRestore proj
         else
             DotNet.exec id "paket" "restore" |> ignore
