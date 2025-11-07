@@ -331,8 +331,9 @@ let MakeTargets (args: Args) =
     Target.create "WS-Restore" <| fun o ->
         if args.RestoreProjectsSeparately then
             for proj in !! "**/*.*proj" do
-                let deps = Path.getDirectory proj </> "paket.references"
-                if File.exists deps then
+                let refs = Path.getDirectory proj </> "paket.references"
+                if File.exists refs then
+                    printfn $"Restoring {proj}"
                     DotNet.exec id "paket" $"restore -p \"{proj}\"" |> ignore
         else
             DotNet.exec id "paket" "restore" |> ignore
