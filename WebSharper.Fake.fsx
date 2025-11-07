@@ -247,6 +247,7 @@ type Args =
         WorkBranch : option<string>
         PushRemote : string
         HasDefaultBuild : bool
+        RestoreProjectsSeparately : bool
     }
 
 type WSTargets =
@@ -328,7 +329,13 @@ let MakeTargets (args: Args) =
                 if not res.OK then failwith "dotnet paket update failed"
 
     Target.create "WS-Restore" <| fun o ->
-        DotNet.exec id "paket" "restore"
+        if args.RestoreProjectsSeparately then
+            for proj in !! "**/*.*proj" do
+                let deps = Path.getDirectory proj </> "paket.references"
+                if File.exists deps then
+                    DotNet.exec id "paket" $"restore -p \"{proj}\"" |> ignore
+        else
+            DotNet.exec id "paket" "restore" |> ignore
         if not (Environment.environVarAsBoolOrDefault "NOT_DOTNET" false) then
             let slns = (Environment.environVarOrDefault "DOTNETSOLUTION" "").Trim('"').Split(';')
             let restore proj =
@@ -518,6 +525,7 @@ type WSTargets with
             WorkBranch = buildBranch
             PushRemote = Environment.environVarOrDefault "PushRemote" "origin"
             HasDefaultBuild = true
+            RestoreProjectsSeparately = false
         }
 
     static member Default () =
