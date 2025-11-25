@@ -10,12 +10,12 @@ on:
       dotnetVersion:
         description: 'Select .NET SDK version'
         required: false
-        default: '9.0.x'
-      useIntelliFactorySNK:
-        description: 'Use IntelliFactory.snk'
-        type: boolean
-        required: false
-        default: 'false'
+        default: '10.0.x'
+#      useIntelliFactorySNK:
+#        description: 'Use IntelliFactory.snk'
+#        type: boolean
+#        required: false
+#        default: 'false'
       skipCoreTesting:
         description: 'Skip Core testing'
         type: boolean
