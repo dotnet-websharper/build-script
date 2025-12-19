@@ -10,7 +10,7 @@ on:
       dotnetVersion:
         description: 'Select .NET SDK version'
         required: false
-        default: '6.0.x'
+        default: '10.0.x'
 
 jobs:
   test:
