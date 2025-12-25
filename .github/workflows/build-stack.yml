@@ -854,6 +854,21 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webspeech')) }}
       run: ./build WS-Package
       working-directory: ./webspeech
+
+    - name: Check out WebSharper.SlickGrid
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'slickgrid')) }}
+      with:
+        repository: dotnet-websharper/slickgrid
+        ref: main
+        path: slickgrid
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+    
+    - name: Build WebSharper.Slickgrid
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'slickgrid')) }}
+      run: ./build WS-Package
+      working-directory: ./slickgrid
       
     - name: List packages within ./localnuget
       run: ls ./localnuget
@@ -1334,12 +1349,12 @@ jobs:
       run: ./build CI-Tag
       working-directory: ./codemirror
 
-    - name: Commit version on WebSharper.WebSpeech
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webspeech')) }}
+    - name: Commit version on WebSharper.SlickGrid
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'slickgrid')) }}
       run: ./build CI-Commit
-      working-directory: ./webspeech
+      working-directory: ./slickgrid
     
-    - name: Tag version on WebSharper.WebSpeech
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webspeech')) }}
+    - name: Tag version on WebSharper.SlickGrid
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'slickgrid')) }}
       run: ./build CI-Tag
-      working-directory: ./webspeech
+      working-directory: ./slickgrid
