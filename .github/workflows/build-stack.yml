@@ -1349,6 +1349,16 @@ jobs:
       run: ./build CI-Tag
       working-directory: ./codemirror
 
+    - name: Commit version on WebSharper.WebSpeech
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webspeech')) }}
+      run: ./build CI-Commit
+      working-directory: ./webspeech
+    
+    - name: Tag version on WebSharper.WebSpeech
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webspeech')) }}
+      run: ./build CI-Tag
+      working-directory: ./webspeech
+
     - name: Commit version on WebSharper.SlickGrid
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'slickgrid')) }}
       run: ./build CI-Commit
