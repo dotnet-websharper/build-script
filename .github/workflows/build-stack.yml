@@ -869,6 +869,22 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'slickgrid')) }}
       run: ./build WS-Package
       working-directory: ./slickgrid
+
+    
+    - name: Check out WebSharper.TopoJSON
+      uses: actions/checkout@v3
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'topojson')) }}
+      with:
+        repository: dotnet-websharper/topojson
+        ref: main
+        path: topojson
+        token: ${{ secrets.PAT_PACKAGE }}
+        fetch-depth: 0
+    
+    - name: Build WebSharper.TopoJSON
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'topojson')) }}
+      run: ./build WS-Package
+      working-directory: ./topojson
       
     - name: List packages within ./localnuget
       run: ls ./localnuget
@@ -1368,3 +1384,13 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'slickgrid')) }}
       run: ./build CI-Tag
       working-directory: ./slickgrid
+
+    - name: Commit version on WebSharper.TopoJSON
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'topojson')) }}
+      run: ./build CI-Commit
+      working-directory: ./topojson
+    
+    - name: Tag version on WebSharper.TopoJSON
+      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'topojson')) }}
+      run: ./build CI-Tag
+      working-directory: ./topojson
