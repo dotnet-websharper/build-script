@@ -32,11 +32,12 @@ let packages =
         let version = splitByDots[len-4..] |> String.concat "."
         sprintf "- %s %s [[ link ]](<https://github.com/dotnet-websharper/core/pkgs/nuget/%s>)" name version name
     )
-    |> String.concat "\n"
+    |> Seq.chunkBySize 20
+    |> Seq.map (String.concat "\n")
 
 let client = new HttpClient()
 
-let message: Message =
+let message (packages: string): Message =
     {
         content = sprintf "## Released to GitHub:\n%s" packages
         username = "IntelliFactory CI"
@@ -46,14 +47,15 @@ let message: Message =
     }
 
 async {
-    let serializedMessage = JsonSerializer.Serialize message
-    printfn "%s" serializedMessage
-    use content = new StringContent(serializedMessage, Encoding.UTF8, "application/json")
-    let! response = client.PostAsync(hookurl, content) |> Async.AwaitTask
-    if response.IsSuccessStatusCode then
-        ()
-    else
-        let! res = response.Content.ReadAsStringAsync() |> Async.AwaitTask
-        printfn "%A" res
+    for pString in packages do
+        let serializedMessage = JsonSerializer.Serialize (message pString)
+        printfn "%s" serializedMessage
+        use content = new StringContent(serializedMessage, Encoding.UTF8, "application/json")
+        let! response = client.PostAsync(hookurl, content) |> Async.AwaitTask
+        if response.IsSuccessStatusCode then
+            ()
+        else
+            let! res = response.Content.ReadAsStringAsync() |> Async.AwaitTask
+            printfn "%A" res
     return ()
 } |> Async.RunSynchronously
