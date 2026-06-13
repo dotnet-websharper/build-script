@@ -156,11 +156,18 @@ For each scenario the driver runs these phases, each `reps` times:
 3. **warm-noop** — booster warm, no edit, rebuild. Measures pure up-to-date overhead.
 4. **warm-client-edit** — booster warm, touch one function body in `Client.Components`,
    rebuild affected projects. The case Idea 1/Idea 4 target.
-5. **warm-leaf-edit** — edit `Core.Domain` (forces downstream recompiles). Stress for
-   propagation.
+5. **warm-leaf-edit** — **the library-change → dependent-recompile case.** After a completed
+   first compile, edit a library (`Core.Domain` for deep fan-out, or `Client.Components` for a
+   shallower one) and rebuild. Record the recompilation time **of each dependent project
+   separately** (the consuming `App.Spa`/`App.Web` and intermediate libs), not just the
+   solution total — this is the warm-recompile behavior the booster exists to speed up and the
+   primary signal for Ideas 1 and 4. Run a matrix of edit sites (leaf vs mid-graph) since the
+   propagation cost differs.
 
 Each phase records wall-clock for the overall `dotnet build`, **and** parses the compiler's
-own `TimedStage` output (see below) to attribute time to pipeline stages per project.
+own `TimedStage` output (see below) to attribute time to pipeline stages per project. For the
+dependent-recompile measurement, build with `-p:WebSharperLogImportance=High` and attribute
+the parsed per-project timings to each dependent.
 
 Phase isolation rules:
 - Restore is done once, untimed, before phase 1.
@@ -170,13 +177,18 @@ Phase isolation rules:
 
 ## Capturing compiler stage timing (ties into Idea 3)
 
-Today `LoggerBase.TimedStage` prints `"<stage>: <TimeSpan>"` to console, indented. The harness
-needs this as data. Two layers:
+`LoggerBase.TimedStage` prints `"<stage>: <TimeSpan>"`, indented by context depth. This output
+goes to the compiler's stdout, which the WS MSBuild task forwards to MSBuild at the importance
+set by the **`WebSharperLogImportance`** property (it is the task's `StandardOutputImportance`,
+wired in `WebSharper.{FSharp,CSharp}.targets`). At default importance the timing lines only
+appear at higher MSBuild verbosity; set `WebSharperLogImportance=High` to surface them at
+normal verbosity. The harness needs this as data. Two layers:
 
-- **Cheap, immediate:** `perf-run.fsx` parses the existing console lines (stable strings:
-  `"Parsing with FCS"`, `"Resolving names"`, `"WebSharper translation"`,
-  `"Writing resources into assembly"`, `"Serializing metadata"`, `"Bundling"`,
-  `"Total compilation time"`, etc.). Works with zero compiler changes — good enough to start.
+- **Cheap, immediate:** build with `dotnet build -p:WebSharperLogImportance=High` and have
+  `perf-run.fsx` parse the emitted lines (stable strings: `"Parsing with FCS"`,
+  `"Resolving names"`, `"WebSharper translation"`, `"Writing resources into assembly"`,
+  `"Serializing metadata"`, `"Bundling"`, `"Total compilation time"`, etc.). Works with zero
+  compiler changes — good enough to start.
 - **Robust (Phase 0.4, the Idea-3 deliverable):** add an opt-in structured sink to
   `LoggerBase` so timing is emitted as JSONL (stage, elapsed-ms, project, depth) to a file
   named by env var, e.g. `WEBSHARPER_TIMING_LOG`. Default behavior (console text) unchanged.

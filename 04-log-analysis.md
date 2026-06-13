@@ -32,8 +32,15 @@ member x.TimedStage name =
 - `Writing final dll`, `Getting Assembly definition`, `Loading IExtension implementation`
 - `Total compilation time`
 
-These are exactly the buckets we want to attribute time to. The problem: today they're only
-human-readable console text.
+These are exactly the buckets we want to attribute time to.
+
+These lines are already surfaced in a normal build by setting the MSBuild property
+**`WebSharperLogImportance=High`** (it maps to the WS task's `StandardOutputImportance` in
+`WebSharper.{FSharp,CSharp}.targets`); otherwise they only show at higher MSBuild verbosity.
+So "enable timing" requires no compiler change. The problem this idea fixes is that the output
+is **human-readable console text only** — not aggregatable, not per-project tagged, and fragile
+to parse. The deliverable below makes it structured; enhancing usability of the existing output
+(e.g. clearer per-project prefixes) is also in scope and cheap.
 
 ## Deliverable: opt-in structured timing sink
 

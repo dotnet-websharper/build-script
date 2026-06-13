@@ -56,8 +56,18 @@ it and of each other, so they can be scheduled by appetite once Phase 1 is under
   (libs → SPA + Web consumers).
 - 0.3 Driver `perf-run.fsx` that runs each scenario (cold + warm phases), parses compiler
   timing, and writes JSONL records tagged with commit/branch/OS.
-- 0.4 Structured per-stage timing: emit a machine-readable timing sink from `LoggerBase`
-  (idea 3), opt-in via env var so default output is unchanged.
+- 0.3a **Library-change → dependent-recompile measurement.** After a first full compile of
+  the solution, edit a library project and measure the recompilation of the projects that
+  depend on it (the consuming SPA/Web app). This is the core warm-recompile case the booster
+  targets and must be a first-class, separately-recorded measurement, not just folded into a
+  whole-solution rebuild. Captured by the `warm-leaf-edit` phase (see harness doc), reported
+  per dependent project.
+- 0.4 Timing output: the compiler already emits per-stage timings; they surface in MSBuild
+  output when the project sets **`WebSharperLogImportance=High`** (wired to the WS task's
+  `StandardOutputImportance`). The harness builds with that property so `perf-run.fsx` can
+  parse them with zero compiler changes. *Enhancement (idea 3):* add a machine-readable
+  timing sink to `LoggerBase`, opt-in via env var so default output is unchanged, for robust
+  per-stage data that doesn't depend on string parsing.
 - 0.5 Aggregation: `data/aggregate.fsx` to roll JSONL up into a comparison table /
   step summary.
 
