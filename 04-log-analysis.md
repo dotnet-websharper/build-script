@@ -42,27 +42,37 @@ is **human-readable console text only** — not aggregatable, not per-project ta
 to parse. The deliverable below makes it structured; enhancing usability of the existing output
 (e.g. clearer per-project prefixes) is also in scope and cheap.
 
-## Deliverable: opt-in structured timing sink
+## The structured timing sink already exists (#1590)
 
-Add a structured emit path to `LoggerBase`, **off by default** so normal console output is
-unchanged.
+The opt-in structured emit path this idea called for **is already implemented** in current
+`master` (commit "#1590 Add optional JSON logging of performance timers"). Verified in the
+tree:
 
-- New compiler/MSBuild setting `WebSharperTimingLog=<path>` (or wsconfig `timingLog`). When set, `TimedStage` also appends a
-  JSON line:
+- MSBuild property **`WebSharperTimingLog=<path>`** → `WebSharperTask` writes `--wstimings:<path>`
+  → `CommandTools` parses it into `config.TimingLog` → `Compile.fs` sets `logger.TimingLogPath`
+  (and `logger.ProjectFile`).
+- `LoggerBase.writeTimingRecord` then appends one JSON line per `TimedStage`, **in addition to**
+  the unchanged console line, guarded by a static lock and failure-tolerant:
   ```json
   {"t":"2026-06-13T10:00:00.123Z","project":"Client.Components","stage":"WebSharper translation","ms":812.4,"depth":1}
   ```
-  - `project`: from `config.ProjectFile` (thread it into the logger, or include it in each
-    stage call site; simplest is to set a `logger.Project` once per `Compile`).
-  - `depth`: current `timeStamps.Length - 1` (already used by `Indent`).
-  - `ms`: the elapsed value it already computes.
-- Implementation: keep `TimedStage`'s console line, and additionally write to the sink when
-  configured. The sink is a single append-only writer; in the booster, multiple concurrent
-  compilations must tag records by project (and a request id) so lines can be demultiplexed.
-- Keep it allocation-light and failure-tolerant (a logging error must never fail a build).
+  - `project` = `Path.GetFileNameWithoutExtension config.ProjectFile`
+  - `ms` = `elapsed.TotalMilliseconds` (a JSON number)
+  - `depth` = context nesting
 
-This is what the benchmark driver (`perf-run.fsx`) consumes; until it lands, the driver falls
-back to parsing the console strings (stable today).
+So `perf-run.fsx` passes `-p:WebSharperTimingLog=<file>` and reads `project`/`stage`/`ms`
+directly — no compiler work needed. (Confirmed: the field names and the `ms`-as-number format
+match the driver's parser exactly.) The console-string fallback only matters for compilers
+predating #1590 — and even then, note the elapsed there can render as a bare-seconds number,
+which the fallback now handles.
+
+### Remaining Idea-3 work (the actual deliverable now)
+
+The sink is done; what's left is **analysis on top of it**:
+- Aggregation across projects/stages (below) — the "weakest spots" view.
+- Booster concurrency: when Idea 1 makes compilation parallel, ensure interleaved records stay
+  attributable (a request id alongside `project` would make demux robust; today the static lock
+  keeps lines intact but order across projects is interleaved).
 
 ## Analysis outputs
 

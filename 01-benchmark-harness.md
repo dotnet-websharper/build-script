@@ -140,9 +140,13 @@ Perf.sln
   deterministic. The generator script (`gen-sources.fsx`) is part of the scaffolder.
 - `App.Web` is a `websharper-web` sitelet so the bundling + `WebSharper.runtime.meta` path
   and (WS8+) esbuild are measured. `App.Spa` measures the SPA/`Bundle` path.
-- Include at least one **macro/generator** use in a library, because that is exactly what
-  Idea 1 (#1587) interacts with — we need a scenario where reflection-on-own-output may or
-  may not occur, to measure the parallel-compile win.
+- **`gen-sources.fsx` includes a WebSharper macro defined and used inside `Core.Domain`**
+  (`GeneratedMacro.fs` → `PerfMacro.PerfConstMacro`, applied to `macroConst` and called from
+  `domainSummary`). This is deliberate: a same-project macro forces the compiler to reflect on
+  the project's own freshly built output dll — exactly the #1587 path Idea 1 targets — so the
+  parallel-compile win has a real own-output-reflection case to measure. *(Verified: the
+  generated `Core.Domain` and its dependent `Core.Shared` build cleanly with the local
+  compiler.)*
 - Set `WebSharperBuildService=True` (as `test-templates.sh` does) for the warm-phase runs.
 
 ## Measurement phases (`perf-run.fsx`)
@@ -182,18 +186,17 @@ goes to the compiler's stdout, which the WS MSBuild task forwards to MSBuild at 
 set by the **`WebSharperLogImportance`** property (it is the task's `StandardOutputImportance`,
 wired in `WebSharper.{FSharp,CSharp}.targets`). At default importance the timing lines only
 appear at higher MSBuild verbosity; set `WebSharperLogImportance=High` to surface them at
-normal verbosity. The harness needs this as data. Two layers:
+normal verbosity. The harness needs this as data. Two layers, in priority order:
 
-- **Cheap, immediate:** build with `dotnet build -p:WebSharperLogImportance=High` and have
-  `perf-run.fsx` parse the emitted lines (stable strings: `"Parsing with FCS"`,
-  `"Resolving names"`, `"WebSharper translation"`, `"Writing resources into assembly"`,
-  `"Serializing metadata"`, `"Bundling"`, `"Total compilation time"`, etc.). Works with zero
-  compiler changes — good enough to start.
-- **Robust (Phase 0.4, the Idea-3 deliverable):** add an opt-in structured sink to
-  `LoggerBase` so timing is emitted as JSONL (stage, elapsed-ms, project, depth) to a file
-  named by `WebSharperTimingLog` (or wsconfig `timingLog`). Default behavior (console text) unchanged.
-  See [04-log-analysis.md](04-log-analysis.md) for the exact design. The driver prefers the
-  structured sink when present and falls back to console parsing.
+- **Primary — structured JSON (already shipped, #1590).** `perf-run.fsx` builds with
+  `-p:WebSharperTimingLog=<file>`; the compiler writes one JSON line per stage
+  (`{"t","project","stage","ms":<number>,"depth"}`) to that file. The driver parses
+  `project`/`stage`/`ms` and keys stages as `"<project>/<stage>"`. This is the real path and
+  needs no compiler change. See [04-log-analysis.md](04-log-analysis.md).
+- **Fallback — console parsing.** Only used when no `--wstimings` file is produced (a compiler
+  predating #1590). The driver builds with `-p:WebSharperLogImportance=High` and parses the
+  emitted `"<stage>: <elapsed>"` lines, accepting both `00:00:00.xxx` and bare-seconds
+  (`0.xxx`) formats. Stages are tagged `unknown/<stage>` (no per-project attribution).
 
 ## Output: one record per (scenario, phase, OS, which, rep)
 

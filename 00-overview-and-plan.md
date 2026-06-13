@@ -62,12 +62,12 @@ it and of each other, so they can be scheduled by appetite once Phase 1 is under
   targets and must be a first-class, separately-recorded measurement, not just folded into a
   whole-solution rebuild. Captured by the `warm-leaf-edit` phase (see harness doc), reported
   per dependent project.
-- 0.4 Timing output: the compiler already emits per-stage timings; they surface in MSBuild
-  output when the project sets **`WebSharperLogImportance=High`** (wired to the WS task's
-  `StandardOutputImportance`). The harness builds with that property so `perf-run.fsx` can
-  parse them with zero compiler changes. *Enhancement (idea 3):* add a machine-readable
-  timing sink to `LoggerBase`, opt-in via compiler setting so default output is unchanged, for robust
-  per-stage data that doesn't depend on string parsing.
+- 0.4 Timing output: **structured per-stage JSON already exists (#1590)** — building with
+  `-p:WebSharperTimingLog=<file>` makes the compiler write one JSON record per stage
+  (`{project,stage,ms,…}`); `perf-run.fsx` consumes it directly. A console fallback
+  (`-p:WebSharperLogImportance=High`, wired to the WS task's `StandardOutputImportance`) covers
+  pre-#1590 compilers. So idea 3's *sink* is done; the remaining idea-3 work is the
+  **analysis/aggregation** on top of it (0.5).
 - 0.5 Aggregation: `data/aggregate.fsx` to roll JSONL up into a comparison table /
   step summary.
 
