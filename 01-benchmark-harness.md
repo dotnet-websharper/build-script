@@ -191,7 +191,7 @@ normal verbosity. The harness needs this as data. Two layers:
   compiler changes — good enough to start.
 - **Robust (Phase 0.4, the Idea-3 deliverable):** add an opt-in structured sink to
   `LoggerBase` so timing is emitted as JSONL (stage, elapsed-ms, project, depth) to a file
-  named by env var, e.g. `WEBSHARPER_TIMING_LOG`. Default behavior (console text) unchanged.
+  named by `WebSharperTimingLog` (or wsconfig `timingLog`). Default behavior (console text) unchanged.
   See [04-log-analysis.md](04-log-analysis.md) for the exact design. The driver prefers the
   structured sink when present and falls back to console parsing.
 

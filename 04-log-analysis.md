@@ -47,7 +47,7 @@ to parse. The deliverable below makes it structured; enhancing usability of the 
 Add a structured emit path to `LoggerBase`, **off by default** so normal console output is
 unchanged.
 
-- New env var (or config) `WEBSHARPER_TIMING_LOG=<path>`. When set, `TimedStage` also appends a
+- New compiler/MSBuild setting `WebSharperTimingLog=<path>` (or wsconfig `timingLog`). When set, `TimedStage` also appends a
   JSON line:
   ```json
   {"t":"2026-06-13T10:00:00.123Z","project":"Client.Components","stage":"WebSharper translation","ms":812.4,"depth":1}

@@ -66,7 +66,7 @@ it and of each other, so they can be scheduled by appetite once Phase 1 is under
   output when the project sets **`WebSharperLogImportance=High`** (wired to the WS task's
   `StandardOutputImportance`). The harness builds with that property so `perf-run.fsx` can
   parse them with zero compiler changes. *Enhancement (idea 3):* add a machine-readable
-  timing sink to `LoggerBase`, opt-in via env var so default output is unchanged, for robust
+  timing sink to `LoggerBase`, opt-in via compiler setting so default output is unchanged, for robust
   per-stage data that doesn't depend on string parsing.
 - 0.5 Aggregation: `data/aggregate.fsx` to roll JSONL up into a comparison table /
   step summary.
