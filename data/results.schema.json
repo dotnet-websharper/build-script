@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://websharper.com/perftesting/results.schema.json",
+  "title": "WebSharper compiler benchmark record",
+  "description": "One record per (commitSha, os, which, scenario, phase, rep). Stored as one JSON object per line (JSONL) in results.jsonl.",
+  "type": "object",
+  "required": [
+    "schemaVersion", "runId", "timestamp", "commitSha", "branch",
+    "which", "os", "dotnetVersion", "scenario", "phase", "rep", "wallMs", "stages"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "runId": { "type": "string", "description": "CI run id or local-<timestamp>" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "commitSha": { "type": "string", "pattern": "^[0-9a-f]{7,40}$" },
+    "branch": { "type": "string" },
+    "baselineSha": { "type": ["string", "null"], "pattern": "^[0-9a-f]{7,40}$" },
+    "which": { "type": "string", "enum": ["branch", "baseline"] },
+    "os": { "type": "string", "enum": ["windows-latest", "ubuntu-latest", "macos-latest"] },
+    "dotnetVersion": { "type": "string" },
+    "scenario": { "type": "string" },
+    "phase": {
+      "type": "string",
+      "enum": ["cold-full", "cold-booster", "warm-noop", "warm-client-edit", "warm-leaf-edit"]
+    },
+    "rep": { "type": "integer", "minimum": 0 },
+    "wallMs": { "type": "number", "minimum": 0 },
+    "stages": {
+      "type": "object",
+      "description": "Map of '<project>/<stage>' to elapsed milliseconds.",
+      "additionalProperties": { "type": "number", "minimum": 0 }
+    },
+    "notes": { "type": ["string", "null"] }
+  }
+}
