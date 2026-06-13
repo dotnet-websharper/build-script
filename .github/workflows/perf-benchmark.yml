@@ -1,0 +1,269 @@
+name: 3. Benchmark WebSharper Compiler
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Core branch to benchmark'
+        required: false
+        default: ''
+      baselineBranch:
+        description: 'Baseline core branch to compare to'
+        required: false
+        default: 'master'
+      uiBranch:
+        description: 'WS.UI branch'
+        required: false
+        default: 'master'
+      templatesBranch:
+        description: 'WS.Templates branch'
+        required: false
+        default: 'master'
+      dotnetVersion:
+        description: '.NET SDK version'
+        required: false
+        default: '10.0.x'
+      reps:
+        description: 'Repetitions per phase'
+        required: false
+        default: '5'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        which: [branch, baseline]
+    env:
+      WSPackageFolder: ../localnuget
+      BUILD_NUMBER: ${{ github.run_number }}
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            ${{ github.event.inputs.dotnetVersion }}
+            8.0.x
+
+      - name: Install build tools
+        shell: bash
+        run: |
+          dotnet tool install paket --global
+          npm i -g esbuild
+
+      - name: Add credentials for Paket
+        run: >
+          paket config add-credentials
+          https://nuget.pkg.github.com/dotnet-websharper/index.json
+          --username intellifactory-gh
+          --password ${{ secrets.PAT_PACKAGE }}
+
+      - name: Add GitHub registry NuGet source
+        run: >
+          dotnet nuget add source https://nuget.pkg.github.com/dotnet-websharper/index.json
+          --name github
+          --username intellifactory-gh
+          --password ${{ secrets.PAT_PACKAGE }}
+          --store-password-in-clear-text
+
+      - name: Check out WS Core
+        uses: actions/checkout@v4
+        with:
+          repository: dotnet-websharper/core
+          ref: ${{ matrix.which == 'baseline' && github.event.inputs.baselineBranch || github.event.inputs.branch || github.ref_name }}
+          path: core
+          token: ${{ secrets.PAT_PACKAGE }}
+          fetch-depth: 0
+
+      - name: Build WS Core
+        shell: bash
+        run: ./build CI-Release
+        working-directory: ./core
+
+      - name: Check out WS.UI
+        uses: actions/checkout@v4
+        with:
+          repository: dotnet-websharper/ui
+          ref: ${{ github.event.inputs.uiBranch }}
+          path: ui
+          token: ${{ secrets.PAT_PACKAGE }}
+          fetch-depth: 0
+
+      - name: Repoint UI to local packages
+        shell: bash
+        run: |
+          dotnet nuget locals global-packages --clear
+          dotnet paket update --force
+        working-directory: ./ui
+
+      - name: Build WS.UI
+        shell: bash
+        run: ./build CI-Release
+        working-directory: ./ui
+
+      - name: Check out WS.Templates
+        uses: actions/checkout@v4
+        with:
+          repository: dotnet-websharper/templates
+          ref: ${{ github.event.inputs.templatesBranch }}
+          path: templates
+          token: ${{ secrets.PAT_PACKAGE }}
+          fetch-depth: 0
+
+      - name: Repoint templates to local packages
+        shell: bash
+        run: |
+          dotnet nuget locals global-packages --clear
+          dotnet paket update --force
+        working-directory: ./templates
+
+      - name: Build WS.Templates
+        shell: bash
+        run: ./build CI-Release
+        working-directory: ./templates
+
+      - name: Capture build identity
+        shell: bash
+        run: |
+          git -C core rev-parse HEAD > localnuget/core-sha.txt
+          if [ "${{ matrix.which }}" = "baseline" ]; then
+            echo "${{ github.event.inputs.baselineBranch }}" > localnuget/core-branch.txt
+          else
+            echo "${{ github.event.inputs.branch || github.ref_name }}" > localnuget/core-branch.txt
+          fi
+
+      - name: Upload local packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: localnuget-${{ matrix.which }}
+          path: ./localnuget
+
+  measure:
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        which: [branch, baseline]
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ github.event.inputs.dotnetVersion }}
+
+      - name: Install esbuild
+        run: npm i -g esbuild
+
+      - name: Check out build scripts
+        uses: actions/checkout@v4
+
+      - name: Download local packages
+        uses: actions/download-artifact@v4
+        with:
+          name: localnuget-${{ matrix.which }}
+          path: ./localnuget
+
+      - name: Download baseline identity
+        if: ${{ matrix.which == 'branch' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: localnuget-baseline
+          path: ./localnuget-baseline
+
+      - name: Add local NuGet source
+        shell: bash
+        run: dotnet nuget add source "$PWD/localnuget" --name localperf
+
+      - name: Install locally built templates
+        shell: bash
+        run: |
+          template_pkg="$(ls localnuget/WebSharper.Templates.*.nupkg | head -n 1)"
+          dotnet new install "$template_pkg" --force
+
+      - name: Scaffold benchmark solution
+        shell: bash
+        run: |
+          chmod +x ./perf-scaffold.sh
+          ./perf-scaffold.sh Perf "${{ github.event.inputs.dotnetVersion }}"
+
+      - name: Restore benchmark solution
+        shell: bash
+        run: |
+          if [ -f Perf.slnx ]; then dotnet restore Perf.slnx; else dotnet restore Perf.sln; fi
+        working-directory: ./Perf
+
+      - name: Run compiler benchmark
+        shell: bash
+        run: |
+          sha="$(cat localnuget/core-sha.txt)"
+          branch="$(cat localnuget/core-branch.txt)"
+          baseline_sha=""
+          if [ "${{ matrix.which }}" = "branch" ] && [ -f localnuget-baseline/core-sha.txt ]; then
+            baseline_sha="$(cat localnuget-baseline/core-sha.txt)"
+          fi
+          dotnet fsi ./perf-run.fsx -- \
+            --root Perf \
+            --out perf-out \
+            --os "${{ matrix.os }}" \
+            --which "${{ matrix.which }}" \
+            --reps "${{ github.event.inputs.reps }}" \
+            --sha "$sha" \
+            --branch "$branch" \
+            --baseline-sha "$baseline_sha" \
+            --dotnet-version "${{ github.event.inputs.dotnetVersion }}" \
+            --run-id "${{ github.run_id }}"
+
+      - name: Upload raw logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: perf-logs-${{ matrix.os }}-${{ matrix.which }}
+          path: ./perf-out/logs
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: perf-results-${{ matrix.os }}-${{ matrix.which }}
+          path: ./perf-out/results.jsonl
+
+  collect:
+    needs: measure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out build scripts
+        uses: actions/checkout@v4
+
+      - name: Download benchmark results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: perf-results-*
+          path: ./perf-results
+          merge-multiple: false
+
+      - name: Aggregate benchmark results
+        run: dotnet fsi ./aggregate.fsx -- --input ./perf-results
+
+      - name: Commit results to perftesting branch
+        # Appends every per-rep record (already tagged with commit/branch/os) into
+        # data/results.jsonl on the orphan `perftesting` branch. Best-effort: if that branch
+        # has not been pushed to origin yet, this step warns and does not fail the run.
+        shell: bash
+        run: |
+          git config --global user.email "ci@intellifactory.com"
+          git config --global user.name "IntelliFactory CI"
+          repo_url="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          if ! git ls-remote --exit-code --heads "$repo_url" perftesting >/dev/null 2>&1; then
+            echo "::warning::perftesting branch not found on origin; skipping results commit. Push it first."
+            exit 0
+          fi
+          rm -rf perfdata
+          git clone --branch perftesting --single-branch "$repo_url" perfdata
+          mkdir -p perfdata/data
+          find ./perf-results -name 'results.jsonl' -exec cat {} + >> perfdata/data/results.jsonl
+          cd perfdata
+          git add data/results.jsonl
+          git commit -m "perf: results for run ${{ github.run_id }}" || { echo "nothing to commit"; exit 0; }
+          git push
