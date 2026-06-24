@@ -8,9 +8,9 @@ on:
         required: false
         default: ''
       baselineBranch:
-        description: 'Baseline core branch to compare to'
+        description: 'Baseline core branch to compare to (leave empty to benchmark only the single selected branch, e.g. for a master history)'
         required: false
-        default: 'master'
+        default: ''
       uiBranch:
         description: 'WS.UI branch'
         required: false
@@ -29,12 +29,31 @@ on:
         default: '5'
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      which: ${{ steps.matrix.outputs.which }}
+      hasBaseline: ${{ steps.matrix.outputs.hasBaseline }}
+    steps:
+      - name: Compute build/measure matrix
+        id: matrix
+        shell: bash
+        run: |
+          if [ -n "${{ github.event.inputs.baselineBranch }}" ]; then
+            echo 'which=["branch","baseline"]' >> "$GITHUB_OUTPUT"
+            echo 'hasBaseline=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'which=["branch"]' >> "$GITHUB_OUTPUT"
+            echo 'hasBaseline=false' >> "$GITHUB_OUTPUT"
+          fi
+
   build:
+    needs: setup
     runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        which: [branch, baseline]
+        which: ${{ fromJSON(needs.setup.outputs.which) }}
     env:
       WSPackageFolder: ../localnuget
       BUILD_NUMBER: ${{ github.run_number }}
@@ -77,8 +96,7 @@ jobs:
           fetch-depth: 0
 
       - name: Build WS Core
-        shell: bash
-        run: ./build CI-Release
+        run: ./build CI-Release   # pwsh: ./build resolves to build.cmd (no extensionless 'build' exists)
         working-directory: ./core
 
       - name: Check out WS.UI
@@ -98,7 +116,6 @@ jobs:
         working-directory: ./ui
 
       - name: Build WS.UI
-        shell: bash
         run: ./build CI-Release
         working-directory: ./ui
 
@@ -119,7 +136,6 @@ jobs:
         working-directory: ./templates
 
       - name: Build WS.Templates
-        shell: bash
         run: ./build CI-Release
         working-directory: ./templates
 
@@ -140,13 +156,13 @@ jobs:
           path: ./localnuget
 
   measure:
-    needs: build
+    needs: [setup, build]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
-        which: [branch, baseline]
+        which: ${{ fromJSON(needs.setup.outputs.which) }}
     steps:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -166,7 +182,7 @@ jobs:
           path: ./localnuget
 
       - name: Download baseline identity
-        if: ${{ matrix.which == 'branch' }}
+        if: ${{ matrix.which == 'branch' && needs.setup.outputs.hasBaseline == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: localnuget-baseline
