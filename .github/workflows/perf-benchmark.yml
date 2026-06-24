@@ -56,7 +56,10 @@ jobs:
         which: ${{ fromJSON(needs.setup.outputs.which) }}
     env:
       WSPackageFolder: ../localnuget
+      WSVersionsFile: ../versions.txt          # shared version file: pins each repo to the locally built versions
       BUILD_NUMBER: ${{ github.run_number }}
+      SKIP_CORE_TESTING: 'true'                # benchmarking, not testing — skip the test suites for speed
+      INCREASE_PATCH_VERSION: 'false'
     steps:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -86,6 +89,12 @@ jobs:
           --password ${{ secrets.PAT_PACKAGE }}
           --store-password-in-clear-text
 
+      - name: Configure git user
+        shell: bash
+        run: |
+          git config --global user.email "ci@intellifactory.com"
+          git config --global user.name "IntelliFactory CI"
+
       - name: Check out WS Core
         uses: actions/checkout@v4
         with:
@@ -108,13 +117,6 @@ jobs:
           token: ${{ secrets.PAT_PACKAGE }}
           fetch-depth: 0
 
-      - name: Repoint UI to local packages
-        shell: bash
-        run: |
-          dotnet nuget locals global-packages --clear
-          dotnet paket update --force
-        working-directory: ./ui
-
       - name: Build WS.UI
         run: ./build CI-Release
         working-directory: ./ui
@@ -127,13 +129,6 @@ jobs:
           path: templates
           token: ${{ secrets.PAT_PACKAGE }}
           fetch-depth: 0
-
-      - name: Repoint templates to local packages
-        shell: bash
-        run: |
-          dotnet nuget locals global-packages --clear
-          dotnet paket update --force
-        working-directory: ./templates
 
       - name: Build WS.Templates
         run: ./build CI-Release
