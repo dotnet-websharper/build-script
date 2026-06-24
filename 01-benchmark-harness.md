@@ -57,14 +57,25 @@ on:
       reps:          { description: 'Repetitions per phase',           default: '5' }
 
 jobs:
+  # A setup job computes the matrix so the baseline is OPTIONAL: if baselineBranch is empty,
+  # `which` = ["branch"] (single-branch run — e.g. a rolling master history); if set,
+  # `which` = ["branch","baseline"] (comparison run).
+  setup:
+    runs-on: ubuntu-latest
+    outputs: { which: ..., hasBaseline: ... }   # ["branch"] or ["branch","baseline"]
+
   build:
+    needs: setup
     runs-on: windows-latest
     env: { WSPackageFolder: ../localnuget, BUILD_NUMBER: ${{ github.run_number }} }
     strategy:
-      matrix: { which: [branch, baseline] }      # build the stack twice: candidate + baseline
+      matrix: { which: ${{ fromJSON(needs.setup.outputs.which) }} }
     steps:
       - # setup .NET (target + 8.0.x), paket, esbuild, GH nuget source  (as build-stack.yml)
-      - # checkout core @ (which==branch ? inputs.branch : inputs.baselineBranch)
+      - # checkout core @ (which==branch ? inputs.branch||ref_name : inputs.baselineBranch)
+      # NOTE: run ./build in the DEFAULT (pwsh) shell, not bash — there is no extensionless
+      # `build` script in the repos, only build.cmd/build.sh; pwsh resolves ./build -> build.cmd
+      # via PATHEXT, whereas bash errors with "No such file or directory" (exit 127).
       - run: ./build CI-Release            # core   -> ../localnuget
         working-directory: ./core
       - # purge ~/.nuget/packages/websharper* ; paket update --force on ui
@@ -78,13 +89,13 @@ jobs:
         with: { name: localnuget-${{ matrix.which }}, path: ./localnuget }
 
   measure:
-    needs: build
+    needs: [setup, build]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
-        which: [branch, baseline]
+        which: ${{ fromJSON(needs.setup.outputs.which) }}   # baseline leg omitted when not requested
     steps:
       - # setup .NET ; install esbuild (needed for WS8+ bundling)
       - uses: actions/download-artifact@v4
@@ -114,8 +125,11 @@ Notes:
 - Mirrors `build-stack.yml`'s package-chaining recipe (`WSPackageFolder=../localnuget`,
   purge `~/.nuget/packages/<pkg>`, `paket update --force`, build in order core→ui→templates).
   Only those three repos are needed for the scenario.
-- Building both `branch` and `baseline` in the same invocation is what makes the comparison
-  honest: same SDK, same runner image, same scenario, only the WS compiler differs.
+- When a baseline is requested, building both `branch` and `baseline` in the same invocation is
+  what makes the comparison honest: same SDK, same runner image, same scenario, only the WS
+  compiler differs. The baseline is **optional** — leaving `baselineBranch` empty runs only the
+  selected branch (no comparison), which is the mode for accumulating a rolling history of a
+  single branch (e.g. `master`) in `data/results.jsonl`.
 
 ## Scenario scaffolder: `perf-scaffold.sh`
 
