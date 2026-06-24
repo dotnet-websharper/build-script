@@ -67,22 +67,24 @@ jobs:
   build:
     needs: setup
     runs-on: windows-latest
-    env: { WSPackageFolder: ../localnuget, BUILD_NUMBER: ${{ github.run_number }} }
+    # Mirror build-stack.yml's env. WSVersionsFile is what chains the stack: each repo's build
+    # pins the locally built versions of the previous ones, so no manual `paket update`/cache
+    # purge is needed (and none is done — build-stack relies on the same mechanism).
+    # SKIP_CORE_TESTING=true because we benchmark, not test.
+    env: { WSPackageFolder: ../localnuget, WSVersionsFile: ../versions.txt, BUILD_NUMBER: ${{ github.run_number }}, SKIP_CORE_TESTING: 'true', INCREASE_PATCH_VERSION: 'false' }
     strategy:
       matrix: { which: ${{ fromJSON(needs.setup.outputs.which) }} }
     steps:
-      - # setup .NET (target + 8.0.x), paket, esbuild, GH nuget source  (as build-stack.yml)
+      - # setup .NET (target + 8.0.x), paket, esbuild, GH nuget source, git user (as build-stack.yml)
       - # checkout core @ (which==branch ? inputs.branch||ref_name : inputs.baselineBranch)
       # NOTE: run ./build in the DEFAULT (pwsh) shell, not bash — there is no extensionless
       # `build` script in the repos, only build.cmd/build.sh; pwsh resolves ./build -> build.cmd
       # via PATHEXT, whereas bash errors with "No such file or directory" (exit 127).
       - run: ./build CI-Release            # core   -> ../localnuget
         working-directory: ./core
-      - # purge ~/.nuget/packages/websharper* ; paket update --force on ui
-      - run: ./build CI-Release            # ui     -> ../localnuget
+      - run: ./build CI-Release            # ui     -> ../localnuget (versions.txt pins local core)
         working-directory: ./ui
-      - # purge again ; build templates
-      - run: ./build CI-Release            # templates -> ../localnuget
+      - run: ./build CI-Release            # templates -> ../localnuget (pins local core+ui)
         working-directory: ./templates
       - # capture the commit SHA for this 'which' into a file
       - uses: actions/upload-artifact@v4
