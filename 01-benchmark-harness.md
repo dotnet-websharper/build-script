@@ -247,16 +247,39 @@ normal verbosity. The harness needs this as data. Two layers, in priority order:
 
 ## Local use
 
-The same `perf-scaffold.sh` + `perf-run.fsx` run locally against a dev build of the stack
-(point the local nuget source at your `../localnuget`). Local numbers are not comparable across
-machines but are fine for "did my change help on this machine" loops. CI is the source of truth
-for tracked numbers.
+`build-script/perf-local.sh` replicates the CI `measure` job on your own machine and writes
+everything to a log file — it never pushes or commits. It scaffolds the solution, runs the
+cold/warm phases, and prints the aggregate table.
+
+```bash
+# local packages from ../localnuget (version auto-detected), 1 rep:
+./perf-local.sh
+# pin an explicit version / more reps:
+./perf-local.sh --ws-version 10.1.0.663 --reps 3 --out ./perf-out-local
+# benchmark a published release instead of a local build:
+./perf-local.sh --templates-version 10.1.5.674
+```
+
+Two gotchas it handles (both Windows/Git-Bash specific, learned the hard way):
+- The scaffolded projects pin the WS version from the *installed template*. In local mode the
+  script rewrites every `WebSharper*` PackageReference to the local version so the local
+  packages are actually used (otherwise restore silently pulls the published version).
+- The `localnuget` path written into `nuget.config` must be a native path (`cygpath -m`), not a
+  `/h/...` MSYS path — Windows NuGet misreads the latter as `C:\h\...` (`NU1301`).
+
+Local numbers are not comparable across machines but are fine for "did my change help on this
+machine" loops. CI is the source of truth for tracked numbers.
+
+> **Note on `--no-restore`:** `perf-run.fsx`'s `cleanOutputs()` deletes every `obj/`, so each
+> cold phase does an untimed `restore()` before the timed `--no-restore` build (otherwise
+> NETSDK1004). The timed build measures the compiler, not NuGet.
 
 ## Deliverables checklist
 
-- [ ] `build-script/.github/workflows/perf-benchmark.yml`
-- [ ] `build-script/perf-scaffold.sh` (+ `gen-sources.fsx`)
-- [ ] `build-script/perf-run.fsx`
-- [ ] `build-script/aggregate.fsx`
-- [ ] structured timing sink in `LoggerBase` (Phase 0.4)
-- [ ] `perftesting/data/` schema + seeded baseline record
+- [x] `build-script/.github/workflows/perf-benchmark.yml`
+- [x] `build-script/perf-scaffold.sh` (+ `gen-sources.fsx`)
+- [x] `build-script/perf-run.fsx`
+- [x] `build-script/aggregate.fsx`
+- [x] `build-script/perf-local.sh` (local replica)
+- [x] structured timing sink in `LoggerBase` — shipped as #1590 (`WebSharperTimingLog`)
+- [x] `data/` schema + seeded results file
