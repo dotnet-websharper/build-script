@@ -19,6 +19,10 @@ on:
         description: 'WS.Templates branch'
         required: false
         default: 'master'
+      templatesVersion:
+        description: 'Use this PUBLISHED WebSharper.Templates version (from the dotnet-websharper GitHub feed) instead of building a fresh stack. When set, the build job is skipped and branch/baseline inputs are ignored.'
+        required: false
+        default: ''
       dotnetVersion:
         description: '.NET SDK version'
         required: false
@@ -32,23 +36,32 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
+      mode: ${{ steps.matrix.outputs.mode }}
       which: ${{ steps.matrix.outputs.which }}
       hasBaseline: ${{ steps.matrix.outputs.hasBaseline }}
     steps:
-      - name: Compute build/measure matrix
+      - name: Compute mode and build/measure matrix
         id: matrix
         shell: bash
         run: |
-          if [ -n "${{ github.event.inputs.baselineBranch }}" ]; then
+          if [ -n "${{ github.event.inputs.templatesVersion }}" ]; then
+            # Published mode: benchmark a released WebSharper.Templates version, no fresh build.
+            echo 'mode=published'              >> "$GITHUB_OUTPUT"
+            echo 'which=["published"]'         >> "$GITHUB_OUTPUT"
+            echo 'hasBaseline=false'           >> "$GITHUB_OUTPUT"
+          elif [ -n "${{ github.event.inputs.baselineBranch }}" ]; then
+            echo 'mode=build'                  >> "$GITHUB_OUTPUT"
             echo 'which=["branch","baseline"]' >> "$GITHUB_OUTPUT"
-            echo 'hasBaseline=true' >> "$GITHUB_OUTPUT"
+            echo 'hasBaseline=true'            >> "$GITHUB_OUTPUT"
           else
-            echo 'which=["branch"]' >> "$GITHUB_OUTPUT"
-            echo 'hasBaseline=false' >> "$GITHUB_OUTPUT"
+            echo 'mode=build'                  >> "$GITHUB_OUTPUT"
+            echo 'which=["branch"]'            >> "$GITHUB_OUTPUT"
+            echo 'hasBaseline=false'           >> "$GITHUB_OUTPUT"
           fi
 
   build:
     needs: setup
+    if: ${{ needs.setup.outputs.mode == 'build' }}
     runs-on: windows-latest
     strategy:
       fail-fast: false
@@ -152,6 +165,8 @@ jobs:
 
   measure:
     needs: [setup, build]
+    # Run when the build job succeeded (build mode) OR was skipped (published mode).
+    if: ${{ always() && needs.setup.result == 'success' && (needs.build.result == 'success' || needs.build.result == 'skipped') }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -170,28 +185,48 @@ jobs:
       - name: Check out build scripts
         uses: actions/checkout@v4
 
+      # --- build mode: consume the freshly built packages from the build job ---
       - name: Download local packages
+        if: ${{ needs.setup.outputs.mode == 'build' }}
         uses: actions/download-artifact@v4
         with:
           name: localnuget-${{ matrix.which }}
           path: ./localnuget
 
       - name: Download baseline identity
-        if: ${{ matrix.which == 'branch' && needs.setup.outputs.hasBaseline == 'true' }}
+        if: ${{ needs.setup.outputs.mode == 'build' && matrix.which == 'branch' && needs.setup.outputs.hasBaseline == 'true' }}
         uses: actions/download-artifact@v4
         with:
           name: localnuget-baseline
           path: ./localnuget-baseline
 
       - name: Add local NuGet source
+        if: ${{ needs.setup.outputs.mode == 'build' }}
         shell: bash
         run: dotnet nuget add source "$PWD/localnuget" --name localperf
 
       - name: Install locally built templates
+        if: ${{ needs.setup.outputs.mode == 'build' }}
         shell: bash
         run: |
           template_pkg="$(ls localnuget/WebSharper.Templates.*.nupkg | head -n 1)"
           dotnet new install "$template_pkg" --force
+
+      # --- published mode: consume a released WebSharper.Templates version from the GH feed ---
+      - name: Add GitHub registry NuGet source
+        if: ${{ needs.setup.outputs.mode == 'published' }}
+        shell: bash
+        run: >
+          dotnet nuget add source https://nuget.pkg.github.com/dotnet-websharper/index.json
+          --name github
+          --username intellifactory-gh
+          --password ${{ secrets.PAT_PACKAGE }}
+          --store-password-in-clear-text
+
+      - name: Install published templates
+        if: ${{ needs.setup.outputs.mode == 'published' }}
+        shell: bash
+        run: dotnet new install "WebSharper.Templates::${{ github.event.inputs.templatesVersion }}" --force
 
       - name: Scaffold benchmark solution
         shell: bash
@@ -208,8 +243,13 @@ jobs:
       - name: Run compiler benchmark
         shell: bash
         run: |
-          sha="$(cat localnuget/core-sha.txt)"
-          branch="$(cat localnuget/core-branch.txt)"
+          if [ "${{ needs.setup.outputs.mode }}" = "published" ]; then
+            sha="${{ github.event.inputs.templatesVersion }}"
+            branch="published"
+          else
+            sha="$(cat localnuget/core-sha.txt)"
+            branch="$(cat localnuget/core-branch.txt)"
+          fi
           baseline_sha=""
           if [ "${{ matrix.which }}" = "branch" ] && [ -f localnuget-baseline/core-sha.txt ]; then
             baseline_sha="$(cat localnuget-baseline/core-sha.txt)"
