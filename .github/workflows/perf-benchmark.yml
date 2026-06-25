@@ -1,4 +1,4 @@
-name: 3. Benchmark WebSharper Compiler
+name: Benchmark WebSharper Compiler
 
 on:
   workflow_dispatch:
