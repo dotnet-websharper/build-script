@@ -42,6 +42,20 @@ and slow; the *measurement* must run on all three OSes. Two viable shapes:
 
 We go with **A**.
 
+## Run modes
+
+The `setup` job derives a **mode** from the inputs:
+
+- **build mode (default):** build a fresh stack (core→ui→templates) from the given branch(es)
+  into `../localnuget`, then measure. Single-branch or branch-vs-baseline (see optional baseline
+  above).
+- **published mode:** set `templatesVersion` to a released `WebSharper.Templates` version (from
+  the dotnet-websharper GitHub Packages feed). The `build` job is **skipped** entirely; `measure`
+  installs that published template and restores the scenario's WS packages from the GitHub feed,
+  then benchmarks the published compiler. Use this to benchmark a release without a ~15-minute
+  stack build, or to seed history against shipped versions. Records carry `which=published`,
+  `branch=published`, and the version string in `commitSha`.
+
 ## Workflow: `perf-benchmark.yml` (in build-script)
 
 ```yaml
@@ -50,13 +64,15 @@ on:
   workflow_dispatch:
     inputs:
       branch:        { description: 'Core branch to benchmark',        default: '' }       # WS main
-      baselineBranch:{ description: 'Baseline branch to compare to',   default: 'master' }
+      baselineBranch:{ description: 'Baseline branch to compare to (empty = single branch)', default: '' }
       uiBranch:      { description: 'WS.UI branch',                     default: 'master' }
       templatesBranch:{description: 'WS.Templates branch',             default: 'master' }
+      templatesVersion:{description: 'Published WebSharper.Templates version (empty = build fresh)', default: '' }
       dotnetVersion: { description: '.NET SDK version',                default: '10.0.x' }
       reps:          { description: 'Repetitions per phase',           default: '5' }
 
 jobs:
+  # setup: derive mode (build|published) + matrix; build job runs only in build mode
   # A setup job computes the matrix so the baseline is OPTIONAL: if baselineBranch is empty,
   # `which` = ["branch"] (single-branch run — e.g. a rolling master history); if set,
   # `which` = ["branch","baseline"] (comparison run).
