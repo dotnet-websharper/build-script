@@ -203,17 +203,25 @@ let startBooster () = runDotNet true "ws start" "ws-start"
 let stopBooster () = runDotNet true "ws stop --force" "ws-stop"
 let shutdownBuildServer () = runDotNet true "build-server shutdown" "build-server-shutdown"
 
+// cleanOutputs() removes every obj/ (which holds project.assets.json from restore), so a clean
+// must be followed by a restore before the timed --no-restore build, or it fails with NETSDK1004.
+// Restore is untimed (and uses --no-cache off by default) so the timed build stays restore-free —
+// the point is to measure the compiler, not NuGet.
+let restore () = runDotNet false (sprintf "restore %s" solutionFile) "restore"
+
 let reps = [ 0 .. opts.Reps - 1 ]
 
 for rep in reps do
     shutdownBuildServer()
     stopBooster()
     cleanOutputs()
+    restore()
     build "multiproject-v1" "cold-full" rep None (if rep = 0 && not opts.KeepWarmup then Some "first cold rep includes process/JIT warmup" else None)
 
 for rep in reps do
     stopBooster()
     cleanOutputs()
+    restore()
     startBooster()
     build "multiproject-v1" "cold-booster" rep None None
 
