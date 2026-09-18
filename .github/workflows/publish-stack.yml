@@ -36,7 +36,7 @@ jobs:
 
     - name: Nuget login
       uses: NuGet/login@v1
-      id: nuget-login
+      id: login
       with:
         user: intellifactory
         
