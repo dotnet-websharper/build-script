@@ -10,7 +10,7 @@ on:
       dotnetVersion:
         description: 'Select .NET SDK version'
         required: false
-        default: '10.0.x'
+        default: '11.0.x'
 #      useIntelliFactorySNK:
 #        description: 'Use IntelliFactory.snk'
 #        type: boolean
@@ -24,7 +24,7 @@ on:
       branch:
         description: 'Branch to use for build process'
         required: false
-        default: 'master'
+        default: ''
       coreBranch:
         description: 'Branch to use for building core'
         required: false
@@ -168,7 +168,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
       with:
         repository: dotnet-websharper/ui
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: ui
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -183,7 +183,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mathjs')) }}
       with:
         repository: dotnet-websharper/mathjs
-        ref:  ${{ github.event.inputs.branch}}
+        ref:  ${{ github.event.inputs.branch }}
         path: mathjs
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -199,7 +199,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'websocket')) }}
       with:
         repository: dotnet-websharper/aspnetcore
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: aspnetcore
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -214,7 +214,7 @@ jobs:
       if: ${{ success() && github.event.inputs.coreOnly == 'false' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
       with:
         repository: dotnet-websharper/templates
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: templates
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -229,7 +229,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'jquery')) }}
       with:
         repository: dotnet-websharper/jquery
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: jquery
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -244,7 +244,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'forms')) }}
       with:
         repository: dotnet-websharper/forms
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: forms
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -259,7 +259,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: dotnet-websharper/mvu
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: mvu
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -274,7 +274,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'leaflet')) }}
       with:
         repository: dotnet-websharper/leaflet
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: leaflet
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -289,7 +289,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'd3')) }}
       with:
         repository: dotnet-websharper/d3
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: d3
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -304,7 +304,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
       with:
         repository: dotnet-websharper/react
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: react
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -319,7 +319,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'signalr')) }}
       with:
         repository: dotnet-websharper/signalr
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: signalr
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -334,7 +334,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'datefns')) }}
       with:
         repository: dotnet-websharper/datefns
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: datefns
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -349,7 +349,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'moment')) }}
       with:
         repository: dotnet-websharper/moment
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: moment
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -364,7 +364,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'plotly')) }}
       with:
         repository: dotnet-websharper/plotly
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: plotly
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -379,7 +379,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'chartjs')) }}
       with:
         repository: dotnet-websharper/chartjs
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: chartjs
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -394,7 +394,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'charting')) }}
       with:
         repository: dotnet-websharper/charting
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: charting
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -409,7 +409,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: dotnet-websharper/highcharts
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: highcharts
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -424,7 +424,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: dotnet-websharper/highlightjs
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: highlightjs
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -439,7 +439,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: dotnet-websharper/mathjax
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: mathjax
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -454,7 +454,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: dotnet-websharper/elmish
-        ref: websharper80
+        ref: ${{ github.event.inputs.branch }}
         path: elmish
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -469,7 +469,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
       with:
         repository: dotnet-websharper/elmish.react
-        ref: main
+        ref: ${{ github.event.inputs.branch }}
         path: elmish.react
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -484,7 +484,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'sweetalert')) }}
       with:
         repository: dotnet-websharper/sweetalert
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: sweetalert
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -499,7 +499,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'remarkable')) }}
       with:
         repository: dotnet-websharper/remarkable
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: remarkable
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -514,7 +514,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'jspdf')) }}
       with:
         repository: dotnet-websharper/jspdf
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: jspdf
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -529,7 +529,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'animejs')) }}
       with:
         repository: dotnet-websharper/animejs
-        ref: main
+        ref: ${{ github.event.inputs.branch }}
         path: animejs
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -544,7 +544,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'popover')) }}
       with:
         repository: dotnet-websharper/popover
-        ref: main
+        ref: ${{ github.event.inputs.branch }}
         path: popover
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -559,7 +559,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'performanceapi')) }}
       with:
         repository: dotnet-websharper/performanceapi
-        ref: main
+        ref: ${{ github.event.inputs.branch }}
         path: performanceapi
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -574,7 +574,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'w3c-indexeddb')) }}
       with:
         repository: dotnet-websharper/w3c-indexeddb
-        ref: main
+        ref: ${{ github.event.inputs.branch }}
         path: w3c-indexeddb
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -589,7 +589,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webrtc')) }}
       with:
         repository: dotnet-websharper/webrtc
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: webrtc
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -604,7 +604,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluent')) }}
       with:
         repository: dotnet-websharper/fluentui-react-icons
-        ref: main
+        ref: ${{ github.event.inputs.branch }}
         path: fluentui-react-icons
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -619,7 +619,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluent')) }}
       with:
         repository: dotnet-websharper/fluentui-react-components
-        ref: main
+        ref: ${{ github.event.inputs.branch }}
         path: fluentui-react-components
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -634,7 +634,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
       with:
         repository: dotnet-websharper/fable-browser
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: fable-browser
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -650,7 +650,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fslexyacc')) }}
       with:
         repository: dotnet-websharper/WebSharper.FsLexYacc.Runtime
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: fslexyacc
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -665,7 +665,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
       with:
         repository: dotnet-websharper/WebSharper.Fable.Mocha
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: fable-mocha
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -680,7 +680,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'feliz')) }}
       with:
         repository: dotnet-websharper/WebSharper.Feliz
-        ref: ${{ github.event.inputs.branch}}
+        ref: ${{ github.event.inputs.branch }}
         path: feliz
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -695,7 +695,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
       with:
         repository: dotnet-websharper/Capacitor
-        ref: master
+        ref: ${{ github.event.inputs.branch }}
         path: capacitor
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -710,7 +710,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
       with:
         repository: dotnet-websharper/capacitor.community
-        ref: main
+        ref: ${{ github.event.inputs.branch }}
         path: capacitor.community
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -725,7 +725,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
       with:
         repository: dotnet-websharper/capacitor.CapGo
-        ref: main
+        ref: ${{ github.event.inputs.branch }}
         path: capacitor.capgo
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -740,7 +740,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webgpu')) }}
       with:
         repository: dotnet-websharper/webgpu
-        ref: master
+        ref: ${{ github.event.inputs.branch }}
         path: webgpu
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -755,7 +755,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'touchevents')) }}
       with:
         repository: dotnet-websharper/TouchEvents
-        ref: main
+        ref: ${{ github.event.inputs.branch }}
         path: touchevents
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -770,7 +770,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webserial')) }}
       with:
         repository: dotnet-websharper/WebSerial
-        ref: main
+        ref: ${{ github.event.inputs.branch }}
         path: webserial
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -785,7 +785,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webusb')) }}
       with:
         repository: dotnet-websharper/WebUSB
-        ref: main
+        ref: ${{ github.event.inputs.branch }}
         path: webusb
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -800,7 +800,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webmidi')) }}
       with:
         repository: dotnet-websharper/WebMIDI
-        ref: main
+        ref: ${{ github.event.inputs.branch }}
         path: webmidi
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -815,7 +815,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'weblocks')) }}
       with:
         repository: dotnet-websharper/WebLocks
-        ref: main
+        ref: ${{ github.event.inputs.branch }}
         path: weblocks
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -830,7 +830,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'codemirror')) }}
       with:
         repository: dotnet-websharper/CodeMirror
-        ref: master
+        ref: ${{ github.event.inputs.branch }}
         path: codemirror
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -845,7 +845,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webspeech')) }}
       with:
         repository: dotnet-websharper/WebSpeech
-        ref: master
+        ref: ${{ github.event.inputs.branch }}
         path: webspeech
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -860,7 +860,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'slickgrid')) }}
       with:
         repository: dotnet-websharper/slickgrid
-        ref: main
+        ref: ${{ github.event.inputs.branch }}
         path: slickgrid
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
@@ -876,7 +876,7 @@ jobs:
       if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'topojson')) }}
       with:
         repository: dotnet-websharper/topojson
-        ref: main
+        ref: ${{ github.event.inputs.branch }}
         path: topojson
         token: ${{ secrets.PAT_PACKAGE }}
         fetch-depth: 0
