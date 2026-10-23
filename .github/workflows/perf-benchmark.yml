@@ -206,8 +206,8 @@ jobs:
         run: |
           src="$PWD/localnuget"
           # On the Windows runner $PWD is an MSYS path (/d/a/...) that `dotnet nuget add source`
-          # rejects as invalid; pass a native path via cygpath. No-op on Linux/macOS.
-          if command -v cygpath >/dev/null 2>&1; then src="$(cygpath -m "$src")"; fi
+          # rejects as invalid; use cygpath's backslash form for .NET on Windows.
+          if command -v cygpath >/dev/null 2>&1; then src="$(cygpath -w "$src")"; fi
           dotnet nuget add source "$src" --name localperf
 
       - name: Install locally built templates
