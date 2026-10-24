@@ -117,6 +117,16 @@ jobs:
           token: ${{ secrets.PAT_PACKAGE }}
           fetch-depth: 0
 
+      - name: Prime Paket Git cache for build-script # workaround for https://github.com/fsprojects/Paket/issues/4461
+        shell: pwsh
+        run: |
+          $cache = Join-Path $env:USERPROFILE '.paket\git\db\build-script'
+          if (Test-Path -LiteralPath $cache) {
+            Remove-Item -LiteralPath $cache -Recurse -Force
+          }
+          New-Item -ItemType Directory -Force -Path (Split-Path $cache) | Out-Null
+          git clone --mirror https://github.com/dotnet-websharper/build-script $cache
+
       - name: Build WS Core
         run: ./build CI-Release   # pwsh: ./build resolves to build.cmd (no extensionless 'build' exists)
         working-directory: ./core
