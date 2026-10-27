@@ -433,8 +433,10 @@ let MakeTargets (args: Args) =
     "WS-Clean"
         ==> "WS-Checkout"
 
+    // Soft, so CI-Commit updates without cleaning, where build servers can still
+    // lock outputs. Builds get WS-Clean through WS-GenAssemblyInfo.
     "WS-Clean"
-        ==> "WS-Update"
+        ?=> "WS-Update"
         ?=> "WS-Restore"
 
     "WS-Restore"
@@ -443,7 +445,7 @@ let MakeTargets (args: Args) =
         ==> "CI-Release"
 
     "WS-Clean"
-        ?=> "WS-GenAssemblyInfo"
+        ==> "WS-GenAssemblyInfo"
         ==> "WS-BuildDebug"
         =?> ("Build", args.HasDefaultBuild)
 
@@ -479,7 +481,8 @@ Target.create "CI-Commit" <| fun _ ->
         | None ->
             failwith "version not found in versions.txt"
         | Some v ->
-            git "add -A"
+            // only tracked files, build outputs are not cleaned before CI-Commit
+            git "add -u"
             git "commit -m \"Version %s\" --allow-empty" v
             git "push"
     else
