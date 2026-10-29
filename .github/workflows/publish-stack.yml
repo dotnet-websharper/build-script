@@ -46,6 +46,8 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         workflow: build-stack.yml
         run_number: ${{ github.event.inputs.buildRunNumber }}
+        # an explicit run may have failed after uploading Packages (e.g. tagging), accept it
+        workflow_conclusion: ${{ github.event.inputs.buildRunNumber == '' && 'success' || '' }}
         name: Packages
         path: Packages
 
