@@ -77,8 +77,10 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: ${{ github.event.inputs.dotnetVersion }}
         dotnet-quality: preview
+        dotnet-version: |
+          ${{ github.event.inputs.dotnetVersion }}
+          8.0.x
 
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v2.1.1
@@ -101,7 +103,7 @@ jobs:
       run: npm i -g esbuild
         
     - name: Install Paket as global tool
-      run: dotnet tool install paket --global
+      run: dotnet tool install paket --global --version 12.0.0-alpha001
 
     - name: Add credentials for Paket
       run:
