@@ -4,23 +4,17 @@ on:
   workflow_dispatch:
     inputs:
       stackKind:
-        description: 'Select stack kind: all/core/ui/templates/extension/elmish names'
+        description: 'Group (core/ui/templates/elmish/fluent/capacitor) or repo name, or "all"'
         required: false
         default: 'all'
       dotnetVersion:
         description: 'Select .NET SDK version'
         required: false
         default: '11.0.x'
-#      useIntelliFactorySNK:
-#        description: 'Use IntelliFactory.snk'
-#        type: boolean
-#        required: false
-#        default: 'false'
       skipCoreTesting:
         description: 'Skip Core testing'
         type: boolean
-        required: false
-        default: 'false'
+        default: false
       branch:
         description: 'Branch to use for build process'
         required: false
@@ -32,117 +26,87 @@ on:
       increasePatch:
         description: 'Increase patch version?'
         type: boolean
-        required: false
         default: false
       coreOnly:
         description: 'Core only?'
         type: boolean
-        required: false
         default: false
 
 jobs:
   build:
-
     runs-on: windows-latest
-    
-    env: 
+
+    env:
       WSPackageFolder: ../localnuget
       WSVersionsFile: ../versions.txt
       BUILD_NUMBER: ${{ github.run_number }}
-      SKIP_CORE_TESTING: ${{ github.event.inputs.skipCoreTesting }}
-      INCREASE_PATCH_VERSION: ${{ github.event.inputs.increasePatch }}
-    
+      SKIP_CORE_TESTING: ${{ inputs.skipCoreTesting }}
+      INCREASE_PATCH_VERSION: ${{ inputs.increasePatch }}
+
     steps:
 
     - name: Parameters
-      run: |
-        echo "# Parameters :wrench:" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "Stack Kind: ${{ github.event.inputs.stackKind }}" >> $GITHUB_STEP_SUMMARY
-        echo "Dotnet version: ${{ github.event.inputs.dotnetVersion }}" >> $GITHUB_STEP_SUMMARY
-        echo "Skip core testing: ${{ github.event.inputs.skipCoreTesting }}" >> $GITHUB_STEP_SUMMARY
-        echo "Branch for stack: ${{ github.event.inputs.branch }}" >> $GITHUB_STEP_SUMMARY
-        echo "Branch for core: ${{ github.event.inputs.coreBranch }}" >> $GITHUB_STEP_SUMMARY
-        echo "Increase patch: ${{ github.event.inputs.increasePatch }}" >> $GITHUB_STEP_SUMMARY
-        echo "Core only: ${{ github.event.inputs.coreOnly }}" >> $GITHUB_STEP_SUMMARY
       shell: bash
+      run: |
+        {
+          echo "# Parameters :wrench:"
+          echo ""
+          echo "Target: ${{ inputs.stackKind }}"
+          echo "Dotnet version: ${{ inputs.dotnetVersion }}"
+          echo "Skip core testing: ${{ inputs.skipCoreTesting }}"
+          echo "Branch for stack: ${{ inputs.branch }}"
+          echo "Branch for core: ${{ inputs.coreBranch }}"
+          echo "Increase patch: ${{ inputs.increasePatch }}"
+          echo "Core only: ${{ inputs.coreOnly }}"
+        } >> $GITHUB_STEP_SUMMARY
 
     - uses: actions/checkout@v4
       with:
         sparse-checkout: |
+          repos.yml
           package-helper.fsx
           notification-helper.fsx
         sparse-checkout-cone-mode: false
-    
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-quality: preview
-        dotnet-version: ${{ github.event.inputs.dotnetVersion }}
+        dotnet-version: ${{ inputs.dotnetVersion }}
 
-    # separate step: dotnet-quality applies to every version of a step
+    # separate step: dotnet-quality applies to every version in a step
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
 
-    # before adding the GitHub registry, so the tool is only looked up on nuget.org
-    - name: Install Paket as global tool
-      run: dotnet tool install paket --global --version 12.0.0-alpha001
+    - name: Toolchain
+      shell: pwsh
+      run: |
+        $PSNativeCommandUseErrorActionPreference = $true
 
-    - name: Add GitHub registry NuGet source
-      run: 
-        dotnet nuget 
-          add source https://nuget.pkg.github.com/dotnet-websharper/index.json 
-          --name github 
-          --username intellifactory-gh 
-          --password ${{ secrets.PAT_PACKAGE }} 
+        # before adding the GitHub registry, so the tool is only looked up on nuget.org
+        dotnet tool install paket --global --version 12.0.0-alpha001
+
+        dotnet nuget add source https://nuget.pkg.github.com/dotnet-websharper/index.json `
+          --name github `
+          --username intellifactory-gh `
+          --password ${{ secrets.PAT_PACKAGE }} `
           --store-password-in-clear-text
 
-    - name: List sdks
-      run: dotnet --list-sdks
+        npm i -g esbuild
 
-    - name: Install esbuild
-      run: npm i -g esbuild
-        
-    - name: Add credentials for Paket
-      run:
-        paket config
-          add-credentials https://nuget.pkg.github.com/dotnet-websharper/index.json
-          --username intellifactory-gh 
+        paket config add-credentials https://nuget.pkg.github.com/dotnet-websharper/index.json `
+          --username intellifactory-gh `
           --password ${{ secrets.PAT_PACKAGE }}
-          
-    - name: Configure IntelliFactory CI git user
-      run: |
+
         git config --global user.email "ci@intellifactory.com"
         git config --global user.name "IntelliFactory CI"
-
-    - name: Create IntelliFactory.snk
-      if: ${{ github.event.inputs.useIntelliFactorySNK == 'true' }}
-      shell: pwsh  
-      run: |
-        $bytes = [Convert]::FromBase64String("${{ secrets.INTELLIFACTORY_KEY_BASE64 }}")
-        $snkPath = $snkPath = Join-Path -Path $PWD -ChildPath "keys/IntelliFactory.snk"
-
-        # Ensure the directory exists
-        $dir = Split-Path $snkPath
-        if (-not (Test-Path $dir)) {
-            New-Item -ItemType Directory -Path $dir | Out-Null
-        }
-
-        # Write the decoded bytes
-        [System.IO.File]::WriteAllBytes($snkPath, $bytes)
-
-        # Set environment variable to current folder
-        "INTELLIFACTORY=$PWD" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-        # Log
-        Write-Host "SNK file written to: $snkPath"
-        Write-Host "INTELLIFACTORY set to: $PWD"
 
     - name: Prime Paket Git cache for build-script # workaround for https://github.com/fsprojects/Paket/issues/4461
       shell: pwsh
       run: |
+        $PSNativeCommandUseErrorActionPreference = $true
         $cache = Join-Path $env:USERPROFILE '.paket\git\db\build-script'
         if (Test-Path -LiteralPath $cache) {
           Remove-Item -LiteralPath $cache -Recurse -Force
@@ -150,780 +114,118 @@ jobs:
         New-Item -ItemType Directory -Force -Path (Split-Path $cache) | Out-Null
         git clone --mirror https://github.com/dotnet-websharper/build-script $cache
 
-    - name: Check out WS Core
-      uses: actions/checkout@v3
-      if: ${{ success() && github.event.inputs.coreBranch == '' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
-      with:
-        repository: dotnet-websharper/core
-        ref: ${{ github.event.inputs.branch }}
-        path: core
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Check out WS Core branch ${{ github.event.inputs.coreBranch }}
-      uses: actions/checkout@v3
-      if: ${{ success() && github.event.inputs.coreBranch != '' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
-      with:
-        repository: dotnet-websharper/core
-        ref: ${{ github.event.inputs.coreBranch }}
-        path: core
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS Core
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
-      run: ./build CI-Release
-      working-directory: ./core
-
-    - name: Check out WS.UI
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
-      with:
-        repository: dotnet-websharper/ui
-        ref: ${{ github.event.inputs.branch }}
-        path: ui
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-        
-    - name: Build WS.UI
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
-      run: ./build CI-Release
-      working-directory: ./ui
-
-    - name: Check out WS.MathJS
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mathjs')) }}
-      with:
-        repository: dotnet-websharper/mathjs
-        ref:  ${{ github.event.inputs.branch }}
-        path: mathjs
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-        
-    - name: Build WS.MathJS
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mathjs')) }}
-      run: ./build CI-Release
-      working-directory: ./mathjs
-
-
-    - name: Check out WS.AspNetCore.WebSocket
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'websocket')) }}
-      with:
-        repository: dotnet-websharper/aspnetcore
-        ref: ${{ github.event.inputs.branch }}
-        path: aspnetcore
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-        
-    - name: Build WS.AspNetCore.WebSocket
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'websocket')) }}
-      run: ./build CI-Release
-      working-directory: ./aspnetcore
-
-    - name: Check out WS.Templates
-      uses: actions/checkout@v3
-      if: ${{ success() && github.event.inputs.coreOnly == 'false' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
-      with:
-        repository: dotnet-websharper/templates
-        ref: ${{ github.event.inputs.branch }}
-        path: templates
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-        
-    - name: Build WS.Templates
-      if: ${{ success() && github.event.inputs.coreOnly == 'false' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
-      run: ./build CI-Release
-      working-directory: ./templates
-
-    - name: Check out WS.JQuery
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'jquery')) }}
-      with:
-        repository: dotnet-websharper/jquery
-        ref: ${{ github.event.inputs.branch }}
-        path: jquery
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.JQuery
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'jquery')) }}
-      run: ./build CI-Release
-      working-directory: ./jquery
-
-    - name: Check out WS.Forms
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'forms')) }}
-      with:
-        repository: dotnet-websharper/forms
-        ref: ${{ github.event.inputs.branch }}
-        path: forms
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.Forms
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'forms')) }}
-      run: ./build CI-Release
-      working-directory: ./forms
-      
-    - name: Check out WS.MVU
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mvu')) }}
-      uses: actions/checkout@v3
-      with:
-        repository: dotnet-websharper/mvu
-        ref: ${{ github.event.inputs.branch }}
-        path: mvu
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-    
-    - name: Build WS.MVU
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mvu')) }}
-      run: ./build CI-Release
-      working-directory: ./mvu
-
-    - name: Check out WS.Leaflet
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'leaflet')) }}
-      with:
-        repository: dotnet-websharper/leaflet
-        ref: ${{ github.event.inputs.branch }}
-        path: leaflet
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.Leaflet
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'leaflet')) }}
-      run: ./build CI-Release
-      working-directory: ./leaflet
-
-    - name: Check out WS.D3
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'd3')) }}
-      with:
-        repository: dotnet-websharper/d3
-        ref: ${{ github.event.inputs.branch }}
-        path: d3
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.D3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'd3')) }}
-      run: ./build CI-Release
-      working-directory: ./d3
-
-    - name: Check out WS.React
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
-      with:
-        repository: dotnet-websharper/react
-        ref: ${{ github.event.inputs.branch }}
-        path: react
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.React
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
-      run: ./build CI-Release
-      working-directory: ./react
-
-    - name: Check out WS.SignalR
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'signalr')) }}
-      with:
-        repository: dotnet-websharper/signalr
-        ref: ${{ github.event.inputs.branch }}
-        path: signalr
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.SignalR
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'signalr')) }}
-      run: ./build CI-Release
-      working-directory: ./signalr
-
-    - name: Check out WS.DateFNS
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'datefns')) }}
-      with:
-        repository: dotnet-websharper/datefns
-        ref: ${{ github.event.inputs.branch }}
-        path: datefns
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.DateFNS
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'datefns')) }}
-      run: ./build CI-Release
-      working-directory: ./datefns
-
-    - name: Check out WS.Moment
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'moment')) }}
-      with:
-        repository: dotnet-websharper/moment
-        ref: ${{ github.event.inputs.branch }}
-        path: moment
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.Moment
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'moment')) }}
-      run: ./build CI-Release
-      working-directory: ./moment
-
-    - name: Check out WS.Plotly
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'plotly')) }}
-      with:
-        repository: dotnet-websharper/plotly
-        ref: ${{ github.event.inputs.branch }}
-        path: plotly
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.Plotly
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'plotly')) }}
-      run: ./build CI-Release
-      working-directory: ./plotly
-
-    - name: Check out WS.ChartJS
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'chartjs')) }}
-      with:
-        repository: dotnet-websharper/chartjs
-        ref: ${{ github.event.inputs.branch }}
-        path: chartjs
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.Chartjs
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'chartjs')) }}
-      run: ./build CI-Release
-      working-directory: ./chartjs
-
-    - name: Check out WS.Charting
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'charting')) }}
-      with:
-        repository: dotnet-websharper/charting
-        ref: ${{ github.event.inputs.branch }}
-        path: charting
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.Charting
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'charting')) }}
-      run: ./build CI-Release
-      working-directory: ./charting
-
-    - name: Check out WS.Highcharts
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highcharts')) }}
-      uses: actions/checkout@v3
-      with:
-        repository: dotnet-websharper/highcharts
-        ref: ${{ github.event.inputs.branch }}
-        path: highcharts
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-        
-    - name: Build WS.Highcharts
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highcharts')) }}
-      run: ./build CI-Release
-      working-directory: ./highcharts
-      
-    - name: Check out WS.HighlightJS
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highlightjs')) }}
-      uses: actions/checkout@v3
-      with:
-        repository: dotnet-websharper/highlightjs
-        ref: ${{ github.event.inputs.branch }}
-        path: highlightjs
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.HighlightJS
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highlightjs')) }}
-      run: ./build CI-Release
-      working-directory: ./highlightjs
-
-    - name: Check out WS.MathJax
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mathjax')) }}
-      uses: actions/checkout@v3
-      with:
-        repository: dotnet-websharper/mathjax
-        ref: ${{ github.event.inputs.branch }}
-        path: mathjax
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.MathJax
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mathjax')) }}
-      run: ./build CI-Release
-      working-directory: ./mathjax
-
-    - name: Check out WS.Elmish
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish')) }}
-      uses: actions/checkout@v3
-      with:
-        repository: dotnet-websharper/elmish
-        ref: ${{ github.event.inputs.branch }}
-        path: elmish
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.Elmish
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish')) }}
-      run: ./wsbuild
-      working-directory: ./elmish
-
-    - name: Check out WS.Elmish.React
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
-      with:
-        repository: dotnet-websharper/elmish.react
-        ref: ${{ github.event.inputs.branch }}
-        path: elmish.react
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.Elmish.React
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
-      run: ./build CI-Release
-      working-directory: ./elmish.react
-
-    - name: Check out WS.SweetAlert
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'sweetalert')) }}
-      with:
-        repository: dotnet-websharper/sweetalert
-        ref: ${{ github.event.inputs.branch }}
-        path: sweetalert
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.SweetAlert
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'sweetalert')) }}
-      run: ./build CI-Release
-      working-directory: ./sweetalert
-
-    - name: Check out WS.Remarkable
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'remarkable')) }}
-      with:
-        repository: dotnet-websharper/remarkable
-        ref: ${{ github.event.inputs.branch }}
-        path: remarkable
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.Remarkable
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'remarkable')) }}
-      run: ./build CI-Release
-      working-directory: ./remarkable
-
-    - name: Check out WS.JsPDF
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'jspdf')) }}
-      with:
-        repository: dotnet-websharper/jspdf
-        ref: ${{ github.event.inputs.branch }}
-        path: jspdf
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.JsPDF
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'jspdf')) }}
-      run: ./build CI-Release
-      working-directory: ./jspdf
-
-    - name: Check out WS.AnimeJS
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'animejs')) }}
-      with:
-        repository: dotnet-websharper/animejs
-        ref: ${{ github.event.inputs.branch }}
-        path: animejs
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.AnimeJS
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'animejs')) }}
-      run: ./build CI-Release
-      working-directory: ./animejs
-
-    - name: Check out WS.Popover
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'popover')) }}
-      with:
-        repository: dotnet-websharper/popover
-        ref: ${{ github.event.inputs.branch }}
-        path: popover
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.Popover
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'popover')) }}
-      run: ./build CI-Release
-      working-directory: ./popover
-
-    - name: Check out WS.PerformanceAPI
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'performanceapi')) }}
-      with:
-        repository: dotnet-websharper/performanceapi
-        ref: ${{ github.event.inputs.branch }}
-        path: performanceapi
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.PerformanceAPI
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'performanceapi')) }}
-      run: ./build CI-Release
-      working-directory: ./performanceapi
-
-    - name: Check out WS.IndexedDB
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'w3c-indexeddb')) }}
-      with:
-        repository: dotnet-websharper/w3c-indexeddb
-        ref: ${{ github.event.inputs.branch }}
-        path: w3c-indexeddb
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.IndexedDB
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'w3c-indexeddb')) }}
-      run: ./build CI-Release
-      working-directory: ./w3c-indexeddb
-
-    - name: Check out WS.WebRTC
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webrtc')) }}
-      with:
-        repository: dotnet-websharper/webrtc
-        ref: ${{ github.event.inputs.branch }}
-        path: webrtc
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.WebRTC
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webrtc')) }}
-      run: ./build CI-Release
-      working-directory: ./webrtc
-
-    - name: Check out WS.FluentUI.React.Icons
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluent')) }}
-      with:
-        repository: dotnet-websharper/fluentui-react-icons
-        ref: ${{ github.event.inputs.branch }}
-        path: fluentui-react-icons
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.FluentUI.React.Icons
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluent')) }}
-      run: ./build CI-Release
-      working-directory: ./fluentui-react-icons
-
-    - name: Check out WS.FluentUI.React.Components
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluent')) }}
-      with:
-        repository: dotnet-websharper/fluentui-react-components
-        ref: ${{ github.event.inputs.branch }}
-        path: fluentui-react-components
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.FluentUI.React.Components
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluent')) }}
-      run: ./build CI-Release
-      working-directory: ./fluentui-react-components
-
-    - name: Check out WS.Browser
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
-      with:
-        repository: dotnet-websharper/fable-browser
-        ref: ${{ github.event.inputs.branch }}
-        path: fable-browser
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WS.Browser
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
-      run: ./build CI-Release
-      working-directory: ./fable-browser
-
-
-    - name: Check out WebSharper.FsLexYacc.Runtime
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fslexyacc')) }}
-      with:
-        repository: dotnet-websharper/WebSharper.FsLexYacc.Runtime
-        ref: ${{ github.event.inputs.branch }}
-        path: fslexyacc
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WebSharper.FsLexYacc.Runtime
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fslexyacc')) }}
-      run: ./build CI-Release
-      working-directory: ./fslexyacc
-
-    - name: Check out WebSharper.Fable.Mocha
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
-      with:
-        repository: dotnet-websharper/WebSharper.Fable.Mocha
-        ref: ${{ github.event.inputs.branch }}
-        path: fable-mocha
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WebSharper.Fable.Mocha
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
-      run: ./build WS-Package
-      working-directory: ./fable-mocha
-
-    - name: Check out WebSharper.Feliz
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'feliz')) }}
-      with:
-        repository: dotnet-websharper/WebSharper.Feliz
-        ref: ${{ github.event.inputs.branch }}
-        path: feliz
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WebSharper.Feliz
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'feliz')) }}
-      run: ./build WS-Package
-      working-directory: ./feliz
-
-    - name: Check out WebSharper.Capacitor
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
-      with:
-        repository: dotnet-websharper/Capacitor
-        ref: ${{ github.event.inputs.branch }}
-        path: capacitor
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WebSharper.Capacitor
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
-      run: ./build WS-Package
-      working-directory: ./capacitor
-
-    - name: Check out WebSharper.Capacitor.Community
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
-      with:
-        repository: dotnet-websharper/capacitor.community
-        ref: ${{ github.event.inputs.branch }}
-        path: capacitor.community
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WebSharper.Capacitor.Community
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
-      run: ./build WS-Package
-      working-directory: ./capacitor.community
-
-    - name: Check out WebSharper.Capacitor.CapGo
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
-      with:
-        repository: dotnet-websharper/capacitor.CapGo
-        ref: ${{ github.event.inputs.branch }}
-        path: capacitor.capgo
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WebSharper.Capacitor.CapGo
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
-      run: ./build WS-Package
-      working-directory: ./capacitor.capgo
-
-    - name: Check out WebSharper.WebGPU
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webgpu')) }}
-      with:
-        repository: dotnet-websharper/webgpu
-        ref: ${{ github.event.inputs.branch }}
-        path: webgpu
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WebSharper.WebGPU
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webgpu')) }}
-      run: ./build WS-Package
-      working-directory: ./webgpu
-
-    - name: Check out WebSharper.TouchEvents
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'touchevents')) }}
-      with:
-        repository: dotnet-websharper/TouchEvents
-        ref: ${{ github.event.inputs.branch }}
-        path: touchevents
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-
-    - name: Build WebSharper.TouchEvents
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'touchevents')) }}
-      run: ./build WS-Package
-      working-directory: ./touchevents
-
-    - name: Check out WebSharper.WebSerial
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webserial')) }}
-      with:
-        repository: dotnet-websharper/WebSerial
-        ref: ${{ github.event.inputs.branch }}
-        path: webserial
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-    
-    - name: Build WebSharper.WebSerial
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webserial')) }}
-      run: ./build WS-Package
-      working-directory: ./webserial
-    
-    - name: Check out WebSharper.WebUSB
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webusb')) }}
-      with:
-        repository: dotnet-websharper/WebUSB
-        ref: ${{ github.event.inputs.branch }}
-        path: webusb
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-    
-    - name: Build WebSharper.WebUSB
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webusb')) }}
-      run: ./build WS-Package
-      working-directory: ./webusb
-    
-    - name: Check out WebSharper.WebMIDI
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webmidi')) }}
-      with:
-        repository: dotnet-websharper/WebMIDI
-        ref: ${{ github.event.inputs.branch }}
-        path: webmidi
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-    
-    - name: Build WebSharper.WebMIDI
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webmidi')) }}
-      run: ./build WS-Package
-      working-directory: ./webmidi
-    
-    - name: Check out WebSharper.WebLocks
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'weblocks')) }}
-      with:
-        repository: dotnet-websharper/WebLocks
-        ref: ${{ github.event.inputs.branch }}
-        path: weblocks
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-    
-    - name: Build WebSharper.WebLocks
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'weblocks')) }}
-      run: ./build WS-Package
-      working-directory: ./weblocks
-
-    - name: Check out WebSharper.CodeMirror
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'codemirror')) }}
-      with:
-        repository: dotnet-websharper/CodeMirror
-        ref: ${{ github.event.inputs.branch }}
-        path: codemirror
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-    
-    - name: Build WebSharper.CodeMirror
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'codemirror')) }}
-      run: ./build WS-Package
-      working-directory: ./codemirror
-
-    - name: Check out WebSharper.WebSpeech
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webspeech')) }}
-      with:
-        repository: dotnet-websharper/WebSpeech
-        ref: ${{ github.event.inputs.branch }}
-        path: webspeech
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-    
-    - name: Build WebSharper.WebSpeech
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webspeech')) }}
-      run: ./build WS-Package
-      working-directory: ./webspeech
-
-    - name: Check out WebSharper.SlickGrid
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'slickgrid')) }}
-      with:
-        repository: dotnet-websharper/slickgrid
-        ref: ${{ github.event.inputs.branch }}
-        path: slickgrid
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-    
-    - name: Build WebSharper.Slickgrid
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'slickgrid')) }}
-      run: ./build WS-Package
-      working-directory: ./slickgrid
-
-    
-    - name: Check out WebSharper.TopoJSON
-      uses: actions/checkout@v3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'topojson')) }}
-      with:
-        repository: dotnet-websharper/topojson
-        ref: ${{ github.event.inputs.branch }}
-        path: topojson
-        token: ${{ secrets.PAT_PACKAGE }}
-        fetch-depth: 0
-    
-    - name: Build WebSharper.TopoJSON
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'topojson')) }}
-      run: ./build WS-Package
-      working-directory: ./topojson
-      
-    - name: List packages within ./localnuget
-      run: ls ./localnuget
+    - name: Resolve targets
+      id: resolve
+      shell: pwsh
+      run: |
+        Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -ErrorAction SilentlyContinue
+        Install-Module powershell-yaml -RequiredVersion 0.4.12 -Force -Scope CurrentUser
+
+        $cfg        = (Get-Content ./repos.yml -Raw) | ConvertFrom-Yaml
+        $sel        = ('${{ inputs.stackKind }}').Trim(); if (-not $sel) { $sel = 'all' }
+        $coreOnly   = '${{ inputs.coreOnly }}'   -eq 'true'
+        $coreBranch = '${{ inputs.coreBranch }}'
+        $branch     = '${{ inputs.branch }}'
+
+        function Norm($e) {
+          if ($e -is [string]) { @{ name = $e; over = @{} } }
+          else { $kv = $e.GetEnumerator() | Select-Object -First 1; @{ name = $kv.Key; over = $kv.Value } }
+        }
+        $all = @($cfg.all | ForEach-Object { Norm $_ })
+        $order = @(); $overBy = @{}; $pos = @{}
+        foreach ($a in $all) { $pos[$a.name] = $order.Count; $order += $a.name; $overBy[$a.name] = $a.over }
+
+        function Resolve([string]$name) {
+          $over = if ($overBy.ContainsKey($name)) { $overBy[$name] } else { @{} }
+          $bkey = if ($over.Contains('build')) { $over['build'] } else { $cfg.defaults.build }
+          [pscustomobject]@{
+            name             = $name
+            ref              = if ($name -eq 'core' -and $coreBranch) { $coreBranch } else { $branch }
+            build            = $cfg.builds[$bkey]
+            commit           = if ($over.Contains('commit')) { [bool]$over['commit'] } else { [bool]$cfg.defaults.commit }
+            tag              = if ($over.Contains('tag'))    { [bool]$over['tag'] }    else { [bool]$cfg.defaults.tag }
+            skipWhenCoreOnly = [bool]($over.Contains('skipWhenCoreOnly') -and $over['skipWhenCoreOnly'])
+          }
+        }
+
+        $names = @()
+        foreach ($p in ($sel -split '[,;]' | Where-Object { $_ })) {
+          $p = $p.Trim()
+          if ($p -eq 'all') {
+            $names += $order
+          } elseif ($cfg.groups.Contains($p)) {
+            $unknown = @($cfg.groups[$p] | Where-Object { -not $pos.ContainsKey($_) })
+            if ($unknown.Count -gt 0) { throw "Group '$p' references unknown repo(s): $($unknown -join ', ')" }
+            $names += $cfg.groups[$p]
+          } elseif ($pos.ContainsKey($p)) {
+            $names += $p
+          } else {
+            throw "Unknown group or repo: '$p'. Use 'all', a group name, or a repo name from repos.yml."
+          }
+        }
+        # Always build in dependency order, even for comma-separated selections.
+        $names = @($names | Select-Object -Unique | Sort-Object { $pos[$_] })
+
+        $targets = @($names | ForEach-Object { Resolve $_ })
+        if ($coreOnly) { $targets = @($targets | Where-Object { -not $_.skipWhenCoreOnly }) }
+
+        $targets | ConvertTo-Json -Depth 5 -AsArray | Set-Content ./targets.json
+        "count=$($targets.Count)" | Out-File $env:GITHUB_OUTPUT -Append
+        Write-Host "Targets: $($targets.name -join ', ')"
+
+    - name: Check out targets
+      if: steps.resolve.outputs.count != '0'
+      shell: pwsh
+      env:
+        PAT: ${{ secrets.PAT_PACKAGE }}
+      run: |
+        $PSNativeCommandUseErrorActionPreference = $true
+        foreach ($t in @(Get-Content ./targets.json -Raw | ConvertFrom-Json)) {
+          # The token stays in the clone URL so CI-Commit/CI-Tag can push; the runner is throwaway.
+          $ref = if ($t.ref) { @('--branch', $t.ref) } else { @() }
+          git clone @ref "https://x-access-token:$env:PAT@github.com/dotnet-websharper/$($t.name).git" $t.name
+        }
+
+    - name: Build
+      if: steps.resolve.outputs.count != '0'
+      shell: pwsh
+      run: |
+        $PSNativeCommandUseErrorActionPreference = $true
+        foreach ($t in @(Get-Content ./targets.json -Raw | ConvertFrom-Json)) {
+          Write-Host "::group::Build $($t.name)"
+          Push-Location $t.name
+          Invoke-Expression $t.build
+          Pop-Location
+          Write-Host "::endgroup::"
+        }
 
     - name: Packages
-      run: |
-        echo "# Packages :package:" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "| Package | Version |" >> $GITHUB_STEP_SUMMARY
-        echo "|:---|:---|" >> $GITHUB_STEP_SUMMARY
-        dotnet fsi ./package-helper.fsx >> $GITHUB_STEP_SUMMARY
       shell: bash
+      run: |
+        {
+          echo "# Packages :package:"
+          echo ""
+          echo "| Package | Version |"
+          echo "|:---|:---|"
+          dotnet fsi ./package-helper.fsx
+        } >> $GITHUB_STEP_SUMMARY
 
     - name: Notification
-      run: dotnet fsi ./notification-helper.fsx
+      shell: bash
       env:
         DISCORD_PACKAGE_FEED: ${{ secrets.DISCORD_PACKAGE_FEED }}
-      shell: bash
+      run: dotnet fsi ./notification-helper.fsx
 
     - name: Publish NuGet packages to GitHub registry
-      run:
-        dotnet nuget push *.nupkg
-          --api-key ${{ secrets.PAT_PACKAGE }}
-          --source github
-          --skip-duplicate
+      shell: pwsh
       working-directory: ./localnuget
-      
+      run: |
+        $PSNativeCommandUseErrorActionPreference = $true
+        dotnet nuget push *.nupkg `
+          --api-key ${{ secrets.PAT_PACKAGE }} `
+          --source github `
+          --skip-duplicate
+
     - name: Push packages as artifact
       if: always()
       uses: actions/upload-artifact@v4
@@ -932,477 +234,28 @@ jobs:
         path: ./localnuget
 
     - name: Clean ./localnuget
-      uses: JesseTG/rm@v1.0.0
-      with:
-        path: ./localnuget
+      if: always()
+      shell: pwsh
+      run: Remove-Item -Recurse -Force ./localnuget -ErrorAction SilentlyContinue
 
-    - name: Commit version on WS Core
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
-      run: ./build CI-Commit
-      working-directory: ./core
-
-    - name: Tag version on WS Core
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
-      run: ./build CI-Tag
-      working-directory: ./core
-
-    - name: Commit version on WS.MathJS
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mathjs')) }}
-      run: ./build CI-Commit
-      working-directory: ./mathjs
-
-    - name: Tag version on WS.MathJS
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'mathjs')) }}
-      run: ./build CI-Tag
-      working-directory: ./mathjs
-
-    - name: Commit version on WS.UI
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
-      run: ./build CI-Commit
-      working-directory: ./ui
-
-    - name: Tag version on WS.UI
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui')) }}
-      run: ./build CI-Tag
-      working-directory: ./ui
-      
-    - name: Commit version on WS.AspNetCore.WebSocket
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'websocket')) }}
-      run: ./build CI-Commit
-      working-directory: ./aspnetcore
-
-    - name: Tag version on WS.AspNetCore.WebSocket
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'websocket')) }}
-      run: ./build CI-Tag
-      working-directory: ./aspnetcore
-      
-    - name: Commit version on WS.Templates
-      if: ${{ success() && github.event.inputs.coreOnly == 'false' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
-      run: ./build CI-Commit
-      working-directory: ./templates
-
-    - name: Tag version on WS.Templates
-      if: ${{ success() && github.event.inputs.coreOnly == 'false' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core') || contains(github.event.inputs.stackKind, 'ui') || contains(github.event.inputs.stackKind, 'templates')) }}
-      run: ./build CI-Tag
-      working-directory: ./templates
-    
-    - name: Commit version on WS.JQuery
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'jquery')) }}
-      run: ./build CI-Commit
-      working-directory: ./jquery
-
-    - name: Tag version on WS.JQuery
-      if: ${{ success() && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'jquery')) }}
-      run: ./build CI-Tag
-      working-directory: ./jquery
-
-    - name: Commit version on WS.Forms
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'forms')) }}
-      run: ./build CI-Commit
-      working-directory: ./forms
-
-    - name: Tag version on WS.Forms
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'forms')) }}
-      run: ./build CI-Tag
-      working-directory: ./forms
-
-    - name: Commit version on WS.MVU
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mvu')) }}
-      run: ./build CI-Commit
-      working-directory: ./mvu
-
-    - name: Tag version on WS.MVU
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mvu')) }}
-      run: ./build CI-Tag
-      working-directory: ./mvu
-
-    - name: Commit version on WS.Leaflet
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'leaflet')) }}
-      run: ./build CI-Commit
-      working-directory: ./leaflet
-
-    - name: Tag version on WS.Leaflet
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'leaflet')) }}
-      run: ./build CI-Tag
-      working-directory: ./leaflet
-
-    - name: Commit version on WS.D3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'd3')) }}
-      run: ./build CI-Commit
-      working-directory: ./d3
-
-    - name: Tag version on WS.D3
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'd3')) }}
-      run: ./build CI-Tag
-      working-directory: ./d3
-
-    - name: Commit version on WS.React
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
-      run: ./build CI-Commit
-      working-directory: ./react
- 
-    - name: Tag version on WS.React
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'react') || contains(github.event.inputs.stackKind, 'elmish')) }}
-      run: ./build CI-Tag
-      working-directory: ./react
-
-    - name: Commit version on WS.SignalR
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'signalr')) }}
-      run: ./build CI-Commit
-      working-directory: ./signalr
-
-    - name: Tag version on WS.SignalR
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'signalr')) }}
-      run: ./build CI-Tag
-      working-directory: ./signalr
-
-    - name: Commit version on WS.DateFNS
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'datefns')) }}
-      run: ./build CI-Commit
-      working-directory: ./datefns
-
-    - name: Tag version on WS.DateFNS
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'datefns')) }}
-      run: ./build CI-Tag
-      working-directory: ./datefns
-
-    - name: Commit version on WS.Moment
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'moment')) }}
-      run: ./build CI-Commit
-      working-directory: ./moment
-
-    - name: Tag version on WS.Moment
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'moment')) }}
-      run: ./build CI-Tag
-      working-directory: ./moment
-
-    - name: Commit version on WS.Plotly
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'plotly')) }}
-      run: ./build CI-Commit
-      working-directory: ./plotly
-
-    - name: Tag version on WS.Plotly
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'plotly')) }}
-      run: ./build CI-Tag
-      working-directory: ./plotly
-
-    - name: Commit version on WS.ChartJS
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'chartjs')) }}
-      run: ./build CI-Commit
-      working-directory: ./chartjs
-
-    - name: Tag version on WS.ChartJS
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'chartjs')) }}
-      run: ./build CI-Tag
-      working-directory: ./chartjs
-
-    - name: Commit version on WS.Charting
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'charting')) }}
-      run: ./build CI-Commit
-      working-directory: ./charting
-
-    - name: Tag version on WS.Charting
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'charting')) }}
-      run: ./build CI-Tag
-      working-directory: ./charting
-
-    - name: Commit version on WS.Highcharts
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highcharts')) }}
-      run: ./build CI-Commit
-      working-directory: ./highcharts
-
-    - name: Tag version on WS.Highcharts
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highcharts')) }}
-      run: ./build CI-Tag
-      working-directory: ./highcharts
-
-    - name: Commit version on WS.HighlightJS
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highlightjs')) }}
-      run: ./build CI-Commit
-      working-directory: ./highlightjs
-
-    - name: Tag version on WS.HighlightJS
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'highlightjs')) }}
-      run: ./build CI-TAG
-      working-directory: ./highlightjs
-
-    - name: Commit version on WS.MathJax
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mathjax')) }}
-      run: ./build CI-Commit
-      working-directory: ./mathjax
-
-    - name: Tag version on WS.MathJax
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'mathjax')) }}
-      run: ./build CI-Tag
-      working-directory: ./mathjax
-
-    - name: Commit version on WS.Elmish.React
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
-      run: ./build CI-Commit
-      working-directory: ./elmish.react
-    
-    - name: Tag version on WS.Elmish.React
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'elmish.react') || contains(github.event.inputs.stackKind, 'elmish')) }}
-      run: ./build CI-Tag
-      working-directory: ./elmish.react
-
-    - name: Commit version on WS.SweetAlert
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'sweetalert')) }}
-      run: ./build CI-Commit
-      working-directory: ./sweetalert
-    
-    - name: Tag version on WS.SweetAlert
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'sweetalert')) }}
-      run: ./build CI-Tag
-      working-directory: ./sweetalert
-
-    - name: Commit version on WS.Remarkable
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'remarkable')) }}
-      run: ./build CI-Commit
-      working-directory: ./remarkable
-    
-    - name: Tag version on WS.Remarkable
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'remarkable')) }}
-      run: ./build CI-Tag
-      working-directory: ./remarkable
-
-    - name: Commit version on WS.JsPDF
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'jspdf')) }}
-      run: ./build CI-Commit
-      working-directory: ./jspdf
-    
-    - name: Tag version on WS.JsPDF
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'jspdf')) }}
-      run: ./build CI-Tag
-      working-directory: ./jspdf
-
-    - name: Commit version on WS.AnimeJS
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'animejs')) }}
-      run: ./build CI-Commit
-      working-directory: ./animejs
-    
-    - name: Tag version on WS.AnimeJS
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'animejs')) }}
-      run: ./build CI-Tag
-      working-directory: ./animejs
-
-    - name: Commit version on WS.IndexedDB
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'w3c-indexeddb')) }}
-      run: ./build CI-Commit
-      working-directory: ./w3c-indexeddb
-    
-    - name: Tag version on WS.IndexedDB
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'w3c-indexeddb')) }}
-      run: ./build CI-Tag
-      working-directory: ./w3c-indexeddb
-
-    - name: Commit version on WS.PerformanceAPI
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'performanceapi')) }}
-      run: ./build CI-Commit
-      working-directory: ./performanceapi
-    
-    - name: Tag version on WS.PerformanceAPI
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'performanceapi')) }}
-      run: ./build CI-Tag
-      working-directory: ./performanceapi
-
-    - name: Commit version on WS.Popover
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'popover')) }}
-      run: ./build CI-Commit
-      working-directory: ./popover
-    
-    - name: Tag version on WS.Popover
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'popover')) }}
-      run: ./build CI-Tag
-      working-directory: ./popover
-
-    - name: Commit version on WS.WebRTC
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webrtc')) }}
-      run: ./build CI-Commit
-      working-directory: ./webrtc
-    
-    - name: Tag version on WS.WebRTC
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webrtc')) }}
-      run: ./build CI-Tag
-      working-directory: ./webrtc
-
-    - name: Commit version on WS.FluentUI.React.Icons
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluent')) }}
-      run: ./build CI-Commit
-      working-directory: ./fluentui-react-icons
-    
-    - name: Tag version on WS.FluentUI.React.Icons
-      if: ${{  success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluent')) }}
-      run: ./build CI-Tag
-      working-directory: ./fluentui-react-icons
-    
-    - name: Commit version on WS.FluentUI.React.Components
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluent')) }}
-      run: ./build CI-Commit
-      working-directory: ./fluentui-react-components
-    
-    - name: Tag version on WS.FluentUI.React.Components
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fluent')) }}
-      run: ./build CI-Tag
-      working-directory: ./fluentui-react-components
-
-    - name: Commit version on WS.Browser
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
-      run: ./build CI-Commit
-      working-directory: ./fable-browser
-    
-    - name: Tag version on WS.Browser
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'browser')) }}
-      run: ./build CI-Tag
-      working-directory: ./fable-browser
-
-    - name: Commit version on WebSharper.FsLexYacc.Runtime
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fslexyacc')) }}
-      run: ./build CI-Commit
-      working-directory: ./fslexyacc
-    
-    - name: Tag version on WebSharper.FsLexYacc.Runtime
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fslexyacc')) }}
-      run: ./build CI-Tag
-      working-directory: ./fslexyacc
-
-    - name: Commit version on WebSharper.Fable.Mocha
-      if: ${{ success() && (github.event.inputs.stackKind =='all.' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
-      run: ./build CI-Commit
-      working-directory: ./fable-mocha
-    
-    - name: Tag version on WebSharper.Fable.Mocha
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'fablemocha')) }}
-      run: ./build CI-Tag
-      working-directory: ./fable-mocha
-
-    - name: Commit version on WebSharper.Capacitor
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
-      run: ./build CI-Commit
-      working-directory: ./capacitor
-    
-    - name: Tag version on WebSharper.Capacitor
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
-      run: ./build CI-Tag
-      working-directory: ./capacitor
-
-    - name: Commit version on WebSharper.Capacitor.Community
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
-      run: ./build CI-Commit
-      working-directory: ./capacitor.community
-    
-    - name: Tag version on WebSharper.Capacitor.Community
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
-      run: ./build CI-Tag
-      working-directory: ./capacitor.community
-
-    - name: Commit version on WebSharper.Capacitor.CapGo
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
-      run: ./build CI-Commit
-      working-directory: ./capacitor.capgo
-    
-    - name: Tag version on WebSharper.Capacitor.CapGo
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'capacitor')) }}
-      run: ./build CI-Tag
-      working-directory: ./capacitor.capgo
-
-    - name: Commit version on WebSharper.WebGPU
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webgpu')) }}
-      run: ./build CI-Commit
-      working-directory: ./webgpu
-    
-    - name: Tag version on WebSharper.WebGPU
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webgpu')) }}
-      run: ./build CI-Tag
-      working-directory: ./webgpu
-
-    - name: Commit version on WebSharper.TouchEvents
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'touchevents')) }}
-      run: ./build CI-Commit
-      working-directory: ./touchevents
-    
-    - name: Tag version on WebSharper.TouchEvents
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'touchevents')) }}
-      run: ./build CI-Tag
-      working-directory: ./touchevents
-
-    
-    - name: Commit version on WebSharper.WebSerial
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webserial')) }}
-      run: ./build CI-Commit
-      working-directory: ./webserial
-    
-    - name: Tag version on WebSharper.WebSerial
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webserial')) }}
-      run: ./build CI-Tag
-      working-directory: ./webserial
-
-    - name: Commit version on WebSharper.WebUSB
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webusb')) }}
-      run: ./build CI-Commit
-      working-directory: ./webusb
-    
-    - name: Tag version on WebSharper.WebUSB
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webusb')) }}
-      run: ./build CI-Tag
-      working-directory: ./webusb
-
-    - name: Commit version on WebSharper.WebLocks
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'weblocks')) }}
-      run: ./build CI-Commit
-      working-directory: ./weblocks
-    
-    - name: Tag version on WebSharper.WebLocks
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'weblocks')) }}
-      run: ./build CI-Tag
-      working-directory: ./weblocks
-
-    - name: Commit version on WebSharper.WebMIDI
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webmidi')) }}
-      run: ./build CI-Commit
-      working-directory: ./webmidi
-    
-    - name: Tag version on WebSharper.WebMIDI
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webmidi')) }}
-      run: ./build CI-Tag
-      working-directory: ./webmidi
-
-    - name: Commit version on WebSharper.CodeMirror
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'codemirror')) }}
-      run: ./build CI-Commit
-      working-directory: ./codemirror
-    
-    - name: Tag version on WebSharper.CodeMirror
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'codemirror')) }}
-      run: ./build CI-Tag
-      working-directory: ./codemirror
-
-    - name: Commit version on WebSharper.WebSpeech
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webspeech')) }}
-      run: ./build CI-Commit
-      working-directory: ./webspeech
-    
-    - name: Tag version on WebSharper.WebSpeech
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'webspeech')) }}
-      run: ./build CI-Tag
-      working-directory: ./webspeech
-
-    - name: Commit version on WebSharper.SlickGrid
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'slickgrid')) }}
-      run: ./build CI-Commit
-      working-directory: ./slickgrid
-    
-    - name: Tag version on WebSharper.SlickGrid
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'slickgrid')) }}
-      run: ./build CI-Tag
-      working-directory: ./slickgrid
-
-    - name: Commit version on WebSharper.TopoJSON
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'topojson')) }}
-      run: ./build CI-Commit
-      working-directory: ./topojson
-    
-    - name: Tag version on WebSharper.TopoJSON
-      if: ${{ success() && (github.event.inputs.stackKind =='all' || contains(github.event.inputs.stackKind, 'topojson')) }}
-      run: ./build CI-Tag
-      working-directory: ./topojson
+    - name: Commit + tag versions
+      if: steps.resolve.outputs.count != '0'
+      shell: pwsh
+      run: |
+        $PSNativeCommandUseErrorActionPreference = $true
+        foreach ($t in @(Get-Content ./targets.json -Raw | ConvertFrom-Json)) {
+          if ($t.commit) {
+            Write-Host "::group::Commit $($t.name)"
+            Push-Location $t.name
+            ./build CI-Commit
+            Pop-Location
+            Write-Host "::endgroup::"
+          }
+          if ($t.tag) {
+            Write-Host "::group::Tag $($t.name)"
+            Push-Location $t.name
+            ./build CI-Tag
+            Pop-Location
+            Write-Host "::endgroup::"
+          }
+        }
