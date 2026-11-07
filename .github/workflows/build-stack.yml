@@ -78,14 +78,17 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-quality: preview
-        dotnet-version: |
-          ${{ github.event.inputs.dotnetVersion }}
-          8.0.x
+        dotnet-version: ${{ github.event.inputs.dotnetVersion }}
 
+    # separate step: dotnet-quality applies to every version of a step
     - name: Setup .NET 8
-      uses: actions/setup-dotnet@v2.1.1
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
+
+    # before adding the GitHub registry, so the tool is only looked up on nuget.org
+    - name: Install Paket as global tool
+      run: dotnet tool install paket --global --version 12.0.0-alpha001
 
     - name: Add GitHub registry NuGet source
       run: 
@@ -102,9 +105,6 @@ jobs:
     - name: Install esbuild
       run: npm i -g esbuild
         
-    - name: Install Paket as global tool
-      run: dotnet tool install paket --global --version 12.0.0-alpha001 --source https://api.nuget.org/v3/index.json
-
     - name: Add credentials for Paket
       run:
         paket config
