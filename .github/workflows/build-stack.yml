@@ -140,6 +140,16 @@ jobs:
         Write-Host "SNK file written to: $snkPath"
         Write-Host "INTELLIFACTORY set to: $PWD"
 
+    - name: Prime Paket Git cache for build-script # workaround for https://github.com/fsprojects/Paket/issues/4461
+      shell: pwsh
+      run: |
+        $cache = Join-Path $env:USERPROFILE '.paket\git\db\build-script'
+        if (Test-Path -LiteralPath $cache) {
+          Remove-Item -LiteralPath $cache -Recurse -Force
+        }
+        New-Item -ItemType Directory -Force -Path (Split-Path $cache) | Out-Null
+        git clone --mirror https://github.com/dotnet-websharper/build-script $cache
+
     - name: Check out WS Core
       uses: actions/checkout@v3
       if: ${{ success() && github.event.inputs.coreBranch == '' && (github.event.inputs.stackKind == 'all' || contains(github.event.inputs.stackKind, 'core')) }}
