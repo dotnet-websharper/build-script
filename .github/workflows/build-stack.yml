@@ -73,12 +73,12 @@ jobs:
           package-helper.fsx
           notification-helper.fsx
         sparse-checkout-cone-mode: false
-
     
     - name: Setup .NET
-      uses: actions/setup-dotnet@v2.1.1
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ github.event.inputs.dotnetVersion }}
+        dotnet-quality: preview
 
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v2.1.1
