@@ -85,7 +85,7 @@ jobs:
       - name: Install build tools
         shell: bash
         run: |
-          dotnet tool install paket --global --version 12.0.0-alpha001
+          dotnet tool install paket --global --version 12.0.0-alpha001 --source https://api.nuget.org/v3/index.json
           npm i -g esbuild
 
       - name: Add credentials for Paket
