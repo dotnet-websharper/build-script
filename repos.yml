@@ -40,8 +40,35 @@ all:
   - remarkable
   - jspdf
   - animejs
-  - popover
+  # W3C browser-API bindings (select with the `w3c` group).
+  - BackgroundFetch:             { build: package }
+  - BatteryStatusAPI:            { build: package }
+  - ClipboardAPI:                { build: package }
+  - CompressionStreamsAPI:       { build: package }
+  - CookieStore:                 { build: package }
+  - CredentialManagement:        { build: package }
+  - DragDropAPI:                 { build: package }
+  - EncodingAPI:                 { build: package }
+  - EncryptedMediaExtensionsAPI: { build: package }
+  - FileSystemAPI:               { build: package }
+  - GamepadAPI:                  { build: package }
+  - Geolocation:                 { build: package }
+  - HoudiniAPI:                  { build: package }
+  - IntersectionObserverAPI:     { build: package }
+  - MediaCapabilities:           { build: package }
+  - MediaSession:                { build: package }
+  - NetworkInformationAPI:       { build: package }
+  - NotificationsAPI:            { build: package }
+  - PaymentRequest:              { build: package }
   - performanceapi
+  - Permissions:                 { build: package }
+  - PictureInPictureAPI:         { build: package }
+  - PopoverAPI:                  { build: package }
+  - PushAPI:                     { build: package }
+  - ScreenWakeLockAPI:           { build: package }
+  - ServiceWorker:               { build: package }
+  - TaskSchedulingAPI:           { build: package }
+  - TouchEvents:                 { build: package }
   - w3c-indexeddb
   - webrtc
   - fluentui-react-icons
@@ -54,9 +81,6 @@ all:
   - capacitor.community:         { build: package }
   - Capacitor.CapGo:             { build: package }
   - webgpu:                      { build: package }
-  - TouchEvents:                 { build: package }
-  - ServiceWorker:               { build: package }
-  - BackgroundFetch:             { build: package }
   - WebSerial:                   { build: package }
   - WebUSB:                      { build: package }
   - WebMIDI:                     { build: package }
@@ -74,3 +98,4 @@ groups:
   elmish:    [react, elmish, elmish.react]
   fluent:    [fluentui-react-icons, fluentui-react-components]
   capacitor: [Capacitor, capacitor.community, Capacitor.CapGo]
+  w3c:       [BackgroundFetch, BatteryStatusAPI, ClipboardAPI, CompressionStreamsAPI, CookieStore, CredentialManagement, DragDropAPI, EncodingAPI, EncryptedMediaExtensionsAPI, FileSystemAPI, GamepadAPI, Geolocation, HoudiniAPI, IntersectionObserverAPI, MediaCapabilities, MediaSession, NetworkInformationAPI, NotificationsAPI, PaymentRequest, performanceapi, Permissions, PictureInPictureAPI, PopoverAPI, PushAPI, ScreenWakeLockAPI, ServiceWorker, TaskSchedulingAPI, TouchEvents, w3c-indexeddb, webrtc]
