@@ -60,7 +60,7 @@ all:
   - NetworkInformationAPI:       { build: package }
   - NotificationsAPI:            { build: package }
   - PaymentRequest:              { build: package }
-  - performanceapi
+  - PerformanceAPI
   - Permissions:                 { build: package }
   - PictureInPictureAPI:         { build: package }
   - PopoverAPI:                  { build: package }
@@ -98,4 +98,4 @@ groups:
   elmish:    [react, elmish, elmish.react]
   fluent:    [fluentui-react-icons, fluentui-react-components]
   capacitor: [Capacitor, capacitor.community, Capacitor.CapGo]
-  w3c:       [BackgroundFetch, BatteryStatusAPI, ClipboardAPI, CompressionStreamsAPI, CookieStore, CredentialManagement, DragDropAPI, EncodingAPI, EncryptedMediaExtensionsAPI, FileSystemAPI, GamepadAPI, Geolocation, HoudiniAPI, IntersectionObserverAPI, MediaCapabilities, MediaSession, NetworkInformationAPI, NotificationsAPI, PaymentRequest, performanceapi, Permissions, PictureInPictureAPI, PopoverAPI, PushAPI, ScreenWakeLockAPI, ServiceWorker, TaskSchedulingAPI, TouchEvents, w3c-indexeddb, webrtc]
+  w3c:       [BackgroundFetch, BatteryStatusAPI, ClipboardAPI, CompressionStreamsAPI, CookieStore, CredentialManagement, DragDropAPI, EncodingAPI, EncryptedMediaExtensionsAPI, FileSystemAPI, GamepadAPI, Geolocation, HoudiniAPI, IntersectionObserverAPI, MediaCapabilities, MediaSession, NetworkInformationAPI, NotificationsAPI, PaymentRequest, PerformanceAPI, Permissions, PictureInPictureAPI, PopoverAPI, PushAPI, ScreenWakeLockAPI, ServiceWorker, TaskSchedulingAPI, TouchEvents, w3c-indexeddb, webrtc]
