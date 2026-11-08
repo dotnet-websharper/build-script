@@ -10,7 +10,7 @@ on:
       dotnetVersion:
         description: 'Select .NET SDK version'
         required: false
-        default: '10.0.x'
+        default: '11.0.x'
 
 jobs:
   test:
@@ -25,8 +25,9 @@ jobs:
     steps:
     
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
+        dotnet-quality: preview
         dotnet-version: ${{ github.event.inputs.dotnetVersion }}
         
     - name: Add GitHub registry NuGet source
