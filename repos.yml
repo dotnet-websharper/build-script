@@ -1,0 +1,74 @@
+# Named build commands, referenced by `build:`.
+builds:
+  release: ./build CI-Release
+  package: ./build WS-Package
+  wsbuild: ./wsbuild
+
+# Applied to every repo unless overridden below.
+defaults:
+  build: release
+  commit: true
+  tag: true
+
+# The full ordered build list. `all` selects this, in this order.
+# A plain name uses `defaults`; a nested block overrides them. The repo is
+# dotnet-websharper/<name> and it is checked out into a folder named <name>.
+all:
+  - core
+  - ui
+  - mathjs
+  - aspnetcore
+  - templates:      { skipWhenCoreOnly: true }
+  - jquery
+  - forms
+  - mvu
+  - leaflet
+  - d3
+  - react
+  - signalr
+  - datefns
+  - moment
+  - plotly
+  - chartjs
+  - charting
+  - highcharts
+  - highlightjs
+  - mathjax
+  - elmish:          { build: wsbuild, commit: false, tag: false }
+  - elmish.react
+  - sweetalert
+  - remarkable
+  - jspdf
+  - animejs
+  - popover
+  - performanceapi
+  - w3c-indexeddb
+  - webrtc
+  - fluentui-react-icons
+  - fluentui-react-components
+  - fable-browser
+  - WebSharper.FsLexYacc.Runtime
+  - WebSharper.Fable.Mocha:      { build: package }
+  - WebSharper.Feliz:            { build: package, commit: false, tag: false }
+  - Capacitor:                   { build: package }
+  - capacitor.community:         { build: package }
+  - Capacitor.CapGo:             { build: package }
+  - webgpu:                      { build: package }
+  - TouchEvents:                 { build: package }
+  - WebSerial:                   { build: package }
+  - WebUSB:                      { build: package }
+  - WebMIDI:                     { build: package }
+  - WebLocks:                    { build: package }
+  - CodeMirror:                  { build: package }
+  - WebSpeech:                   { build: package }
+  - slickgrid:                   { build: package }
+  - topojson:                    { build: package }
+
+# Named collections. Selecting a group builds its members in `all` order.
+# Any name that isn't here is treated as a repo and built with the defaults.
+groups:
+  core:      [core, ui, templates]
+  ui:        [ui, templates]
+  elmish:    [react, elmish, elmish.react]
+  fluent:    [fluentui-react-icons, fluentui-react-components]
+  capacitor: [Capacitor, capacitor.community, Capacitor.CapGo]
