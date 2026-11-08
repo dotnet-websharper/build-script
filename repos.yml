@@ -55,6 +55,7 @@ all:
   - Capacitor.CapGo:             { build: package }
   - webgpu:                      { build: package }
   - TouchEvents:                 { build: package }
+  - ServiceWorker:               { build: package }
   - WebSerial:                   { build: package }
   - WebUSB:                      { build: package }
   - WebMIDI:                     { build: package }
