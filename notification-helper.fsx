@@ -20,7 +20,7 @@ and MessageEmbed =
     }
 
 let hookurl = System.Environment.GetEnvironmentVariable "DISCORD_PACKAGE_FEED"
-
+let contentHeader = "## Released to GitHub:\n"
 let packages =
     System.IO.Directory.EnumerateFiles("./localnuget")
     |> Seq.map (fun f ->
@@ -37,7 +37,7 @@ let packages =
         match packageChunk with
         | [] -> [packageString + "\n"]
         | x::xs ->
-            if (x + packageString + "\n").Length < 2000 then
+            if (x + packageString + "\n").Length < 2000 - contentHeader.Length then
                 [x + packageString + "\n"] @ xs
             else
                 [
@@ -51,7 +51,7 @@ let client = new HttpClient()
 
 let message (packages: string): Message =
     {
-        content = sprintf "## Released to GitHub:\n%s" packages
+        content = sprintf "%s%s" contentHeader packages
         username = "IntelliFactory CI"
         avatar_url = "https://raw.githubusercontent.com/dotnet-websharper/core/refs/heads/master/tools/WebSharper.png"
         tts = false
