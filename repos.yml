@@ -71,6 +71,18 @@ all:
   - TouchEvents:                 { build: package }
   - w3c-indexeddb
   - webrtc
+  - webgpu:                      { build: package }
+  - WebSerial:                   { build: package }
+  - WebUSB:                      { build: package }
+  - WebMIDI:                     { build: package }
+  - WebLocks:                    { build: package }
+  - WebAuthentication:           { build: package }
+  - WebBluetooth:                { build: package }
+  - WebCodecs:                   { build: package }
+  - WebCrypto:                   { build: package }
+  - WebSpeech:                   { build: package }
+  - WebVTT:                      { build: package }
+  #
   - fluentui-react-icons
   - fluentui-react-components
   - fable-browser
@@ -80,20 +92,9 @@ all:
   - Capacitor:                   { build: package }
   - capacitor.community:         { build: package }
   - Capacitor.CapGo:             { build: package }
-  - webgpu:                      { build: package }
-  - WebSerial:                   { build: package }
-  - WebUSB:                      { build: package }
-  - WebMIDI:                     { build: package }
-  - WebLocks:                    { build: package }
   - CodeMirror:                  { build: package }
-  - WebSpeech:                   { build: package }
   - slickgrid:                   { build: package }
   - topojson:                    { build: package }
-  - WebAuthentication:           { build: package }
-  - WebBluetooth:                { build: package }
-  - WebCodecs:                   { build: package }
-  - WebCrypto:                   { build: package }
-  - WebVTT:                      { build: package }
 
 # Named collections. Selecting a group builds its members in `all` order.
 # Any name that isn't here is treated as a repo and built with the defaults.
@@ -133,10 +134,15 @@ groups:
     - TaskSchedulingAPI
     - TouchEvents
     - w3c-indexeddb
-    - webrtc
-  w3c2:
     - WebAuthentication
     - WebBluetooth
     - WebCodecs
     - WebCrypto
+    - webgpu
+    - WebMIDI
+    - WebLocks
+    - webrtc
+    - WebSerial
+    - WebSpeech
+    - WebUSB
     - WebVTT
