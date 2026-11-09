@@ -89,6 +89,11 @@ all:
   - WebSpeech:                   { build: package }
   - slickgrid:                   { build: package }
   - topojson:                    { build: package }
+  - WebAuthentication:           { build: package }
+  - WebBluetooth:                { build: package }
+  - WebCodecs:                   { build: package }
+  - WebCrypto:                   { build: package }
+  - WebVTT:                      { build: package }
 
 # Named collections. Selecting a group builds its members in `all` order.
 # Any name that isn't here is treated as a repo and built with the defaults.
@@ -98,4 +103,40 @@ groups:
   elmish:    [react, elmish, elmish.react]
   fluent:    [fluentui-react-icons, fluentui-react-components]
   capacitor: [Capacitor, capacitor.community, Capacitor.CapGo]
-  w3c:       [BackgroundFetch, BatteryStatusAPI, ClipboardAPI, CompressionStreamsAPI, CookieStore, CredentialManagement, DragDropAPI, EncodingAPI, EncryptedMediaExtensionsAPI, FileSystemAPI, GamepadAPI, Geolocation, HoudiniAPI, IntersectionObserverAPI, MediaCapabilities, MediaSession, NetworkInformationAPI, NotificationsAPI, PaymentRequest, PerformanceAPI, Permissions, PictureInPictureAPI, PopoverAPI, PushAPI, ScreenWakeLockAPI, ServiceWorker, TaskSchedulingAPI, TouchEvents, w3c-indexeddb, webrtc]
+  w3c:
+    - BackgroundFetch
+    - BatteryStatusAPI
+    - ClipboardAPI
+    - CompressionStreamsAPI
+    - CookieStore
+    - CredentialManagement
+    - DragDropAPI
+    - EncodingAPI
+    - EncryptedMediaExtensionsAPI
+    - FileSystemAPI
+    - GamepadAPI
+    - Geolocation
+    - HoudiniAPI
+    - IntersectionObserverAPI
+    - MediaCapabilities
+    - MediaSession
+    - NetworkInformationAPI
+    - NotificationsAPI
+    - PaymentRequest
+    - PerformanceAPI
+    - Permissions
+    - PictureInPictureAPI
+    - PopoverAPI
+    - PushAPI
+    - ScreenWakeLockAPI
+    - ServiceWorker
+    - TaskSchedulingAPI
+    - TouchEvents
+    - w3c-indexeddb
+    - webrtc
+  w3c2:
+    - WebAuthentication
+    - WebBluetooth
+    - WebCodecs
+    - WebCrypto
+    - WebVTT
