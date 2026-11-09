@@ -20,7 +20,7 @@ and MessageEmbed =
     }
 
 let hookurl = System.Environment.GetEnvironmentVariable "DISCORD_PACKAGE_FEED"
-
+let contentHeader = "## Released to GitHub:\n"
 let packages =
     System.IO.Directory.EnumerateFiles("./localnuget")
     |> Seq.map (fun f ->
@@ -32,14 +32,26 @@ let packages =
         let version = splitByDots[len-4..] |> String.concat "."
         sprintf "- %s %s [[ link ]](<https://github.com/dotnet-websharper/core/pkgs/nuget/%s>)" name version name
     )
-    |> Seq.chunkBySize 20
-    |> Seq.map (String.concat "\n")
-
+    // Messages needs to be chunked by 2000 characters, as that's the discord limit
+    |> Seq.fold (fun packageChunk packageString ->
+        match packageChunk with
+        | [] -> [packageString + "\n"]
+        | x::xs ->
+            if (x + packageString + "\n").Length < 2000 - contentHeader.Length then
+                [x + packageString + "\n"] @ xs
+            else
+                [
+                    packageString + "\n"
+                    x
+                    yield! xs
+                ]
+    ) []
+    
 let client = new HttpClient()
 
 let message (packages: string): Message =
     {
-        content = sprintf "## Released to GitHub:\n%s" packages
+        content = sprintf "%s%s" contentHeader packages
         username = "IntelliFactory CI"
         avatar_url = "https://raw.githubusercontent.com/dotnet-websharper/core/refs/heads/master/tools/WebSharper.png"
         tts = false
@@ -47,7 +59,8 @@ let message (packages: string): Message =
     }
 
 async {
-    for pString in packages do
+    // Reorder the packages backwards to be true to the alphabetical ordering
+    for pString in (packages |> List.rev) do
         let serializedMessage = JsonSerializer.Serialize (message pString)
         printfn "%s" serializedMessage
         use content = new StringContent(serializedMessage, Encoding.UTF8, "application/json")
