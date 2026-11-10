@@ -1,12 +1,14 @@
+#load "common_helpers.fsx"
+open Common_helpers
+
 System.IO.Directory.EnumerateFiles("./localnuget")
 |> Seq.map (fun f ->
-    let file = System.IO.FileInfo(f)
-    let filename = file.Name.Replace(".nupkg", "")
-    let splitByDots = filename.Split([|'.'|])
-    let len = splitByDots.Length
-    let name = splitByDots[0..len-5] |> String.concat "."
-    let version = splitByDots[len-4..] |> String.concat "."
-    sprintf "| %s | %s |" name version
+    let filename = System.IO.FileInfo(f).Name
+    match Package.parseNuGetPackageFileName filename with
+    | None ->
+        failwithf "Failed to parse package version for %s" filename
+    | Some (packageName, version) ->
+        sprintf "| %s | %s |" packageName version
 )
 |> String.concat "\n"
 |> printfn "%s"
