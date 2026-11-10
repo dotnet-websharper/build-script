@@ -36,6 +36,8 @@ all:
   - mathjax
   - elmish:          { build: wsbuild, commit: false, tag: false }
   - elmish.react
+  #
+  - ace
   - sweetalert
   - remarkable
   - jspdf
