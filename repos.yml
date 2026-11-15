@@ -106,6 +106,7 @@ all:
   - cytoscape:                   { build: package }
   - GoldenLayout:                { build: package }
   - FullCalendar:                { build: package }
+  - tinymce:                     { build: package }
   - babylonjs:                   { build: package }
   - dayjs:                       { build: release }
   - glmatrix:                    { build: release }
