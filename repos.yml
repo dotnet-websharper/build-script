@@ -105,6 +105,7 @@ all:
   - cytoscape:                   { build: package }
   - GoldenLayout:                { build: package }
   - babylonjs:                   { build: package }
+  - threejs:                     { build: package }
 
 # Named collections. Selecting a group builds its members in `all` order.
 # Any name that isn't here is treated as a repo and built with the defaults.
