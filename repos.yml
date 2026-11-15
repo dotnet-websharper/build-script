@@ -105,7 +105,11 @@ all:
   - cytoscape:                   { build: package }
   - GoldenLayout:                { build: package }
   - babylonjs:                   { build: package }
-
+  - dayjs:                       { build: release }
+  - glmatrix:                    { build: release }
+  - threejs:                     { build: release }
+  - swiper:                      { build: release }
+  
 # Named collections. Selecting a group builds its members in `all` order.
 # Any name that isn't here is treated as a repo and built with the defaults.
 groups:
