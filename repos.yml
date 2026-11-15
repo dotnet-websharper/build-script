@@ -102,7 +102,7 @@ all:
   - CodeMirror:                  { build: package }
   - slickgrid:                   { build: package }
   - topojson:                    { build: package }
-  - GoldenLayout                 { build: package }
+  - GoldenLayout:                { build: package }
 
 # Named collections. Selecting a group builds its members in `all` order.
 # Any name that isn't here is treated as a repo and built with the defaults.
