@@ -108,6 +108,7 @@ all:
   - FullCalendar:                { build: package }
   - tinymce:                     { build: package }
   - babylonjs:                   { build: package }
+  - pouchdb:                    { build: package }
   - dayjs:                       { build: release }
   - glmatrix:                    { build: release }
   - threejs:                     { build: release }
