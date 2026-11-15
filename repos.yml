@@ -24,7 +24,6 @@ all:
   - mvu
   - leaflet
   - d3
-  - react
   - signalr
   - datefns
   - moment
@@ -34,14 +33,21 @@ all:
   - highcharts
   - highlightjs
   - mathjax
-  - elmish:          { build: wsbuild, commit: false, tag: false }
-  - elmish.react
   #
   - ace
   - sweetalert
   - remarkable
   - jspdf
   - animejs
+
+  # React
+  - react
+  - elmish:          { build: wsbuild, commit: false, tag: false }
+  - elmish.react
+  # FluentUI
+  - fluentui-react-icons
+  - fluentui-react-components
+
   # W3C browser-API bindings (select with the `w3c` group).
   - BackgroundFetch:             { build: package }
   - BatteryStatusAPI:            { build: package }
@@ -84,19 +90,19 @@ all:
   - WebCrypto:                   { build: package }
   - WebSpeech:                   { build: package }
   - WebVTT:                      { build: package }
-  #
-  - fluentui-react-icons
-  - fluentui-react-components
-  - fable-browser
+  #  - fable-browser
   - WebSharper.FsLexYacc.Runtime
-  - WebSharper.Fable.Mocha:      { build: package }
-  - WebSharper.Feliz:            { build: package, commit: false, tag: false }
+  #  - WebSharper.Fable.Mocha:      { build: package }
+  #  - WebSharper.Feliz:            { build: package, commit: false, tag: false }
+  # Mobile  
   - Capacitor:                   { build: package }
   - capacitor.community:         { build: package }
   - Capacitor.CapGo:             { build: package }
+  #
   - CodeMirror:                  { build: package }
   - slickgrid:                   { build: package }
   - topojson:                    { build: package }
+  - GoldenLayout                 { build: package }
 
 # Named collections. Selecting a group builds its members in `all` order.
 # Any name that isn't here is treated as a repo and built with the defaults.
@@ -104,7 +110,7 @@ groups:
   core:      [core, ui, templates]
   ui:        [ui, templates]
   elmish:    [react, elmish, elmish.react]
-  fluent:    [fluentui-react-icons, fluentui-react-components]
+  fluentui:  [fluentui-react-icons, fluentui-react-components]
   capacitor: [Capacitor, capacitor.community, Capacitor.CapGo]
   w3c:
     - BackgroundFetch
