@@ -104,6 +104,7 @@ all:
   - topojson:                    { build: package }
   - cytoscape:                   { build: package }
   - GoldenLayout:                { build: package }
+  - FullCalendar:                { build: package }
   - babylonjs:                   { build: package }
   - dayjs:                       { build: release }
   - glmatrix:                    { build: release }
