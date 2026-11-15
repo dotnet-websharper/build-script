@@ -102,6 +102,7 @@ all:
   - CodeMirror:                  { build: package }
   - slickgrid:                   { build: package }
   - topojson:                    { build: package }
+  - cytoscape:                   { build: package }
   - GoldenLayout:                { build: package }
 
 # Named collections. Selecting a group builds its members in `all` order.
