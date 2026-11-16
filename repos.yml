@@ -111,6 +111,7 @@ all:
   - dayjs:                       { build: package }
   - glmatrix:                    { build: package }
   - threejs:                     { build: package }
+  - TensorFlowJs:                { build: package }
   - swiper:                      { build: package }
   - sortablejs:                  { build: package }
   - JQuery.Terminal:             { build: package }
