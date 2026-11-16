@@ -1,4 +1,10 @@
+# Usage: test-templates.sh <dotnet version> [<templates version>] [<booster: true|false>]
+# booster=true installs the WebSharper.FSharp.Booster and WebSharper.CSharp.Booster tools in a tool manifest,
+# and checks that the build used them; otherwise it checks that the build used the portable compilers.
 set -e
+set -o pipefail
+
+booster="${3:-false}"
 
 dotnet --list-sdks
 
@@ -70,6 +76,39 @@ dotnet sln add Fs.Prx/Fs.Prx.fsproj
 dotnet new websharper-prx -o Cs.Prx -lang c#
 dotnet sln add Cs.Prx/Cs.Prx.csproj
 
-dotnet build -v d
+if [ "$booster" = "true" ]; then
+  # the Booster tools must have exactly the version of the WebSharper packages the templates reference
+  dotnet restore
+  wsversion=$(dotnet msbuild Fs.Lib/Fs.Lib.fsproj -getProperty:WebSharperCompilerVersion)
+  if [ -z "$wsversion" ]; then
+    echo "WebSharperCompilerVersion is not set by the WebSharper.FSharp package"
+    exit 1
+  fi
+  echo "Installing the Booster tools $wsversion"
+  dotnet new tool-manifest
+  dotnet tool install WebSharper.FSharp.Booster --version "$wsversion"
+  dotnet tool install WebSharper.CSharp.Booster --version "$wsversion"
+fi
+
+dotnet build -v d 2>&1 | tee build.log
+
+# the WebSharper task logs which compiler it runs
+if [ "$booster" = "true" ]; then
+  expected=("Using the WebSharper.FSharp.Booster" "Using the WebSharper.CSharp.Booster")
+else
+  expected=("Using the portable WebSharper compiler: no tool manifest lists WebSharper.FSharp.Booster" "Using the portable WebSharper compiler: no tool manifest lists WebSharper.CSharp.Booster")
+fi
+for e in "${expected[@]}"; do
+  if ! grep -q "$e" build.log; then
+    echo "Expected in the build log: $e"
+    exit 1
+  fi
+done
+if grep -q "WSB910[12]" build.log; then
+  echo "Booster tool warnings in the build log:"
+  grep "WSB910[12]" build.log
+  exit 1
+fi
+echo "Build used the expected compilers (booster=$booster)"
 
 dotnet fsi ../test-templates.fsx

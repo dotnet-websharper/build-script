@@ -15,13 +15,20 @@ on:
 jobs:
   test:
 
+    name: ${{ matrix.os }}, ${{ matrix.booster && 'Booster tools' || 'portable compiler' }}
+
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
       fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
-          
+        # true: installs the WebSharper.FSharp.Booster and WebSharper.CSharp.Booster .NET tools (the ReadyToRun
+        # compilers for the runner's platform, SDK 10+) in a tool manifest at the version of the templates,
+        # false: the portable compilers of the WebSharper.FSharp and WebSharper.CSharp packages.
+        # Both build through the wsfscservice booster process.
+        booster: [false, true]
+
     steps:
     
     - name: Setup .NET
@@ -45,5 +52,5 @@ jobs:
     - name: Create and build WS Templates
       run: |
         chmod +x ./test-templates.sh
-        ./test-templates.sh "${{ github.event.inputs.dotnetVersion }}" "${{ github.event.inputs.nugetversion }}"
+        ./test-templates.sh "${{ github.event.inputs.dotnetVersion }}" "${{ github.event.inputs.nugetversion }}" "${{ matrix.booster }}"
       shell: bash
