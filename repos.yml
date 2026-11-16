@@ -77,7 +77,6 @@ all:
   - ServiceWorker:               { build: package }
   - TaskSchedulingAPI:           { build: package }
   - TouchEvents:                 { build: package }
-  - SortableJs:                  { build: package }
   - w3c-indexeddb
   - webrtc
   - webgpu:                      { build: package }
@@ -108,12 +107,15 @@ all:
   - FullCalendar:                { build: package }
   - tinymce:                     { build: package }
   - babylonjs:                   { build: package }
-  - pouchdb:                    { build: package }
-  - dayjs:                       { build: release }
-  - glmatrix:                    { build: release }
-  - threejs:                     { build: release }
-  - swiper:                      { build: release }
-  
+  - pouchdb:                     { build: package }
+  - dayjs:                       { build: package }
+  - glmatrix:                    { build: package }
+  - threejs:                     { build: package }
+  - swiper:                      { build: package }
+  - sortablejs:                  { build: package }
+  - JQuery.Terminal:             { build: package }
+  - js-cookie:                   { build: package }
+
 # Named collections. Selecting a group builds its members in `all` order.
 # Any name that isn't here is treated as a repo and built with the defaults.
 groups:
