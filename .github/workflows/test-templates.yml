@@ -11,17 +11,31 @@ on:
         description: 'Select .NET SDK version'
         required: false
         default: '11.0.x'
+      dotnetWsRef:
+        description: 'dotnet-ws branch, tag or commit to test with the templates (empty: skip the dotnet ws checks)'
+        required: false
+        default: ''
 
 jobs:
   test:
 
+    name: ${{ matrix.os }}, ${{ matrix.booster && 'Booster tools' || 'portable compiler' }}
+
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
-          
+        # one runner per Booster platform GitHub hosts: win-x64, win-arm64, linux-x64, linux-arm64,
+        # osx-arm64 (macos-latest), osx-x64 (macos-15-intel). The linux-musl platforms are not covered:
+        # JavaScript actions such as setup-dotnet don't run in Alpine containers.
+        os: [windows-latest, windows-11-arm, ubuntu-latest, ubuntu-24.04-arm, macos-latest, macos-15-intel]
+        # true: installs the WebSharper.FSharp.Booster and WebSharper.CSharp.Booster .NET tools (the ReadyToRun
+        # compilers for the runner's platform, SDK 10+) in a tool manifest at the version of the templates,
+        # false: the portable compilers of the WebSharper.FSharp and WebSharper.CSharp packages.
+        # Both build through the wsfscservice booster process.
+        booster: [false, true]
+
     steps:
     
     - name: Setup .NET
@@ -42,8 +56,25 @@ jobs:
     - name: Check out build-script
       uses: actions/checkout@v2
 
+    - name: Check out dotnet-ws
+      if: ${{ github.event.inputs.dotnetWsRef != '' }}
+      uses: actions/checkout@v4
+      with:
+        repository: dotnet-websharper/dotnet-ws
+        ref: ${{ github.event.inputs.dotnetWsRef }}
+        path: dotnet-ws-src
+
+    - name: Pack dotnet-ws
+      if: ${{ github.event.inputs.dotnetWsRef != '' }}
+      run: dotnet pack dotnet-ws-src/dotnet-ws.fsproj -c Release -o "${{ github.workspace }}/dotnet-ws-pkg" -p:Version=0.0.0-ci.${{ github.run_number }}
+      shell: bash
+
     - name: Create and build WS Templates
       run: |
         chmod +x ./test-templates.sh
-        ./test-templates.sh "${{ github.event.inputs.dotnetVersion }}" "${{ github.event.inputs.nugetversion }}"
+        dotnetws=""
+        if [ -n "${{ github.event.inputs.dotnetWsRef }}" ]; then
+          dotnetws="${{ github.workspace }}/dotnet-ws-pkg:0.0.0-ci.${{ github.run_number }}"
+        fi
+        ./test-templates.sh "${{ github.event.inputs.dotnetVersion }}" "${{ github.event.inputs.nugetversion }}" "${{ matrix.booster }}" "$dotnetws"
       shell: bash

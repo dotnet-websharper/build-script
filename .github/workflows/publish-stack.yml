@@ -56,10 +56,17 @@ jobs:
       shell: bash
 
     - name: Push to NuGet
-      run:
-        dotnet nuget push *.nupkg
-          --api-key ${{steps.login.outputs.NUGET_API_KEY}}
-          --source https://api.nuget.org/v3/index.json
-          --skip-duplicate
-          --timeout 1800
+      shell: pwsh
+      run: |
+        $PSNativeCommandUseErrorActionPreference = $true
+        # RID-specific tools: the platform packages (WebSharper.*.Booster.<rid>) before the packages pointing to them
+        foreach ($pattern in @('*.Booster.*-x64.*.nupkg', '*.Booster.*-arm64.*.nupkg', '*.nupkg')) {
+          if (Test-Path $pattern) {
+            dotnet nuget push $pattern `
+              --api-key ${{steps.login.outputs.NUGET_API_KEY}} `
+              --source https://api.nuget.org/v3/index.json `
+              --skip-duplicate `
+              --timeout 1800
+          }
+        }
       working-directory: ./Packages
