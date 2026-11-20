@@ -145,6 +145,7 @@ jobs:
             commit           = if ($over.Contains('commit')) { [bool]$over['commit'] } else { [bool]$cfg.defaults.commit }
             tag              = if ($over.Contains('tag'))    { [bool]$over['tag'] }    else { [bool]$cfg.defaults.tag }
             skipWhenCoreOnly = [bool]($over.Contains('skipWhenCoreOnly') -and $over['skipWhenCoreOnly'])
+            private          = [bool]($over.Contains('private') -and $over['private'])
           }
         }
 
@@ -199,6 +200,27 @@ jobs:
           Write-Host "::endgroup::"
         }
 
+    # Packages of private repos (their nuget/*.paket.template ids) leave ./localnuget before anything lists, uploads
+    # or publishes it: they go only to the GitHub feed, where they are private with their repo.
+    - name: Separate private packages
+      # always: the artifact upload below runs even when a build failed
+      if: always() && steps.resolve.outputs.count != '0'
+      shell: pwsh
+      run: |
+        $PSNativeCommandUseErrorActionPreference = $true
+        New-Item -ItemType Directory -Force -Path ./privatenuget | Out-Null
+        foreach ($t in @(Get-Content ./targets.json -Raw | ConvertFrom-Json | Where-Object { $_.private })) {
+          $templates = @(Get-ChildItem -Path $t.name -Recurse -Filter *.paket.template -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -notmatch '[\\/](paket-files|packages)[\\/]' })
+          foreach ($tpl in $templates) {
+            foreach ($id in @(Select-String -Path $tpl.FullName -Pattern '^id\s+(\S+)' | ForEach-Object { $_.Matches[0].Groups[1].Value })) {
+              foreach ($pkg in @(Get-ChildItem ./localnuget -Filter "$id.*.nupkg" | Where-Object { $_.Name -match ('^' + [regex]::Escape($id) + '\.\d') })) {
+                Write-Host "Private package of $($t.name): $($pkg.Name)"
+                Move-Item $pkg.FullName ./privatenuget/
+              }
+            }
+          }
+        }
     - name: Packages
       shell: bash
       run: |
@@ -226,6 +248,18 @@ jobs:
           --source github `
           --skip-duplicate
 
+    - name: Publish private NuGet packages to GitHub registry
+      shell: pwsh
+      run: |
+        $PSNativeCommandUseErrorActionPreference = $true
+        $pkgs = @(Get-ChildItem ./privatenuget -Filter *.nupkg -ErrorAction SilentlyContinue)
+        foreach ($pkg in $pkgs) {
+          dotnet nuget push $pkg.FullName `
+            --api-key ${{ secrets.PAT_PACKAGE }} `
+            --source github `
+            --skip-duplicate
+        }
+        Write-Host "$($pkgs.Count) private package(s) published"
     - name: Push packages as artifact
       if: always()
       uses: actions/upload-artifact@v4
@@ -236,7 +270,7 @@ jobs:
     - name: Clean ./localnuget
       if: always()
       shell: pwsh
-      run: Remove-Item -Recurse -Force ./localnuget -ErrorAction SilentlyContinue
+      run: Remove-Item -Recurse -Force ./localnuget, ./privatenuget -ErrorAction SilentlyContinue
 
     - name: Commit + tag versions
       if: steps.resolve.outputs.count != '0'
