@@ -11,6 +11,10 @@ on:
         description: 'Select .NET SDK version'
         required: false
         default: '11.0.x'
+      dotnetWsRef:
+        description: 'dotnet-ws branch, tag or commit to test with the templates (empty: skip the dotnet ws checks)'
+        required: false
+        default: ''
 
 jobs:
   test:
@@ -52,8 +56,25 @@ jobs:
     - name: Check out build-script
       uses: actions/checkout@v2
 
+    - name: Check out dotnet-ws
+      if: ${{ github.event.inputs.dotnetWsRef != '' }}
+      uses: actions/checkout@v4
+      with:
+        repository: dotnet-websharper/dotnet-ws
+        ref: ${{ github.event.inputs.dotnetWsRef }}
+        path: dotnet-ws-src
+
+    - name: Pack dotnet-ws
+      if: ${{ github.event.inputs.dotnetWsRef != '' }}
+      run: dotnet pack dotnet-ws-src/dotnet-ws.fsproj -c Release -o "${{ github.workspace }}/dotnet-ws-pkg" /p:Version=0.0.0-ci.${{ github.run_number }}
+      shell: bash
+
     - name: Create and build WS Templates
       run: |
         chmod +x ./test-templates.sh
-        ./test-templates.sh "${{ github.event.inputs.dotnetVersion }}" "${{ github.event.inputs.nugetversion }}" "${{ matrix.booster }}"
+        dotnetws=""
+        if [ -n "${{ github.event.inputs.dotnetWsRef }}" ]; then
+          dotnetws="${{ github.workspace }}/dotnet-ws-pkg:0.0.0-ci.${{ github.run_number }}"
+        fi
+        ./test-templates.sh "${{ github.event.inputs.dotnetVersion }}" "${{ github.event.inputs.nugetversion }}" "${{ matrix.booster }}" "$dotnetws"
       shell: bash
