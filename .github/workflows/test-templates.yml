@@ -66,7 +66,7 @@ jobs:
 
     - name: Pack dotnet-ws
       if: ${{ github.event.inputs.dotnetWsRef != '' }}
-      run: dotnet pack dotnet-ws-src/dotnet-ws.fsproj -c Release -o "${{ github.workspace }}/dotnet-ws-pkg" /p:Version=0.0.0-ci.${{ github.run_number }}
+      run: dotnet pack dotnet-ws-src/dotnet-ws.fsproj -c Release -o "${{ github.workspace }}/dotnet-ws-pkg" -p:Version=0.0.0-ci.${{ github.run_number }}
       shell: bash
 
     - name: Create and build WS Templates
