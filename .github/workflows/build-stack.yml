@@ -221,10 +221,15 @@ jobs:
       working-directory: ./localnuget
       run: |
         $PSNativeCommandUseErrorActionPreference = $true
-        dotnet nuget push *.nupkg `
-          --api-key ${{ secrets.PAT_PACKAGE }} `
-          --source github `
-          --skip-duplicate
+        # RID-specific tools: the platform packages (WebSharper.*.Booster.<rid>) before the packages pointing to them
+        foreach ($pattern in @('*.Booster.*-x64.*.nupkg', '*.Booster.*-arm64.*.nupkg', '*.nupkg')) {
+          if (Test-Path $pattern) {
+            dotnet nuget push $pattern `
+              --api-key ${{ secrets.PAT_PACKAGE }} `
+              --source github `
+              --skip-duplicate
+          }
+        }
 
     - name: Push packages as artifact
       if: always()
