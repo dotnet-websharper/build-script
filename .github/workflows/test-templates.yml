@@ -39,7 +39,7 @@ jobs:
     steps:
     
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-quality: preview
         dotnet-version: ${{ github.event.inputs.dotnetVersion }}
@@ -54,11 +54,11 @@ jobs:
           --store-password-in-clear-text
 
     - name: Check out build-script
-      uses: actions/checkout@v2
+      uses: actions/checkout@v7
 
     - name: Check out dotnet-ws
       if: ${{ github.event.inputs.dotnetWsRef != '' }}
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         repository: dotnet-websharper/dotnet-ws
         ref: ${{ github.event.inputs.dotnetWsRef }}

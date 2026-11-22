@@ -75,7 +75,7 @@ jobs:
       INCREASE_PATCH_VERSION: 'false'
     steps:
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-quality: preview
           dotnet-version: |
@@ -110,7 +110,7 @@ jobs:
           git config --global user.name "IntelliFactory CI"
 
       - name: Check out WS Core
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: dotnet-websharper/core
           ref: ${{ matrix.which == 'baseline' && github.event.inputs.baselineBranch || github.event.inputs.branch || github.ref_name }}
@@ -133,7 +133,7 @@ jobs:
         working-directory: ./core
 
       - name: Check out WS.UI
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: dotnet-websharper/ui
           ref: ${{ github.event.inputs.uiBranch }}
@@ -146,7 +146,7 @@ jobs:
         working-directory: ./ui
 
       - name: Check out WS.Templates
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: dotnet-websharper/templates
           ref: ${{ github.event.inputs.templatesBranch }}
@@ -169,7 +169,7 @@ jobs:
           fi
 
       - name: Upload local packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: localnuget-${{ matrix.which }}
           path: ./localnuget
@@ -186,7 +186,7 @@ jobs:
         which: ${{ fromJSON(needs.setup.outputs.which) }}
     steps:
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: ${{ github.event.inputs.dotnetVersion }}
 
@@ -194,19 +194,19 @@ jobs:
         run: npm i -g esbuild
 
       - name: Check out build scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # --- build mode: consume the freshly built packages from the build job ---
       - name: Download local packages
         if: ${{ needs.setup.outputs.mode == 'build' }}
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: localnuget-${{ matrix.which }}
           path: ./localnuget
 
       - name: Download baseline identity
         if: ${{ needs.setup.outputs.mode == 'build' && matrix.which == 'branch' && needs.setup.outputs.hasBaseline == 'true' }}
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: localnuget-baseline
           path: ./localnuget-baseline
@@ -283,14 +283,14 @@ jobs:
             --run-id "${{ github.run_id }}"
 
       - name: Upload raw logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: perf-logs-${{ matrix.os }}-${{ matrix.which }}
           path: ./perf-out/logs
 
       - name: Upload results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: perf-results-${{ matrix.os }}-${{ matrix.which }}
@@ -301,10 +301,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out build scripts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Download benchmark results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: perf-results-*
           path: ./perf-results

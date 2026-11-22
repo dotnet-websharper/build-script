@@ -14,12 +14,12 @@ jobs:
     steps:
     
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: 8.0.x
         
     - name: Check out build-script
-      uses: actions/checkout@v2
+      uses: actions/checkout@v7
 
     - name: Run CDN Publisher
       run: dotnet fsi Publisher.fsx
