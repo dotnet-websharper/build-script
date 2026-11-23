@@ -214,7 +214,7 @@ jobs:
             Where-Object { $_.FullName -notmatch '[\\/](paket-files|packages)[\\/]' })
           foreach ($tpl in $templates) {
             foreach ($id in @(Select-String -Path $tpl.FullName -Pattern '^id\s+(\S+)' | ForEach-Object { $_.Matches[0].Groups[1].Value })) {
-              foreach ($pkg in @(Get-ChildItem ./localnuget -Filter "$id.*.nupkg" | Where-Object { $_.Name -match ('^' + [regex]::Escape($id) + '\.\d') })) {
+              foreach ($pkg in @(Get-ChildItem ./localnuget -Filter "$id.*.nupkg" -ErrorAction SilentlyContinue | Where-Object { $_.Name -match ('^' + [regex]::Escape($id) + '\.\d') })) {
                 Write-Host "Private package of $($t.name): $($pkg.Name)"
                 Move-Item $pkg.FullName ./privatenuget/
               }
