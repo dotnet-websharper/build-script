@@ -200,7 +200,7 @@ jobs:
           Write-Host "::endgroup::"
         }
 
-    # Packages of private repos (their nuget/*.paket.template ids) leave ./localnuget before anything lists, uploads
+    # Packages of private repos (the ids of their *.paket.template files, generated ones included) leave ./localnuget before anything lists, uploads
     # or publishes it: they go only to the GitHub feed, where they are private with their repo.
     - name: Separate private packages
       # always: the artifact upload below runs even when a build failed
