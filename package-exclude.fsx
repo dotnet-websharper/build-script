@@ -2,7 +2,7 @@ open System.IO
 
 /// Packages that are never published to nuget.org, whatever the exclude input says: the private ones, which the
 /// build workflow already keeps out of the Packages artifact (repos.yml `private: true`).
-let alwaysExcluded = [ "WebSharper.Booster.Pro." ]
+let alwaysExcluded = [ "WebSharper.FSharp.Booster.Pro."; "WebSharper.CSharp.Booster.Pro."; "WebSharper.Booster.Pro." ]
 
 let exclude =
     let fromInput =
