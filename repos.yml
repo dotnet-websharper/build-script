@@ -122,7 +122,9 @@ all:
 # Named collections. Selecting a group builds its members in `all` order.
 # Any name that isn't here is treated as a repo and built with the defaults.
 groups:
-  core:      [core, booster-pro, ui, templates]
+  # booster-pro is WS11-only (it has no websharper100 branch), so it is not in
+  # the core group on this line.
+  core:      [core, ui, templates]
   ui:        [ui, templates]
   elmish:    [react, elmish, elmish.react]
   fluentui:  [fluentui-react-icons, fluentui-react-components]
