@@ -38,17 +38,36 @@ let parseNuGetPackageFileName (fileName: string) =
         Some (packageName, versionString)
 
 let hookurl = System.Environment.GetEnvironmentVariable "DISCORD_PACKAGE_FEED"
-let contentHeader = "## Released to GitHub:\n"
+
+/// Usage: dotnet fsi ./notification-helper.fsx [github|nuget] [packageFolder]
+/// `github` (the default, build-stack.yml) lists ./localnuget as released to the GitHub feed;
+/// `nuget` (publish-stack.yml) lists ./Packages as released to nuget.org.
+let target =
+    if fsi.CommandLineArgs.Length > 1 then fsi.CommandLineArgs.[1].ToLowerInvariant() else "github"
+
+let contentHeader, defaultFolder, packageLink =
+    match target with
+    | "github" ->
+        "## Released to GitHub:\n", "./localnuget",
+        fun (name: string) (_: string) -> sprintf "https://github.com/dotnet-websharper/core/pkgs/nuget/%s" name
+    | "nuget" ->
+        "## Released to NuGet:\n", "./Packages",
+        fun (name: string) (version: string) -> sprintf "https://www.nuget.org/packages/%s/%s" name version
+    | t -> failwithf "Unknown notification target '%s' (expected github or nuget)" t
+
+let folder =
+    if fsi.CommandLineArgs.Length > 2 then fsi.CommandLineArgs.[2] else defaultFolder
 
 let packages =
-    System.IO.Directory.EnumerateFiles("./localnuget")
+    System.IO.Directory.EnumerateFiles(folder, "*.nupkg")
+    |> Seq.sort
     |> Seq.map (fun f ->
         let filename = System.IO.FileInfo(f).Name
         match parseNuGetPackageFileName filename with
         | None ->
             failwithf "Failed to parse package version for %s" filename
         | Some (packageName, version) ->
-            sprintf "- %s %s [[ link ]](<https://github.com/dotnet-websharper/core/pkgs/nuget/%s>)" packageName version packageName
+            sprintf "- %s %s [[ link ]](<%s>)" packageName version (packageLink packageName version)
     )
     // Messages needs to be chunked by 2000 characters, as that's the discord limit
     |> Seq.fold (fun packageChunk packageString ->

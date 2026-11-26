@@ -27,6 +27,7 @@ jobs:
       with:
         sparse-checkout: |
           package-exclude.fsx
+          notification-helper.fsx
         sparse-checkout-cone-mode: false
 
     - name: Setup .NET
@@ -70,3 +71,11 @@ jobs:
           }
         }
       working-directory: ./Packages
+
+    - name: Notification
+      # the packages are already on nuget.org at this point; a Discord hiccup should not fail the run
+      continue-on-error: true
+      shell: bash
+      env:
+        DISCORD_PACKAGE_FEED: ${{ secrets.DISCORD_PACKAGE_FEED }}
+      run: dotnet fsi ./notification-helper.fsx nuget ./Packages
