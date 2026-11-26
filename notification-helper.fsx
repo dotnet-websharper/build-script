@@ -86,9 +86,9 @@ let packages =
 
 let client = new HttpClient()
 
-let message (packages: string): Message =
+let message (header: string) (packages: string): Message =
     {
-        content = sprintf "%s%s" contentHeader packages
+        content = header + packages
         username = "IntelliFactory CI"
         avatar_url = "https://raw.githubusercontent.com/dotnet-websharper/core/refs/heads/master/tools/WebSharper.png"
         tts = false
@@ -97,8 +97,10 @@ let message (packages: string): Message =
 
 async {
     // Reorder the packages backwards to be true to the alphabetical ordering
-    for pString in (packages |> List.rev) do
-        let serializedMessage = JsonSerializer.Serialize (message pString)
+    // Only the first message carries the header; the rest continue the list
+    for i, pString in (packages |> List.rev |> List.indexed) do
+        let header = if i = 0 then contentHeader else ""
+        let serializedMessage = JsonSerializer.Serialize (message header pString)
         printfn "%s" serializedMessage
         use content = new StringContent(serializedMessage, Encoding.UTF8, "application/json")
         let! response = client.PostAsync(hookurl, content) |> Async.AwaitTask
