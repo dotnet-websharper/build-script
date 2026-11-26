@@ -93,7 +93,7 @@ all:
   - WebSpeech:                   { build: package }
   - WebVTT:                      { build: package }
   #  - fable-browser
-  - WebSharper.FsLexYacc.Runtime
+  - FsLexYacc.Runtime
   #  - WebSharper.Fable.Mocha:      { build: package }
   #  - WebSharper.Feliz:            { build: package, commit: false, tag: false }
   # Mobile  
