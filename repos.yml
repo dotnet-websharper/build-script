@@ -74,9 +74,10 @@ all:
   - Permissions:                 { build: package }
   - PictureInPictureAPI:         { build: package }
   - PopoverAPI:                  { build: package }
+  # Note: ServiceWorker has to be before PushAPI
+  - ServiceWorker:               { build: package }
   - PushAPI:                     { build: package }
   - ScreenWakeLockAPI:           { build: package }
-  - ServiceWorker:               { build: package }
   - TaskSchedulingAPI:           { build: package }
   - TouchEvents:                 { build: package }
   - w3c-indexeddb
