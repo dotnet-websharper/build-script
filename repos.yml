@@ -44,8 +44,8 @@ all:
 
   # React
   - react
-  - elmish:          { build: wsbuild, commit: false, tag: false }
-  - elmish.react
+  #- elmish:          { build: wsbuild, commit: false, tag: false }
+  #- elmish.react
   # FluentUI
   - fluentui-react-icons
   - fluentui-react-components
